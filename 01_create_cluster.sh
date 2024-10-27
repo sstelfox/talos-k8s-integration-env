@@ -1,36 +1,35 @@
 #!/usr/bin/env sh
 
-launch_cacheing_container_registries() {
-  mkdir -p cached_images/{docker,k8s,gcr,ghcr}
+launch_airgap_cache_registry() {
+  mkdir -p cached_images/airgap
 
-  # Each registry only supports a single upstream so we need to start one for each of the required
-  # upstreams.
-  podman run -d -p 5000:5000 -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io \
-    --read-only --replace --name registry-docker.io --userns keep-id:uid=999,gid=999 \
-    --mount type=bind,src=$(pwd)/cached_images/docker,dst=/var/lib/registry \
-    docker.io/library/registry:2
-
-  podman run -d -p 5001:5000 -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io \
-    --read-only --replace --name registry-registry.k8s.io --userns keep-id:uid=999,gid=999 \
-    --mount type=bind,src=$(pwd)/cached_images/k8s,dst=/var/lib/registry \
-    docker.io/library/registry:2
-
-  podman run -d -p 5003:5000 -e REGISTRY_PROXY_REMOTEURL=https://gcr.io \
-    --read-only --replace --name registry-gcr.io --userns keep-id:uid=999,gid=999 \
-    --mount type=bind,src=$(pwd)/cached_images/gcr,dst=/var/lib/registry \
-    docker.io/library/registry:2
-
-  podman run -d -p 5004:5000 -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io \
-    --read-only --replace --name registry-ghcr.io --userns keep-id:uid=999,gid=999 \
+  podman run -d -p 6000:5000 \
+    --replace --name registry-airgapped \
     --mount type=bind,src=$(pwd)/cached_images/ghcr,dst=/var/lib/registry \
     docker.io/library/registry:2
 }
 
+populate_airgap_cache() {
+  for image in $(talosctl image default); do
+    podman pull ${image}
+
+    local new_image_name
+    new_image_name="$(echo $image | sed -E 's#^[^/]+/#127.0.0.1:6000/#')"
+
+    podman tag ${image} ${new_image_name}
+    podman push ${new_image_name}
+  done
+}
+
 mkdir -p ~/.talos/clusters
 
-launch_cacheing_container_registries
+# The airgap registry is simpler than the cacheing registry...
+launch_airgap_cache_registry
+populate_airgap_cache
 
 sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
     --extra-uefi-search-paths /usr/share/ovmf/x64/ \
-    --registry-mirror docker.io=http://10.5.0.1:5000 --registry-mirror registry.k8s.io=http://10.5.0.1:5001 \
-    --registry-mirror gcr.io=http://10.5.0.1:5003 --registry-mirror ghcr.io=http://10.5.0.1:5004
+    --registry-mirror docker.io=http://10.5.0.1:6000 \
+    --registry-mirror registry.k8s.io=http://10.5.0.1:6000 \
+    --registry-mirror gcr.io=http://10.5.0.1:6000 \
+    --registry-mirror ghcr.io=http://10.5.0.1:6000
