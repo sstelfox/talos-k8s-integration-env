@@ -31,5 +31,6 @@ mkdir -p ~/.talos/clusters
 launch_cacheing_container_registries
 
 sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
+    --extra-uefi-search-paths /usr/share/ovmf/x64/ \
     --registry-mirror docker.io=http://10.5.0.1:5000 --registry-mirror registry.k8s.io=http://10.5.0.1:5001 \
     --registry-mirror gcr.io=http://10.5.0.1:5003 --registry-mirror ghcr.io=http://10.5.0.1:5004
