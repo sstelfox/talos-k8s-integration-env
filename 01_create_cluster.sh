@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -o errexit
+
 launch_airgap_cache_registry() {
   mkdir -p cached_images/airgap
 
@@ -17,7 +19,7 @@ populate_airgap_cache() {
     new_image_name="$(echo $image | sed -E 's#^[^/]+/#127.0.0.1:6000/#')"
 
     podman tag ${image} ${new_image_name}
-    podman push ${new_image_name}
+    podman push --tls-verify=false ${new_image_name}
   done
 }
 
