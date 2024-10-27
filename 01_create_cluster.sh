@@ -34,4 +34,8 @@ sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
     --registry-mirror docker.io=http://10.5.0.1:6000 \
     --registry-mirror registry.k8s.io=http://10.5.0.1:6000 \
     --registry-mirror gcr.io=http://10.5.0.1:6000 \
-    --registry-mirror ghcr.io=http://10.5.0.1:6000
+    --registry-mirror ghcr.io=http://10.5.0.1:6000 \
+    --name firmament-integration --dns-domain firmament-integration.k8s.grayiron.io \
+    --encrypt-ephemeral --encrypt-state --with-tpm2 --with-uefi \
+    --controlplanes 3 --workers 2 \
+    --extra-disks 1 --cpus 4.0 --memory 2048 --memory-workers 4096
