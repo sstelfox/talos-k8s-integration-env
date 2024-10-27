@@ -4,8 +4,11 @@ set -o errexit
 
 mkdir -p ~/.talos/clusters
 
-talosctl gen secrets -o secrets.yaml
-talosctl gen config --with-secrets secrets.yaml firmament-integration https://10.5.0.1:6443
+talosctl gen secrets -o _out/secrets.yaml
+talosctl gen config --with-secrets _out/secrets.yaml \
+  firmament-integration https://10.5.0.1:6443
+
+talosctl machineconfig patch worker.yaml --patch @patch.yaml -o worker1.yaml
 
 #sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
 #  --extra-uefi-search-paths /usr/share/ovmf/x64/ \

@@ -1,11 +1,1 @@
-# Kernel & Initrd image along with other generated artifacts
 /_out/
-
-# Docker image storage, these get pulled down by the install scripts
-/cached_images/
-
-# Cluster specific material w/ sensitive values. Generated during setup
-/secrets.yaml
-/talosconfig
-/worker.yaml
-/controlplane.yaml
