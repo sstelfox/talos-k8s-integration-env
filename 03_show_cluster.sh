@@ -2,3 +2,4 @@
 
 sudo --preserve-env=HOME talosctl cluster show --provisioner qemu --name firmament-integration
 kubectl get nodes -o wide
+talosctl health --nodes 10.5.0.2
