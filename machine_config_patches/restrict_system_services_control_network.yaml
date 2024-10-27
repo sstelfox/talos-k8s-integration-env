@@ -1,0 +1,15 @@
+---
+# Needs to be customized to the network. Even if you're using a single network instead of a split
+# public/private this restriction is a simple and easy addition to ensure this sensitive traffic
+# will only appear on the intended network and acts as iniital sanity check on network creation
+# during cluster initialization.
+version: v1alpha1
+machine:
+  kubelet:
+    nodeIP:
+      validSubnets:
+        - 10.5.0.0/24
+cluster:
+  etcd:
+    advertisedSubnets: # listenSubnets defaults to advertisedSubnets if not set explicitly
+      - 10.5.0.0/24

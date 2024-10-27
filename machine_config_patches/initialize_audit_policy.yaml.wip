@@ -1,3 +1,5 @@
+---
+version: v1alpha1
 machine:
   #seccompProfiles:
   #  - name: audit.json

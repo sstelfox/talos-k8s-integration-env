@@ -1,0 +1,17 @@
+---
+version: v1alpha1
+machine:
+  registries:
+    mirrors:
+      docker.io:
+        endpoints:
+          - http://10.5.0.1:6000/
+      gcr.io:
+        endpoints:
+        - http://10.5.0.1:6000/
+      ghcr.io:
+        endpoints:
+        - http://10.5.0.1:6000/
+      registry.k8s.io:
+        endpoints:
+        - http://10.5.0.1:6000/

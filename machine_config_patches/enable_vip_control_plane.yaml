@@ -1,0 +1,15 @@
+---
+# This patch is for bare metal clusters or clusters where all the control nodes are on the same
+# layer 2 network. It uses ARP announcements to simultaneously allow multiple hosts to act as
+# living endpoints for the control services on a specific chosen IP. This is a minimal way to get
+# HA working on the control plane but BGP should be preferred.
+version: v1alpha1
+machine:
+  network:
+    interfaces:
+      # Not sure if there is a way to indicate "use the primary interface" for this...
+      - interface: enp2s0
+        dhcp: true
+        vip:
+          # This is qemu specific and not really needed for qemu as it seems like the host acts as a load balancer among the controllers. Could be a good reference for the bare-metal cluster.
+          ip: 10.5.0.224
