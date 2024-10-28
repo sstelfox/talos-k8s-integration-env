@@ -7,6 +7,9 @@ worker_patches=""
 # Don't use network time, use the one provided by the VM host
 shared_patches="--config-patch @machine_config_patches/airgapped_time_from_host.yaml ${shared_patches}"
 
+# Basic disk encryption
+shared_patches="--config-patch @machine_config_patches/enable_disk_encryption.yaml ${shared_patches}"
+
 # Redirect all of the registries the system needs to the airgapped self-hosted one
 shared_patches="--config-patch @machine_config_patches/airgapped_registry.yaml ${shared_patches}"
 
