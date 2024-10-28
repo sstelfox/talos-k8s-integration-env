@@ -1,2 +1,4 @@
 /cached_images/
 /_out/
+/worker.yaml
+/controlplane.yaml
