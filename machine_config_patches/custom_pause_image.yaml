@@ -1,0 +1,10 @@
+# This image needs to be available for certain init images to start-up and isn't over-rideable
+# through k8s configuration. This override allows us to use a fully qualified image, and one that
+# can be loaded into a local registry for air-gapped deployments.
+machine:
+  - content: |
+      [plugins]
+      [plugins."io.containerd.cri.v1.images".pinned_images]
+      sandbox = "registry.k8s.io/pause:3.8"
+    path: /etc/cri/conf.d/20-customization.part
+    op: create

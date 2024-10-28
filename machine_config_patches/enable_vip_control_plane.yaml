@@ -7,9 +7,10 @@ version: v1alpha1
 machine:
   network:
     interfaces:
-      # Not sure if there is a way to indicate "use the primary interface" for this...
-      - interface: enp2s0
+      - interface: eth0
         dhcp: true
         vip:
-          # This is qemu specific and not really needed for qemu as it seems like the host acts as a load balancer among the controllers. Could be a good reference for the bare-metal cluster.
+          # This is qemu specific and not really needed for qemu as it seems like the host acts as a
+          # load balancer among the controllers. Could be a good reference for the bare-metal
+          # cluster.
           ip: 10.5.0.224
