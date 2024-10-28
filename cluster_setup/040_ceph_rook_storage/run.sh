@@ -8,7 +8,8 @@ helm install --create-namespace --namespace rook-ceph rook-ceph-cluster --set op
 # This should be done before installing the operator, but the operator creates the namespace. There
 # is probably a way to inject this as a YAML config into the operator installation but I need to
 # identify that.
-kubectl label ns rook-ceph pod-security.kubernetes.io/enforce=privileged
+#kubectl label ns rook-ceph pod-security.kubernetes.io/enforce=privileged
+kubectl apply -f mark_rook-ceph_namespace_as_privileged.yaml
 
 kubectl --namespace rook-ceph get cephcluster
 
