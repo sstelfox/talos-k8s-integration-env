@@ -4,10 +4,16 @@ set -o errexit
 
 TALOS_VERSION="v1.8.2"
 
+# Generate a fresh schematic:
 #FACTORY_ID="$(curl -X POST --data-binary @talos-secure-imagefactory-schematic.yaml https://factory.talos.dev/schematics | jq -r .id)"
-FACTORY_ID="7e44a9342ec2e31b977e62793b9552f695805b825f0209e53ff171804b79017c"
 
+FACTORY_ID="7e44a9342ec2e31b977e62793b9552f695805b825f0209e53ff171804b79017c"
 INSTALLER_IMAGE="factory.talos.dev/installer-secureboot/${FACTORY_ID}:${TALOS_VERSION}"
 
-#curl -o ./_out/metal-amd64-secureboot.iso https://factory.talos.dev/image/${FACTORY_ID}/${TALOS_VERSION}/metal-amd64-secureboot.iso
-skopeo copy --insecure-policy docker://${INSTALLER_IMAGE} oci-archive:./_out/installer-secureboot-${TALOS_VERSION}-custom.tar
+if [ ! -f ./_out/metal-amd64-secureboot.iso ]; then
+  curl -o ./_out/metal-amd64-secureboot.iso https://factory.talos.dev/image/${FACTORY_ID}/${TALOS_VERSION}/metal-amd64-secureboot.iso
+fi
+
+if [ ! -f ./_out/installer-secureboot-${TALOS_VERSION}-custom.tar ]; then
+  skopeo copy --insecure-policy docker://${INSTALLER_IMAGE} oci-archive:./_out/installer-secureboot-${TALOS_VERSION}-custom.tar
+fi
