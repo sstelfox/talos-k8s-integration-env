@@ -8,8 +8,8 @@ mkdir -p ~/.talos/clusters
 
 # We can't create a qemu cluster from already generated configs so we'll just apply the same
 # patches for now. I may want to instead see if I can create than pull the configs
-# ${shared_patches} ${control_plane_patches} ${worker_patches} \
 sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
+  ${shared_patches} ${control_plane_patches} ${worker_patches} \
   --extra-uefi-search-paths /usr/share/ovmf/x64/ \
   --registry-mirror docker.io=http://10.5.0.1:6000 \
   --registry-mirror registry.k8s.io=http://10.5.0.1:6000 \

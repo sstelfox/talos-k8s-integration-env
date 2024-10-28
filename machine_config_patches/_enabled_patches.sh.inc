@@ -8,14 +8,14 @@ worker_patches=""
 #shared_patches="--config-patch @machine_config_patches/airgapped_time_from_host.yaml ${shared_patches}"
 
 # Basic disk encryption
-shared_patches="--config-patch @machine_config_patches/enable_disk_encryption.yaml ${shared_patches}"
+#shared_patches="--config-patch @machine_config_patches/enable_disk_encryption.yaml ${shared_patches}"
 
 # Custom Pause Image: Systemwide CRI pinned image overrides
 #shared_patches="--config-patch @machine_config_patches/custom_pause_image.yaml ${shared_patches}"
 
 # Fire off a copy of all the logs generated using UDP at this host, should not be used in
 # production.
-shared_patches="--config-patch @machine_config_patches/blind_logs.yaml ${shared_patches}"
+#shared_patches="--config-patch @machine_config_patches/blind_logs.yaml ${shared_patches}"
 
 # Redirect all of the registries the system needs to the airgapped self-hosted one
 #shared_patches="--config-patch @machine_config_patches/airgapped_registry.yaml ${shared_patches}"
