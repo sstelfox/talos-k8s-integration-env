@@ -7,21 +7,21 @@ launch_airgap_cache_registry() {
 
   podman run -d -p 6000:5000 \
     --replace --name registry-airgapped \
-    --mount type=bind,src=$(pwd)/cached_images/ghcr,dst=/var/lib/registry \
+    --mount type=bind,src=${PWD}/cached_images/airgap,dst=/var/lib/registry \
     docker.io/library/registry:2
 }
 
 populate_airgap_cache() {
   for image in $(talosctl image default); do
-    podman pull ${image}
-
-    local new_image_name
-    new_image_name="$(echo $image | sed -E 's#^[^/]+/#127.0.0.1:6000/#')"
-
-    podman tag ${image} ${new_image_name}
-    podman push --tls-verify=false ${new_image_name}
+    skopeo copy docker://${image} docker://127.0.0.1:6000/${image} --dest-tls-verify=false
   done
 }
+
+#transform_image_name() {
+#  local source_image="$1"
+#  local image_name=$(echo "$source_image" | sed 's|ghcr.io/siderolabs/||')
+#  echo "grayiron.io/firmament/$image_name"
+#}
 
 # The airgap registry is simpler than the cacheing registry...
 launch_airgap_cache_registry

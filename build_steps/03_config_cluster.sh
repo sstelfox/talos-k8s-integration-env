@@ -10,12 +10,6 @@ if [ ! -f _out/secrets.yaml ]; then
   talosctl gen secrets -o _out/secrets.yaml
 fi
 
-# For my underlying host this is a largely static config with almost no workloads, its purely for
-# managing KubeVirt machines and the resources are entirely given over to those. In this environment
-# I want the workloads running on the control plane.
-#cat machine_config_patches/enable_workloads_on_control_plane.yaml \
-#  >>_out/birthright_patches_control_plane_only.yaml
-
 # Generate our actual config, this should be reviewed before creation
 talosctl gen config --with-secrets _out/secrets.yaml \
   ${shared_patches} ${control_plane_patches} ${worker_patches} \
