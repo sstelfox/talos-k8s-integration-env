@@ -10,6 +10,10 @@ shared_patches="--config-patch @machine_config_patches/airgapped_time_from_host.
 # Basic disk encryption
 shared_patches="--config-patch @machine_config_patches/enable_disk_encryption.yaml ${shared_patches}"
 
+# Fire off a copy of all the logs generated using UDP at this host, should not be used in
+# production.
+shared_patches="--config-patch @machine_config_patches/blind_logs.yaml ${shared_patches}"
+
 # Redirect all of the registries the system needs to the airgapped self-hosted one
 shared_patches="--config-patch @machine_config_patches/airgapped_registry.yaml ${shared_patches}"
 
