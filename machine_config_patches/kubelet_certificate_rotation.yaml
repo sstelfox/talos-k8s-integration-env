@@ -1,0 +1,11 @@
+---
+# Enable rotation of initial certificates to ones signed by the cluster CA. This is a tricky task as
+# its a manual task to approve the certificates by default. There is an auto-approver container that
+# can be run and I might do temporarily but I'd prefer to manually approve the certificates...
+machine:
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+cluster:
+  extraManifests:
+    - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
