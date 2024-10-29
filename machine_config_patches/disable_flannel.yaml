@@ -1,0 +1,9 @@
+---
+# This should run on all node and is paired alongside install_cillium.yaml, both of which need to
+# be enabled/disabled together.
+cluster:
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true

@@ -37,3 +37,7 @@ control_plane_patches="--config-patch-control-plane @machine_config_patches/rest
 # managing KubeVirt machines and the resources are entirely given over to those. In this environment
 # I want the workloads running on the control plane.
 #control_plane_patches="--config-patch-control-plane @machine_config_patches/enable_workloads_on_control_plane.yaml ${control_plane_patches}"
+
+# Alright this is the big one, install Cillium as the underlying CNI...
+shared_patches="--config-patch @machine_config_patches/disable_flannel.yaml ${shared_patches}"
+control_plane_patches="--config-patch-control-plane @machine_config_patches/install_cillium.yaml ${control_plane_patches}"
