@@ -22,4 +22,4 @@ sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6144 --extra-disks 1 --extra-disks-size 5120
 
-sudo chown -R sstelfox:sstelfox ${HOME}/.talos
+sudo chown -R sstelfox:sstelfox ${HOME}/.talos ${HOME}/.kube
