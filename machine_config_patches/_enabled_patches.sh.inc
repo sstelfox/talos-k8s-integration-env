@@ -45,4 +45,4 @@ control_plane_patches="--config-patch-control-plane @machine_config_patches/rest
 
 # Fire off a copy of all the logs generated using UDP at this host, should not be used in
 # production.
-#shared_patches="--config-patch @machine_config_patches/blind_logs.yaml ${shared_patches}"
+shared_patches="--config-patch @machine_config_patches/blind_insecure_logs.yaml ${shared_patches}"
