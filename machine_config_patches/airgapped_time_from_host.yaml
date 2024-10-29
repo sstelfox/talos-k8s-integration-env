@@ -10,7 +10,10 @@
 version: v1alpha1
 machine:
   time:
-    disabled: false
+    # Note: I had to disable this as the qemu provisioner doesn't seem to allocate this device or
+    # it wasn't readable. I will want this in my VM environments.
+    disabled: true
+    #disabled: false
     bootTimeout: 1m
     servers:
       - /dev/ptp0

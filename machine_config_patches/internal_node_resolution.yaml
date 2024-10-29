@@ -1,0 +1,8 @@
+---
+# There is already a cacheing DNS server running on each host and used primarily for cluster
+# internal traffic. This file flips the switch allowing the cluster's names to be locally resolved
+# by the internal cluster. Very useful in an environment with no upstream.
+machine:
+  features:
+    hostDNS:
+      resolveMemberNames: true

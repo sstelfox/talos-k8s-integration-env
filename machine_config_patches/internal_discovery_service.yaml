@@ -1,0 +1,12 @@
+---
+# By default Talos uses their publicly provided discovery service for node information exchange as
+# well as things like the KubeSpan certificate exchanges. This is the prototype for a truly
+# airgapped network and thus we must rely on the internal one's availability.
+cluster:
+  discovery:
+    enabled: true
+    registries:
+      kubernetes:
+        disabled: false
+      service:
+        disabled: true
