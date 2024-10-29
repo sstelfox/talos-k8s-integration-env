@@ -1,14 +1,67 @@
 ---
+# My ideal solution here would be an internal running service that backs its store in a cluster
+# oriented service. If the cluster is in an degraded or unavailable state the key service won't be
+# available _but that is an exceptional case_ and should be handled with an alternate solution.
+#
+# That alternate solution for me likely looks like a break glass per-node static password right
+# now. Ideally the break-glass access would be a TPM sealed key that also requires a user provided
+# passphrase. This should never really be used, I'd prefer being able to recreate an entire cluster
+# wholesale than rely on recovering the encrypted state of individual nodes to get back to green.
 version: v1alpha1
 machine:
   systemDiskEncryption:
     ephemeral:
       provider: luks2
       keys:
-        - nodeID: {}
+        # This one is kind of strange. The nice thing about the KMS provider is that it splits the
+        # sealing of encryption keys between an external service and the nodes themselves. This
+        # COULD be my preferred deployment but Talos is very sketchy on the details of this.
+        #
+        # The KMS itself seems to only be available for the QEMU environment and their PaaS
+        # offering. The service they're using even in QEMU appears to be a minimal proof-of-concept
+        # service that runs as a secret service embedded in talosctl. Where this secret service's
+        # state is stored, and what is being used to seal and unseal the state stored with the
+        # hidden KMS. There are basically NO documentation on that.
+        #
+        # This is the current best option for a pre-secureboot QEMU environments but won't work
+        # outside of QEMU and is a bit sketchy without knowing the details. Our integration
+        # environment isn't incredibly sensitive and it would be nice to get this working with
+        # something a bit more production ready later on down the road.
+        - kms: {}
           slot: 0
+        #- kms:
+        #    endpoint: https://X.X.X.X:XXXX
+        #  slot: 0
+        # This is my preferred deployment of encryption keys but requires secureboot with a custom
+        # UEFI signing key (and the removal of the Microsoft keys) to have any meaningful security
+        # properties beyond that provided with the nodeID. I have yet to get secureboot actually
+        # working with Talos even in the QEMU integration environment and until then I can't let it
+        # reach production.
+        #
+        # When secureboot is properly configured, this is a self-contained and strong mechanism for
+        # the encryption. There is still a possible attack by a acquiring the TPM (either due a
+        # physical acquisition of the hardwware, or the state of a software/VM TPM) but that is
+        # outside of my threat model.
+        - tpm: {}
+          slot: 1
+        # Least secure option, key derived from node's UUID, largely only protects against drives
+        # that get separated from their nodes. This has no requirements on the node or cluster
+        # configuration and is better than nothing.
+        #- nodeID: {}
+        #  slot: 2
+        # A static key on its own is more secure than a nodeID as its at least not derivable,
+        # however, the implementation doesn't just provision a secret and configure it on the nodes
+        # for a form of break glass... It wants to use it automatically so populates unencrypted
+        # state with the keys making it entirely worthless. This should be different on each node
+        # and shouldn't live in any form of gitops.
+        #- static:
+        #    passphrase: dont-use-this-broken-by-design-encryption
+        #  slot: 3
     state:
       provider: luks2
       keys:
-        - nodeID: {}
+        # The same notes on keys apply as above.
+        - kms: {}
           slot: 0
+        - tpm: {}
+          slot: 1
