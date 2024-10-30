@@ -1,0 +1,12 @@
+extends: default
+
+rules:
+  # HAHAH no... Have you ever seen a k8s manifest?
+  line-length: disable
+
+  # I frequently comment out chunks of sections in YAML while trying to work-out some unrelated bit,
+  # leave it in as comments, etc. These are intentionally left without a prefixing space to
+  # differentiate them from surrounding comments.
+  comments-indentation: disable
+  comments:
+    require-starting-space: no

@@ -5,5 +5,7 @@ cluster:
   network:
     cni:
       name: none
+  # We'll be using Cilium in eBPF mode which takes the place of the kube-proxy so we don't need
+  # that here either.
   proxy:
     disabled: true

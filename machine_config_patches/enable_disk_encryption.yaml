@@ -31,7 +31,7 @@ machine:
           slot: 0
         #- kms:
         #    endpoint: https://X.X.X.X:XXXX
-        #  slot: 0
+        # slot: 0
         # This is my preferred deployment of encryption keys but requires secureboot with a custom
         # UEFI signing key (and the removal of the Microsoft keys) to have any meaningful security
         # properties beyond that provided with the nodeID. I have yet to get secureboot actually
@@ -42,8 +42,8 @@ machine:
         # the encryption. There is still a possible attack by a acquiring the TPM (either due a
         # physical acquisition of the hardwware, or the state of a software/VM TPM) but that is
         # outside of my threat model.
-        - tpm: {}
-          slot: 1
+        #- tpm: {}
+        #  slot: 1
         # Least secure option, key derived from node's UUID, largely only protects against drives
         # that get separated from their nodes. This has no requirements on the node or cluster
         # configuration and is better than nothing.
@@ -63,5 +63,5 @@ machine:
         # The same notes on keys apply as above.
         - kms: {}
           slot: 0
-        - tpm: {}
-          slot: 1
+        #- tpm: {}
+        #  slot: 1

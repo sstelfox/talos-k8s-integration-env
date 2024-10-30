@@ -1,3 +1,4 @@
+---
 # This image needs to be available for certain init images to start-up and isn't over-rideable
 # through k8s configuration. This override allows us to use a fully qualified image, and one that
 # can be loaded into a local registry for air-gapped deployments.

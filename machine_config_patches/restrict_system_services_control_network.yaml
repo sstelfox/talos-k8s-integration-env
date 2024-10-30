@@ -11,5 +11,6 @@ machine:
         - 10.5.0.0/24
 cluster:
   etcd:
-    advertisedSubnets: # listenSubnets defaults to advertisedSubnets if not set explicitly
+    # listenSubnets defaults to advertisedSubnets if not set explicitly
+    advertisedSubnets:
       - 10.5.0.0/24
