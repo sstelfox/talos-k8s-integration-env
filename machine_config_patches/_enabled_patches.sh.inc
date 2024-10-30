@@ -5,7 +5,7 @@ control_plane_patches=""
 worker_patches=""
 
 # Don't use network time, use the one provided by the VM host
-shared_patches="--config-patch @machine_config_patches/airgapped_time_from_host.yaml ${shared_patches}"
+#shared_patches="--config-patch @machine_config_patches/airgapped_time_from_host.yaml ${shared_patches}"
 
 # Once the kubelets are joined to the cluster, have them rotate their certificates so they can
 # operate under the cluster's CA. This requires approval but this config fragment includes an
@@ -15,7 +15,7 @@ shared_patches="--config-patch @machine_config_patches/airgapped_time_from_host.
 #shared_patches="--config-patch machine_config_patches/kubelet_certificate_rotation.yaml ${shared_patches}"
 
 # Allow the local DNS server to resolve nodes
-shared_patches="--config-patch @machine_config_patches/internal_node_resolution.yaml ${shared_patches}"
+#shared_patches="--config-patch @machine_config_patches/internal_node_resolution.yaml ${shared_patches}"
 
 # Switch internally for this to remove another external dependency for the cluster.
 shared_patches="--config-patch @machine_config_patches/internal_discovery_service.yaml ${shared_patches}"
@@ -24,7 +24,7 @@ shared_patches="--config-patch @machine_config_patches/internal_discovery_servic
 #shared_patches="--config-patch @machine_config_patches/enable_disk_encryption.yaml ${shared_patches}"
 
 # Redirect all of the registries the system needs to the airgapped self-hosted one
-#shared_patches="--config-patch @machine_config_patches/airgapped_registry.yaml ${shared_patches}"
+shared_patches="--config-patch @machine_config_patches/airgapped_registry.yaml ${shared_patches}"
 
 # Alright this is the big one, install Cillium as the underlying CNI...
 #shared_patches="--config-patch @machine_config_patches/disable_flannel.yaml ${shared_patches}"
