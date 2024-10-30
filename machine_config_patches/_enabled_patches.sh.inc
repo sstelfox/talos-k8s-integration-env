@@ -12,7 +12,7 @@ shared_patches="--config-patch @machine_config_patches/airgapped_time_from_host.
 # automated approver.
 #
 # This is needed for the metrics server at a minimum but I think something else needed it as well...
-#shared_patches="--config-patch machine_config_patches/kubelet_certificate_rotation.yaml ${shared_patches}"
+shared_patches="--config-patch @machine_config_patches/kubelet_certificate_rotation.yaml ${shared_patches}"
 
 # Allow the local DNS server to resolve nodes
 #shared_patches="--config-patch @machine_config_patches/internal_node_resolution.yaml ${shared_patches}"
@@ -29,6 +29,9 @@ shared_patches="--config-patch @machine_config_patches/airgapped_registry.yaml $
 # Alright this is the big one, install Cillium as the underlying CNI...
 #shared_patches="--config-patch @machine_config_patches/disable_flannel.yaml ${shared_patches}"
 #control_plane_patches="--config-patch-control-plane @machine_config_patches/install_cillium.yaml ${control_plane_patches}"
+
+# Turn on the metrics server, must be done with the kubelet cert rotation patch enabled as well
+shared_patches="--config-patch @machine_config_patches/enable_resource_monitor.yaml ${shared_patches}"
 
 # Needs to be customized to the layer 2 network and possibly specific machines, mostly left here as
 # an example.
