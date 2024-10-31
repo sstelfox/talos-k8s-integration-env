@@ -27,8 +27,8 @@ machine:
         # outside of QEMU and is a bit sketchy without knowing the details. Our integration
         # environment isn't incredibly sensitive and it would be nice to get this working with
         # something a bit more production ready later on down the road.
-        - kms: {}
-          slot: 0
+        #- kms: {}
+        #  slot: 0
         #- kms:
         #    endpoint: https://X.X.X.X:XXXX
         # slot: 0
@@ -42,8 +42,8 @@ machine:
         # the encryption. There is still a possible attack by a acquiring the TPM (either due a
         # physical acquisition of the hardwware, or the state of a software/VM TPM) but that is
         # outside of my threat model.
-        #- tpm: {}
-        #  slot: 1
+        - tpm: {}
+          slot: 0
         # Least secure option, key derived from node's UUID, largely only protects against drives
         # that get separated from their nodes. This has no requirements on the node or cluster
         # configuration and is better than nothing.
@@ -61,7 +61,7 @@ machine:
       provider: luks2
       keys:
         # The same notes on keys apply as above.
-        - kms: {}
+        #- kms: {}
+        #  slot: 0
+        - tpm: {}
           slot: 0
-        #- tpm: {}
-        #  slot: 1
