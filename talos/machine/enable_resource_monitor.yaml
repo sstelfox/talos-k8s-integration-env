@@ -1,8 +1,0 @@
----
-# Setup the metrics server that monitors resource usage on the node. This is needed for the vertical
-# and horizontal pod autoscaler features in the cluster. Vertical isn't interesting but horizontal
-# is. The metrics are useful for other bits as well.
-version: v1alpha1
-cluster:
-  extraManifests:
-    - https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml

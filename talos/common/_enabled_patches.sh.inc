@@ -30,9 +30,6 @@ shared_patches="--config-patch @machine_config_patches/internal_discovery_servic
 shared_patches="--config-patch @machine_config_patches/disable_flannel.yaml ${shared_patches}"
 control_plane_patches="--config-patch-control-plane @machine_config_patches/install_cillium.yaml ${control_plane_patches}"
 
-# Turn on the metrics server, must be done with the kubelet cert rotation patch enabled as well
-#shared_patches="--config-patch @machine_config_patches/enable_resource_monitor.yaml ${shared_patches}"
-
 # Needs to be customized to the layer 2 network and possibly specific machines, mostly left here as
 # an example.
 #control_plane_patches="--config-patch-control-plane @machine_config_patches/enable_vip_control_plane.yaml ${control_plane_patches}"
