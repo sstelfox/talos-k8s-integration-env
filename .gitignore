@@ -1,4 +1,2 @@
-/cached_images/
+/airgap_registry/
 /_out/
-/worker.yaml
-/controlplane.yaml
