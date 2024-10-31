@@ -1,6 +1,10 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
-mkdir -p _out/
+set -o errexit
+set -o nounset
+set -o pipefail
+
+# This is expected to be run from the root of the repo
 
 TALOS_ARCH="amd64"
 TALOS_VERSION="v1.8.2"
