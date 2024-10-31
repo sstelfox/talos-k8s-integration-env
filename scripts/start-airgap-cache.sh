@@ -12,7 +12,7 @@ add_image_to_list() {
   local new_image="${1:-}"
 
   if [ -z "${new_image}" ]; then
-    echo "usage: add_image_to_list IMAGE_REF"
+    echo "usage: add_image_to_list IMAGE_REF" >&2
     exit 127
   fi
 
@@ -26,7 +26,7 @@ is_image_in_list() {
   local image_name="${1:-}"
 
   if [ -z "${image_name}" ]; then
-    echo "usage: is_image_in_list IMAGE_REF"
+    echo "usage: is_image_in_list IMAGE_REF" >&2
     exit 127
   fi
 
@@ -40,9 +40,11 @@ launch_airgap_cache_registry() {
     podman run -d -p 6000:5000 --replace --name ${REGISTRY_CONTAINER_NAME} \
       --mount type=bind,src=${PWD}/airgap_registry,dst=/var/lib/registry \
       docker.io/library/registry:2
+    echo "fresh airgap image cache started up" >&2
   else
     if ! podman container inspect ${REGISTRY_CONTAINER_NAME} --format '{{.State.Running}}' | grep -q "true"; then
       podman start ${REGISTRY_CONTAINER_NAME}
+      echo "existing airgap image cache started back up" >&2
     fi
   fi
 }
@@ -51,24 +53,26 @@ populate_cache_with_image() {
   local image_ref="${1-}"
 
   if [ -z "${image_ref}" ]; then
-    echo "usage: populate_cache_with_image IMAGE_REF"
+    echo "usage: populate_cache_with_image IMAGE_REF" 2>&1
     return 1
   fi
 
   local dest_image
   dest_image="docker://127.0.0.1:6000/$(echo ${image_ref} | cut -d'/' -f2-)"
 
-  if skopeo inspect --tls-verify=false "${dest_image}" 2>&1 >/dev/null; then
-    echo "image already exists in local registry: ${image_ref}"
+  if skopeo inspect --tls-verify=false "${dest_image}" >/dev/null 2>&1; then
+    echo "image already exists in local registry: ${image_ref}" 2>&1
     return 0
   fi
+
+  echo "copying image '${image_ref}' into local cache..." 2>&1
 
   if ! skopeo copy "docker://${image_ref}" --dest-tls-verify=false "${dest_image}" 2>&1 >/dev/null; then
     echo "error: failed to copy image"
     return 1
   fi
 
-  echo "successfully copied image to local registry: ${image_ref}"
+  echo "successfully copied image to local registry: ${image_ref}" 2>&1
   return 0
 }
 
@@ -80,6 +84,8 @@ populate_airgap_cache() {
 
 launch_airgap_cache_registry
 
+# TODO: These should be tagged images not the latest variants
 add_image_to_list docker.io/library/nginx:alpine
+add_image_to_list quay.io/cilium/cilium-cli-ci:latest
 
 populate_airgap_cache
