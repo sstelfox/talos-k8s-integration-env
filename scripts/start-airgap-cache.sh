@@ -87,5 +87,6 @@ launch_airgap_cache_registry
 # TODO: These should be tagged images not the latest variants
 add_image_to_list docker.io/library/nginx:alpine
 add_image_to_list quay.io/cilium/cilium-cli-ci:latest
+add_image_to_list quay.io/cilium/cilium-envoy:latest
 
 populate_airgap_cache
