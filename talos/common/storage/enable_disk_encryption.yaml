@@ -42,13 +42,13 @@ machine:
         # the encryption. There is still a possible attack by a acquiring the TPM (either due a
         # physical acquisition of the hardwware, or the state of a software/VM TPM) but that is
         # outside of my threat model.
-        - tpm: {}
-          slot: 0
+        #- tpm: {}
+        #  slot: 0
         # Least secure option, key derived from node's UUID, largely only protects against drives
         # that get separated from their nodes. This has no requirements on the node or cluster
         # configuration and is better than nothing.
-        #- nodeID: {}
-        #  slot: 2
+        - nodeID: {}
+          slot: 0
         # A static key on its own is more secure than a nodeID as its at least not derivable,
         # however, the implementation doesn't just provision a secret and configure it on the nodes
         # for a form of break glass... It wants to use it automatically so populates unencrypted
@@ -60,8 +60,5 @@ machine:
     state:
       provider: luks2
       keys:
-        # The same notes on keys apply as above.
-        #- kms: {}
-        #  slot: 0
-        - tpm: {}
+        - nodeID: {}
           slot: 0
