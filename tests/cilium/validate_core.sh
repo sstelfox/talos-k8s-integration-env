@@ -18,6 +18,8 @@ if ! cilium connectivity test --perf --hubble=false; then
   EXIT_CODE=1
 fi
 
+# Note: right now this is unfortunately failing as it wants the NET_RAW capability which our PSS
+# doesn't allow.
 if ! cilium connectivity test --perf-crr --hubble=false; then
   echo "error: failed to perform performance test"
   EXIT_CODE=1
