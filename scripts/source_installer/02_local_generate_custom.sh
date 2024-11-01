@@ -2,6 +2,7 @@
 
 set -o errexit
 
+TALOS_ARCH="amd64"
 TALOS_VERSION="v1.8.2"
 
 mkdir -p _out/
@@ -35,17 +36,17 @@ fi
 #
 # Our virtual machine console's are not exposed to any form of management EXCEPT in the firmament
 # case. We do not want to leave an administrative running where we have no intention of using it.
-COMMON_IMAGER_OPTIONS="--arch amd64 --extra-kernel-arg net.ifnames=0 --extra-kernel-arg talos.dashboard.disabled=1"
+COMMON_IMAGER_OPTIONS="--arch ${TALOS_ARCH} --extra-kernel-arg net.ifnames=0 --extra-kernel-arg talos.dashboard.disabled=1"
 
 podman run --rm -t -v ${PWD}/_out:/secureboot:ro -v $PWD/_out:/out \
   ghcr.io/siderolabs/imager:${TALOS_VERSION} secureboot-installer \
   ${COMMON_IMAGER_OPTIONS}
 
-# WARNING: The downloader and cluster creation script do not use the file output from this (it has
-# a different name)
 podman run --rm -t -v ${PWD}/_out:/secureboot:ro -v $PWD/_out:/out \
   ghcr.io/siderolabs/imager:${TALOS_VERSION} secureboot-iso \
   ${COMMON_IMAGER_OPTIONS}
 
 podman run --rm -t -v ${PWD}/_out:/out ghcr.io/siderolabs/imager:${TALOS_VERSION} iso --output-kind kernel
 podman run --rm -t -v ${PWD}/_out:/out ghcr.io/siderolabs/imager:${TALOS_VERSION} iso --output-kind initramfs
+
+# TODO: Need to properly rename the file to match the other generation methods
