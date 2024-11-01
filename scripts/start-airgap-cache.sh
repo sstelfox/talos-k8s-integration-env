@@ -8,6 +8,8 @@ REGISTRY_CONTAINER_NAME="airgap-registry"
 # Initialize our image list with the official ones
 IMAGE_LIST=$(talosctl image default)
 
+INCLUDE_TEST_IMAGES=true
+
 add_image_to_list() {
   local new_image="${1:-}"
 
@@ -85,8 +87,13 @@ populate_airgap_cache() {
 launch_airgap_cache_registry
 
 # TODO: These should be tagged images not the latest variants
-add_image_to_list docker.io/library/nginx:alpine
 add_image_to_list quay.io/cilium/cilium-cli-ci:latest
 add_image_to_list quay.io/cilium/cilium-envoy:latest
+
+if [ "${INCLUDE_TEST_IMAGES}" = "true" ]; then
+  add_image_to_list quay.io/cilium/alpine-curl:v1.7.0
+  add_image_to_list quay.io/cilium/json-mock:v1.3.5
+  add_image_to_list quay.io/cilium/network-perf:a816f935930cb2b40ba43230643da4d5751a5711@sha256:679d3a370c696f63884da4557a4466f3b5569b4719bb4f86e8aac02fbe390eea
+fi
 
 populate_airgap_cache

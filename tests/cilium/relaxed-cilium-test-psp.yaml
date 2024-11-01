@@ -1,0 +1,48 @@
+# Create a dedicated namespace for Cilium tests. These need to be privileged to manipulate raw host
+# networking and sockets.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cilium-test
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+---
+# Create a relatively limited role to restrict's Cilium's manipulations to its own namespace and
+# only the verbs it appears to need.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cilium-test
+  namespace: cilium-test
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["create", "delete", "get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["create", "delete", "get", "list", "watch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cilium-test
+  namespace: cilium-test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cilium-test
+  namespace: cilium-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cilium-test
+subjects:
+  - kind: ServiceAccount
+    name: cilium-test
+    namespace: cilium-test

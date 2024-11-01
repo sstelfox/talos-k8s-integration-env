@@ -28,4 +28,10 @@ sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6144 --extra-disks 1 --extra-disks-size 5120
 
-sudo chown -R sstelfox:sstelfox ${HOME}/.talos ${HOME}/.kube
+# Once the cluster is initially bootstrapped we want to verify that our the fundamental internal
+# networking is working. All of our subsequent tests and use of the cluster rely on the cluster
+# having sane networking.
+#
+# This test does deploy privileged containers into the cluster and tried to clean up after itself,
+# but we should avoid running it on the production airgap cluster.
+./tests/cilium/validate_core.sh
