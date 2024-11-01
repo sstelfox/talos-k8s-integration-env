@@ -10,6 +10,7 @@ helmGlobals:
 helmCharts:
   - name: kyverno
     repo: https://kyverno.github.io/kyverno/
-
-resources:
-  - namespace.yaml
+    version: 3.3.2
+    includeCRDs: true
+    namespace: kyverno
+    valuesFile: values.yaml
