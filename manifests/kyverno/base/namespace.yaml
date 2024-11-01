@@ -1,0 +1,7 @@
+---
+# Normally the base doesn't want to define the namespace, but Kyverno by design is a cluster-wide
+# service and there should only be a single one
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno
