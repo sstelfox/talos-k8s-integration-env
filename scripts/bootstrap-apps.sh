@@ -19,7 +19,15 @@ apply_manifest() {
   local rendered_output="${RENDERED_MANIFEST_DIR}/$(echo "${manifest_id}" | sed 's#/#-#g').yaml"
 
   render_manifest "${manifest_id}" "${rendered_output}"
-  kubectl apply --server-side=true -f "${rendered_output}"
+
+  echo "applying ${manifest_id}..."
+  if ! kubectl apply --server-side=true -f "${rendered_output}" >/dev/null; then
+    echo "failed to apply ${manifest_id}"
+    return 2
+  fi
+
+  echo "successfully applied ${manifest_id}"
+  return 0
 }
 
 render_manifest() {
@@ -36,8 +44,14 @@ render_manifest() {
     return 2
   fi
 
-  kubectl kustomize --enable-helm --load-restrictor LoadRestrictionsNone \
-    -o "${output_file}" ./manifests/${manifest_id}
+  echo "rendering ${manifest_id}..."
+  if ! kubectl kustomize --enable-helm --load-restrictor LoadRestrictionsNone -o "${output_file}" ./manifests/${manifest_id} >/dev/null; then
+    echo "failed to render ${manifest_id}"
+    return 3
+  fi
+
+  echo "successfully rendered ${manifest_id}"
+  return 0
 }
 
 mkdir -p "${RENDERED_MANIFEST_DIR}"
@@ -48,4 +62,8 @@ apply_manifest kyverno/bootstrap
 # instead of using the cilium-install CI image to prevent the management transition.
 #apply_manifest cilium/bootstrap
 
+apply_manifest rook-ceph/bootstrap
 apply_manifest argocd/bootstrap
+
+# Just trying this out, haven't decided whether I want to use it or not
+apply_manifest meshery/bootstrap
