@@ -117,4 +117,5 @@ populate_airgap_cache
 # an upstream...
 launch_initial_manifest_server
 
-# Make sure we have a
+# Make sure we have a fresh copy of our Cilium initialization manifest
+manifest_render cilium/init
