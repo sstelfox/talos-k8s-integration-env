@@ -11,6 +11,7 @@ REGISTRY_CONTAINER_NAME="talos-airgap-registry"
 IMAGE_LIST=$(talosctl image default)
 
 source ./scripts/lib/manifests.sh.inc
+source ./scripts/lib/services.sh.inc
 
 add_image_to_list() {
   local new_image="${1:-}"
@@ -40,34 +41,24 @@ is_image_in_list() {
 launch_airgap_cache_registry() {
   mkdir -p airgap_registry/
 
-  if ! podman container exists ${REGISTRY_CONTAINER_NAME}; then
+  if ! service_check_available ${REGISTRY_CONTAINER_NAME}; then
     podman run -d -p 6000:5000 --replace --name ${REGISTRY_CONTAINER_NAME} \
       --mount type=bind,src=${PWD}/airgap_registry,dst=/var/lib/registry \
       docker.io/library/registry:2 >/dev/null 2>&1
 
     echo "fresh talos airgap image cache started up" >&2
-  else
-    if ! podman container inspect ${REGISTRY_CONTAINER_NAME} --format '{{.State.Running}}' | grep -q "true"; then
-      podman start ${REGISTRY_CONTAINER_NAME} >/dev/null 2>&1
-      echo "existing talos airgap image cache started back up" >&2
-    fi
   fi
 }
 
 launch_initial_manifest_server() {
   mkdir -p _out/manifests/
 
-  if ! podman container exists ${MANIFEST_CONTAINER_NAME}; then
+  if ! service_check_available ${MANIFEST_CONTAINER_NAME}; then
     podman run -d -p 6100:80 --replace --name ${MANIFEST_CONTAINER_NAME} \
-      --mount type=bind,src=${PWD}/_out/manifests,dst=/usr/share/nginx/html:ro \
+      --mount type=bind,src=${PWD}/_out/manifests,dst=/usr/share/nginx/html,readonly \
       docker.io/library/nginx:alpine >/dev/null 2>&1
 
     echo "fresh talos manifest server started up" >&2
-  else
-    if ! podman container inspect ${MANIFEST_CONTAINER_NAME} --format '{{.State.Running}}' | grep -q "true"; then
-      podman start ${MANIFEST_CONTAINER_NAME} >/dev/null 2>&1
-      echo "existing talos manifest server started back up" >&2
-    fi
   fi
 }
 
