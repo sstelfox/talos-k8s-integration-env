@@ -39,3 +39,4 @@
 * [ ] Perform review of all roles and bindings
 * [ ] Ensure administrative access is only available by assuming a higher role (behalf of)
 * [ ] Ensure internal k8s certificates are configured for automatic rotation
+* [ ] There should be no failures in the policy reports (`kubectl get polr -A -o wide`)

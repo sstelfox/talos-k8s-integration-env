@@ -56,7 +56,8 @@ render_manifest() {
 
 mkdir -p "${RENDERED_MANIFEST_DIR}"
 
-#apply_manifest kyverno/bootstrap
+apply_manifest kyverno/bootstrap
+apply_manifest kyverno-policies/bootstrap
 
 # This needs work and I probably need to render out the manifest and use the job to apply it inline
 # instead of using the cilium-install CI image to prevent the management transition.
@@ -67,4 +68,7 @@ mkdir -p "${RENDERED_MANIFEST_DIR}"
 
 # Just trying this out, haven't decided whether I want to use it or not. Meshery requires rook-ceph
 # volumes to be setup...
-apply_manifest meshery/bootstrap
+#
+# This is pretty unstable and requires crazy amounts of resources. I'll leave the manifest around
+# for now but mostly as a warning to myself and others to avoid it for now...
+#apply_manifest meshery/bootstrap
