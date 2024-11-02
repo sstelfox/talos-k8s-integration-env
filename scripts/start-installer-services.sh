@@ -3,12 +3,14 @@
 set -o errexit
 set -o pipefail
 
-REGISTRY_CONTAINER_NAME="airgap-registry"
+INCLUDE_TEST_IMAGES=true
+MANIFEST_CONTAINER_NAME="talos-manifest-server"
+REGISTRY_CONTAINER_NAME="talos-airgap-registry"
 
 # Initialize our image list with the official ones
 IMAGE_LIST=$(talosctl image default)
 
-INCLUDE_TEST_IMAGES=true
+source ./scripts/lib/manifests.sh.inc
 
 add_image_to_list() {
   local new_image="${1:-}"
@@ -41,12 +43,30 @@ launch_airgap_cache_registry() {
   if ! podman container exists ${REGISTRY_CONTAINER_NAME}; then
     podman run -d -p 6000:5000 --replace --name ${REGISTRY_CONTAINER_NAME} \
       --mount type=bind,src=${PWD}/airgap_registry,dst=/var/lib/registry \
-      docker.io/library/registry:2
-    echo "fresh airgap image cache started up" >&2
+      docker.io/library/registry:2 >/dev/null 2>&1
+
+    echo "fresh talos airgap image cache started up" >&2
   else
     if ! podman container inspect ${REGISTRY_CONTAINER_NAME} --format '{{.State.Running}}' | grep -q "true"; then
-      podman start ${REGISTRY_CONTAINER_NAME}
-      echo "existing airgap image cache started back up" >&2
+      podman start ${REGISTRY_CONTAINER_NAME} >/dev/null 2>&1
+      echo "existing talos airgap image cache started back up" >&2
+    fi
+  fi
+}
+
+launch_initial_manifest_server() {
+  mkdir -p _out/manifests/
+
+  if ! podman container exists ${MANIFEST_CONTAINER_NAME}; then
+    podman run -d -p 6100:80 --replace --name ${MANIFEST_CONTAINER_NAME} \
+      --mount type=bind,src=${PWD}/_out/manifests,dst=/usr/share/nginx/html:ro \
+      docker.io/library/nginx:alpine >/dev/null 2>&1
+
+    echo "fresh talos manifest server started up" >&2
+  else
+    if ! podman container inspect ${MANIFEST_CONTAINER_NAME} --format '{{.State.Running}}' | grep -q "true"; then
+      podman start ${MANIFEST_CONTAINER_NAME} >/dev/null 2>&1
+      echo "existing talos manifest server started back up" >&2
     fi
   fi
 }
@@ -84,16 +104,26 @@ populate_airgap_cache() {
   done
 }
 
-launch_airgap_cache_registry
+# TODO: All images should be referenced using immutable tags
 
-# TODO: These should be tagged images not the latest variants
+add_image_to_list docker.io/library/nginx:alpine
+add_image_to_list docker.io/library/registry:2
+
+#add_image_to_list quay.io/cilium/cilium:latest
 add_image_to_list quay.io/cilium/cilium-cli-ci:latest
 add_image_to_list quay.io/cilium/cilium-envoy:latest
 
 if [ "${INCLUDE_TEST_IMAGES}" = "true" ]; then
   add_image_to_list quay.io/cilium/alpine-curl:v1.7.0
   add_image_to_list quay.io/cilium/json-mock:v1.3.5
-  add_image_to_list quay.io/cilium/network-perf:a816f935930cb2b40ba43230643da4d5751a5711@sha256:679d3a370c696f63884da4557a4466f3b5569b4719bb4f86e8aac02fbe390eea
+  #add_image_to_list quay.io/cilium/network-perf:a816f935930cb2b40ba43230643da4d5751a5711@sha256:679d3a370c696f63884da4557a4466f3b5569b4719bb4f86e8aac02fbe390eea
 fi
 
+launch_airgap_cache_registry
 populate_airgap_cache
+
+# I've left this after the populate as I may be want to use the pulled image instead of referencing
+# an upstream...
+launch_initial_manifest_server
+
+# Make sure we have a
