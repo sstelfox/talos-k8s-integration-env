@@ -19,7 +19,6 @@ apply_manifest() {
   local rendered_output="${RENDERED_MANIFEST_DIR}/$(echo "${manifest_id}" | sed 's#/#-#g').yaml"
 
   render_manifest "${manifest_id}" "${rendered_output}"
-
   kubectl apply --server-side=true -f "${rendered_output}"
 }
 
@@ -44,3 +43,7 @@ render_manifest() {
 mkdir -p "${RENDERED_MANIFEST_DIR}"
 
 apply_manifest kyverno/bootstrap
+
+# This needs work and I probably need to render out the manifest and use the job to apply it inline
+# instead of using the cilium-install CI image to prevent the management transition.
+#apply_manifest cilium/bootstrap
