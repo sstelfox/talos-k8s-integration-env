@@ -25,6 +25,10 @@
 * [ ] Falco
 * [ ] KeyCloak? Some other options available here
 * [ ] Metric server / VPA / HPA
+* [ ] Kubevirt
+* [ ] Physical machine monitoring (node-problem-detector?)
+* [ ] Prometheus
+* [ ] Promtail
 
 ## Final Certification
 
