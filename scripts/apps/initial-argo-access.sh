@@ -18,4 +18,4 @@ echo "The admin interface will be available on at https://${SERVER_IP}:${SERVER_
 echo "Press any key when you're ready to port-forward the admin interface..."
 read
 
-kubectl port-forward svc/argocd-server --address 0.0.0.0 -n argocd ${SERVER_PORT}:443
+kubectl port-forward svc/argocd-server --namespace argocd --address ${SERVER_IP} ${SERVER_PORT}:443

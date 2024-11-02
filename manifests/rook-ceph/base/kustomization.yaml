@@ -9,7 +9,7 @@ helmCharts:
   - name: rook-ceph
     repo: https://charts.rook.io/release
     version: v1.15.4
-    #includeCRDs: true
+    includeCRDs: true
     valuesFile: values.yaml
 
 namespace: rook-ceph

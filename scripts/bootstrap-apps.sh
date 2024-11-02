@@ -56,14 +56,15 @@ render_manifest() {
 
 mkdir -p "${RENDERED_MANIFEST_DIR}"
 
-apply_manifest kyverno/bootstrap
+#apply_manifest kyverno/bootstrap
 
 # This needs work and I probably need to render out the manifest and use the job to apply it inline
 # instead of using the cilium-install CI image to prevent the management transition.
 #apply_manifest cilium/bootstrap
 
-apply_manifest rook-ceph/bootstrap
-apply_manifest argocd/bootstrap
+#apply_manifest rook-ceph/bootstrap
+#apply_manifest argocd/bootstrap
 
-# Just trying this out, haven't decided whether I want to use it or not
+# Just trying this out, haven't decided whether I want to use it or not. Meshery requires rook-ceph
+# volumes to be setup...
 apply_manifest meshery/bootstrap
