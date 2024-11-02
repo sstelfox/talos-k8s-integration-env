@@ -36,4 +36,4 @@ sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
 # but we should avoid running it on the production airgap cluster.
 ./tests/cilium/validate_core.sh
 
-./scripts/bootstrap-app.sh
+./scripts/bootstrap-apps.sh
