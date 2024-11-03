@@ -1,5 +1,20 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-resources:
-  - ../base/
+namespace: kube-system
+
+helmGlobals:
+  chartHome: ../../../_out/charts/
+
+helmCharts:
+  - name: cilium
+    repo: https://helm.cilium.io/
+    version: 1.15.6
+    includeCRDs: true
+    valuesFile: ../base/values.yaml
+    valuesInline:
+      hubble:
+        relay:
+          enabled: true
+        ui:
+          enabled: true

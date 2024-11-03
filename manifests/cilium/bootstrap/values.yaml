@@ -1,0 +1,6 @@
+---
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true
