@@ -14,6 +14,8 @@ helmCharts:
     valuesFile: ../base/values.yaml
     additionalValuesFiles:
       - core-config.yaml
-      - ip-pools.yaml
-      - bgp-secret.yaml
-      - bgp-config.yaml
+
+resources:
+  - ip-pools.yaml
+  - bgp-secret.yaml
+  - bgp-config.yaml
