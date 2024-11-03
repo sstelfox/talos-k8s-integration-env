@@ -1,0 +1,28 @@
+---
+# Unavailability of the network control plane will break the clusters networking. This should have
+# a rate limit that trips before the service gets DoS'd by requests to allow the small thing to
+# fail when it would otherwise impact everything. Should be set to a generous value that won't
+# normally be hit.
+#apiRateLimit:
+
+authentication:
+  mutual:
+    spire:
+      install:
+        server:
+          dataStorage:
+            # Going to want to set this when I have storage up...
+            #size: 512MiB
+            #storageClass: "test-sc"
+
+# Cilium can install recommended grafana dashboards automatically into a namespace. When I get that
+# up I should turn this on.
+#dashboards:
+#  enabled: true
+#  namespace: grafana
+
+#hubble:
+#  relay:
+#    enabled: true
+#  ui:
+#    enabled: true

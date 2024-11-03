@@ -1,4 +1,36 @@
 ---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "ip-bgp-pool-white"
+  labels:
+    trafficLightColor: white
+spec:
+  blocks:
+    - cidr: "10.110.0.0/24"
+    #- cidr: "2004::0/64"
+  serviceSelector:
+    matchExpressions:
+      - { key: trafficLightColor, operator: In, values: [ white ] }
+---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "ip-bgp-pool-red"
+  labels:
+    trafficLightColor: red
+spec:
+  blocks:
+    - cidr: "10.110.196.0/24"
+    #- cidr: "2004::196/64"
+  serviceSelector:
+    matchExpressions:
+      - { key: trafficLightColor, operator: In, values: [ red ] }
+# These are documented in the Cilium docs, but apparently aren't the correct way to configure BGP.
+# The deployment fails without it being in an actual configmap:
+#
+# https://github.com/cilium/cilium/issues/23868
+---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumBGPAdvertisement
 metadata:

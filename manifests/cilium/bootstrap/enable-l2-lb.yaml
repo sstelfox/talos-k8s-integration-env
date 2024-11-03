@@ -1,0 +1,40 @@
+---
+# Enabling this may cause regular tripping of client rate limiting with the default values as each
+# service announced increases the number of messages for all hosts. Make sure to read the notes and
+# update rate limit calulcations accordingly.
+l2announcements:
+  enabled: true
+
+  # The theorhetical shortest time between failure and failover is
+  # $leaseDuration - leaseRenewDeadline$ and the longest
+  # $leaseDuration + leaseRenewDeadline$. These values also have an impact on the client rate limit
+  # later on which should be taken into account.
+  #
+  # Since this is for the management domain and our administrators can wait a few seconds when this
+  # happens I've turned down the defaults here to have a lower impact on the API. We'll have a
+  # recovery time with these settings betwen 10-20 seconds.
+  leaseDuration: 15s
+  leaseRenewDeadline: 5s
+  leaseRetryPeriod: 200ms
+
+# Our management services get explicit addresses so they're predictable upon cluster bring up and
+# consistent among our different clusters. We need to turn them on to make use of them.
+externalIPs:
+  enabled: true
+
+# The guide recommends estimating new "normal" query limits using the equation:
+#
+# $QPS = #services * (1 / leaseRenewDeadline)$
+#
+# I suspect this isn't quite right as the leaseDuration probably has a larger impact than the renew
+  # deadline on the number of messages and seems to be overlooked by the authors...
+#
+# Only our management services are going to be using this announcement type so they're not reliant
+# on the BGP routing plane. I've limited this IP range to 30 addresses and we'll use one service
+# per IP for simplicity. This gives us an upper bound on our services for this calculation as 30.
+#
+# This gives us a rate of $30 * (1 / 5) = 6$. We're below the defaults which are listed below so
+# I'm going to leave them as is.
+k8sClientRateLimit:
+  qps: 10
+  burst: 20

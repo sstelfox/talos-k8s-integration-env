@@ -31,3 +31,75 @@ cgroup:
 
 k8sServiceHost: localhost
 k8sServicePort: 7445
+
+# Unavailability of the network control plane will break the clusters networking. This should have
+# a rate limit that trips before the service gets DoS'd by requests to allow the small thing to
+# fail when it would otherwise impact everything. Should be set to a generous value that won't
+# normally be hit.
+#apiRateLimit:
+
+authentication:
+  mutual:
+    # The following is the default port used by the agent to perform mutual authentication. We'll
+    # need to make sure this is allowed through the host firewalls.
+    #port: 4250
+    spire:
+      install:
+        agent:
+          # Disabled by default, there wasn't much on this setting where I found it but seems
+          # like a good thing to enable... Probably needs certificate rotation.
+          #skipKubeletVerification: false
+
+# Enable the Google designed traffic congestion TCP mechanism
+bandwidthManager:
+  bbr: true
+  enabled: true
+
+bpf:
+  events:
+    drop:
+      enabled: true
+    policyVerdict: true
+    # I should review the trace events to see how impactful they are on the performance of the
+    # network. They may not be worth the threat hunting benefits they provide.
+    trace:
+      enabled: true
+
+  # This is the default, but set it explicitly as cluster IPs should not be available outside the
+  # cluster
+  lbExternalClusterIP: false
+
+  # Which TCP flags trigger notifications when seen for the first time, probably worth tuning this
+  # down...
+  monitorFlags: "all"
+
+  # Reduce use of iptables processing when redirecting Layer 7 traffic to other nodes
+  tproxy: true
+
+# More efficient clock probing
+bpfClockProbe: true
+
+# Another rate-limit config but a more complex one, need to look into further.
+#ciliumEndpointSlice:
+#  rateLimits:
+
+# Only needed in cluster mesh. ID must be unique among all clusters. Name is limited to 32
+# alpha-numeric + hyphen and must begin and end with an alpha.
+cluster:
+  id: 0
+  name: "firmament-integration"
+
+# Use SNAT to redirect traffic leaving the cluster. Will likely want this for cleaner auditing even
+# if it means an extra network hop... Might instead prefer the masquerade options...
+#egressGateway:
+#  enabled: true
+#enableIPv4Masquerade: true
+#enableIPv6Masquerade: true
+
+# Enable transparent network encryption, need to test
+#encryption:
+#  enabled: true
+
+#hubble:
+#  relay:
+#    enabled: true

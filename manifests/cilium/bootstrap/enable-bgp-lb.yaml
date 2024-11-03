@@ -1,0 +1,13 @@
+---
+# This represents the MetalLB version of the config and it was not obvious that it was failing
+# because it was trying to use this. DO NOT ENABLE THIS.
+#bgp:
+#  enabled: true
+#  announce:
+#    loadbalancerIP: true
+#  configMap:
+#    optional: true
+
+bgpControlPlane:
+  enabled: true
+  #secretsNamespace: cilium
