@@ -1,4 +1,6 @@
 ---
+bgpControlPlane:
+  enabled: true
 hubble:
   relay:
     enabled: true

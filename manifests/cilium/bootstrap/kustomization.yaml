@@ -13,4 +13,7 @@ helmCharts:
     includeCRDs: true
     valuesFile: ../base/values.yaml
     additionalValuesFiles:
-      - values.yaml
+      - core-config.yaml
+      - ip-pools.yaml
+      - bgp-secret.yaml
+      - bgp-config.yaml

@@ -8,6 +8,8 @@ set -o pipefail
 
 source ./scripts/lib/manifests.sh.inc
 
+# Everything added to the cluster needs to have these policies enforced on them. The earlier things
+# get kicked out for being out of spec the faster I can fix them.
 manifest_apply kyverno/bootstrap
 manifest_apply kyverno-policies/bootstrap
 
@@ -15,7 +17,10 @@ manifest_apply kyverno-policies/bootstrap
 # instead of using the cilium-install CI image to prevent the management transition.
 manifest_apply cilium/bootstrap
 
+# Once networking is up
 #manifest_apply rook-ceph/bootstrap
+#manifest_apply vault/bootstrap
+
 #manifest_apply argocd/bootstrap
 
 # Just trying this out, haven't decided whether I want to use it or not. Meshery requires rook-ceph

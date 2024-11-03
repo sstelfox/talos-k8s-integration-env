@@ -1,0 +1,28 @@
+---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "ip-pool-white"
+  labels:
+    trafficLightColor: white
+spec:
+  blocks:
+    - cidr: "10.110.0.0/24"
+    #- cidr: "2004::0/64"
+  serviceSelector:
+    matchExpressions:
+      - { key: trafficLightColor, operator: In, values: [ white ] }
+---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "ip-pool-red"
+  labels:
+    trafficLightColor: red
+spec:
+  blocks:
+    - cidr: "10.110.196.0/24"
+    #- cidr: "2004::196/64"
+  serviceSelector:
+    matchExpressions:
+      - { key: trafficLightColor, operator: In, values: [ red ] }

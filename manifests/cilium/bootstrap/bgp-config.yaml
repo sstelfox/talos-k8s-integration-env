@@ -1,0 +1,52 @@
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPAdvertisement
+metadata:
+  name: cilium-bgp-service-advertisements
+  labels:
+    advertise: service-advertisements
+spec:
+  advertisements:
+    - advertisementType: "Service"
+      service:
+        addresses:
+          - ClusterIP
+          - ExternalIP
+          - LoadBalancerIP
+      selector:
+        matchExpressions:
+          # Per the config guide, if you want to export all advertisements an inverted match on
+          # something never used can accomplish the task
+          #- { key: junk-key, operator: NotIn, values: ['never-used-value']}
+          # A safer and more specific way is to explicitly list the pools to announce
+          - { key: trafficLightColor, operator: In, values: [ white ] }
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeerConfig
+metadata:
+  name: cilium-core-router-peer-config
+spec:
+  authSecretRef: cilium-bgp-peer-secret
+  gracefulRestart:
+    enabled: true
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: "service-advertisements"
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPClusterConfig
+metadata:
+  name: cilium-bgp-cluster-config
+spec:
+  bgpInstances:
+  - name: "core-router"
+    localASN: 64513
+    peers:
+    - name: "core-peer-int0"
+      peerASN: 65512
+      peerAddress: 10.100.50.1
+      peerConfigRef:
+        name: "cilium-core-router-peer-config"
