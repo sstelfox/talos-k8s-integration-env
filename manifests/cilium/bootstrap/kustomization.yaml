@@ -12,9 +12,5 @@ helmCharts:
     version: 1.15.6
     includeCRDs: true
     valuesFile: ../base/values.yaml
-    valuesInline:
-      hubble:
-        relay:
-          enabled: true
-        ui:
-          enabled: true
+    additionalValuesFiles:
+      - values.yaml
