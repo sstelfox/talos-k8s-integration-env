@@ -10,15 +10,17 @@ source ./scripts/lib/manifests.sh.inc
 
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.
-#manifest_apply kyverno/bootstrap
-#manifest_apply kyverno-policies/bootstrap
+manifest_apply kyverno/bootstrap
+manifest_apply kyverno-policies/bootstrap
+
+# We have an early sufficient network and the security policies we need to configure this. Our next
+# network stage wants storage for flow and audit records so let's prepare it before we need it.
+manifest_apply rook-ceph/bootstrap
 
 # This needs work and I probably need to render out the manifest and use the job to apply it inline
 # instead of using the cilium-install CI image to prevent the management transition.
 manifest_apply cilium/bootstrap
 
-# Once networking is up
-#manifest_apply rook-ceph/bootstrap
 #manifest_apply vault/bootstrap
 
 #manifest_apply argocd/bootstrap
