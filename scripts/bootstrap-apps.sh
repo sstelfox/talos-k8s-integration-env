@@ -24,10 +24,3 @@ manifest_apply rook-ceph/bootstrap || true
 manifest_apply vault/bootstrap
 
 manifest_apply argocd/bootstrap
-
-# Just trying this out, haven't decided whether I want to use it or not. Meshery requires rook-ceph
-# volumes to be setup...
-#
-# This is pretty unstable and requires crazy amounts of resources. I'll leave the manifest around
-# for now but mostly as a warning to myself and others to avoid it for now...
-#manifest_apply meshery/bootstrap
