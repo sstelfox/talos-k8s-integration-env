@@ -17,7 +17,10 @@ manifest_apply kyverno-policies/bootstrap
 # instead of using the cilium-install CI image to prevent the management transition.
 manifest_apply cilium/bootstrap
 
-manifest_apply rook-ceph/bootstrap
+# Ceph fails after multiple runs due to the operator taking over control of some of the resources.
+# Some of these values are resource definitions and are very weird to take over. I bet I could
+# solve this by using the patch delete syntax.
+manifest_apply rook-ceph/bootstrap || true
 
 manifest_apply vault/bootstrap
 

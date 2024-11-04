@@ -10,8 +10,10 @@ helmGlobals:
 helmCharts:
   - name: vault
     repo: https://helm.releases.hashicorp.com
-    #version:
-    #includeCRDs: true
+    version: 0.28.1
+    namespace: vault
+    releaseName: vault
+    includeCRDs: true
     valuesFile: values.yaml
 
 resources:

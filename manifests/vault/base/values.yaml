@@ -1,8 +1,6 @@
 ---
 global:
   enabled: false
-  psp:
-    enable: true
 injector:
   #enabled: true
   #logFormat: "json"
