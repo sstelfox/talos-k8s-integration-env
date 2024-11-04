@@ -1,2 +1,4 @@
+# Cached images
 /airgap_registry/
+# Downloaded charts, rendered manifests, kernel/intiramfs, etc
 /_out/

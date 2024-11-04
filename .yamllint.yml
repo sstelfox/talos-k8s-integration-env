@@ -1,7 +1,6 @@
 extends: default
 
 rules:
-  # HAHAH no... Have you ever seen a k8s manifest?
   line-length: disable
 
   # I frequently comment out chunks of sections in YAML while trying to work-out some unrelated bit,
