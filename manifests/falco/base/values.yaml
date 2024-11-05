@@ -1,0 +1,18 @@
+---
+# Official reference: https://falco.org/docs/setup/kubernetes/
+#
+# The official documentation include this flag, but it seems like a silly thing to enable for a
+# deamonset...
+#tty: true
+
+collectors:
+  enabled: true
+
+  # Talos uses containerd as its underlying runtime, make sure its enabled and the other ones are
+  # disabled
+  containerd:
+    enabled: true
+  crio:
+    enabled: false
+  docker:
+    enabled: false

@@ -7,11 +7,16 @@ configurations, workflows, and considerations may be useful to others.
 
 The services currently present in the repo, but may not be fully configured are:
 
-* Kyverno (and default policies)
+* Kyverno
 * Cilium
 * Rook/Ceph
 * Vault
 * ArgoCD
+* Falco
+* Loki
+* Promtail
+* Tempo
+* Grafana
 
 ## Cluster Bring Up
 

@@ -24,3 +24,6 @@ manifest_apply rook-ceph/bootstrap || true
 manifest_apply vault/bootstrap
 
 manifest_apply argocd/bootstrap
+
+# Might want this earlier, need to assess
+manifest_apply falco/bootstrap
