@@ -7,52 +7,62 @@ namespace: observability
 helmGlobals:
   chartHome: ../../../_out/charts/
 
-# Roughly setting up according to this:
+# Roughly setting up according to this: https://invisibl.io/blog/kubernetes-observability-loki-cortex-tempo-prometheus-grafana/
 
 helmCharts:
   # TODO: there are several different helm charts for loki here, this is the base but I'm not sure
   # its the one I want...
-  #- name: loki
-  #  repo: https://grafana.github.io/helm-charts
-  #  #version:
+  - name: loki
+    repo: https://grafana.github.io/helm-charts
+    version: 6.18.0
 
-  #  namespace: observability
-  #  releaseName: loki
+    namespace: observability
+    releaseName: observability-loki
 
-  #  # Set this if necessary
-  #  #includeCRDs: true
-  #  #valuesFile: values.yaml
+    # Set this if necessary
+    #includeCRDs: true
+    #valuesFile: loki-values.yaml
   # TODO: There are a few other pieces of software fulfilling this role that are equally
   # low-resource and might provide better performance or first pass filtering that are worth
   # exploring...
   - name: promtail
     repo: https://grafana.github.io/helm-charts
-    #version:
+    version: 6.16.6
 
     namespace: observability
-    releaseName: grafana
+    releaseName: observability-grafana
 
     # Set this if necessary
     #includeCRDs: true
-    #valuesFile: values.yaml
+    #valuesFile: promtail-values.yaml
   # TODO: there are several different helm charts for tempo here, this is the base but I'm not sure
   # its the one I want...
   - name: tempo
     repo: https://grafana.github.io/helm-charts
-    #version:
+    version: 1.11.0
 
     namespace: observability
-    releaseName: grafana
+    releaseName: observability-tempo
 
     # Set this if necessary
     #includeCRDs: true
-    #valuesFile: values.yaml
-  - name: grafana
+    #valuesFile: tempo-values.yaml
+  - name: mimir
     repo: https://grafana.github.io/helm-charts
     #version:
 
     namespace: observability
-    releaseName: grafana
+    releaseName: observability-mimir
+
+    # Set this if necessary
+    #includeCRDs: true
+    #valuesFile: mimir-values.yaml
+  - name: grafana
+    repo: https://grafana.github.io/helm-charts
+    version: 8.5.12
+
+    namespace: observability
+    releaseName: observability-grafana
 
     # Set this if necessary
     #includeCRDs: true
