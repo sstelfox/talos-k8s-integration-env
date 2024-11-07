@@ -7,11 +7,28 @@ namespace: observability
 helmGlobals:
   chartHome: ../../../_out/charts/
 
-# Roughly setting up according to this: https://invisibl.io/blog/kubernetes-observability-loki-cortex-tempo-prometheus-grafana/
-
 helmCharts:
-  # TODO: there are several different helm charts for loki here, this is the base but I'm not sure
-  # its the one I want...
+  # Metric storage, providing a time-series database for long-term highly available storage of
+  # Prometheus data.
+  #
+  # TODO: Pulled in and heavily trimmed down the defaults but this is a resource heavy system and it
+  #   still takes up quite a bit. Not HA.
+  # TODO: Currently pointing at a self-hosted MinIO instance, should point at Ceph
+  - name: mimir-distributed
+    repo: https://grafana.github.io/helm-charts
+    #version:
+
+    namespace: observability
+    releaseName: observability-mimir
+
+    # Set this if necessary
+    #includeCRDs: true
+    valuesFile: mimir-values.yaml
+
+  # TODO: Prometheus here
+
+  # TODO: This needs an object store available before it gets applied. For this cluster that is
+  # going to be Ceph S3 Gateway.
   - name: loki
     repo: https://grafana.github.io/helm-charts
     version: 6.18.0
@@ -19,12 +36,10 @@ helmCharts:
     namespace: observability
     releaseName: observability-loki
 
-    # Set this if necessary
     #includeCRDs: true
-    #valuesFile: loki-values.yaml
-  # TODO: There are a few other pieces of software fulfilling this role that are equally
-  # low-resource and might provide better performance or first pass filtering that are worth
-  # exploring...
+    valuesFile: loki-values.yaml
+
+  # Soft-dependency on Loki above as that is where the collected logs will be sent
   - name: promtail
     repo: https://grafana.github.io/helm-charts
     version: 6.16.6
@@ -35,8 +50,14 @@ helmCharts:
     # Set this if necessary
     #includeCRDs: true
     #valuesFile: promtail-values.yaml
-  # TODO: there are several different helm charts for tempo here, this is the base but I'm not sure
-  # its the one I want...
+
+  # Tempo collects application and system traces. Its well supported in the ecosystem and accepts
+  # traces from common opentracing clients. This integrates with Mimir, Prometheus, and Loki so
+  # those should be setup first. This also includes dashboards for Grafana but that setup should be
+  # delayed until the stable cluster target.
+  #
+  # TODO: These currently configure minio backends that collide with each other. These will be
+  # pointing at the Ceph S3 gateway in the cluster once that is setup.
   - name: tempo
     repo: https://grafana.github.io/helm-charts
     version: 1.11.0
@@ -47,16 +68,28 @@ helmCharts:
     # Set this if necessary
     #includeCRDs: true
     #valuesFile: tempo-values.yaml
-  - name: mimir
+
+  # OpenTelemetry collector, not to be confused with OpenTracing which is handled by tempo. This
+  # sends its data to the Loki, Tempo, Mimir stack and exposes dashboards via Grafana (though those
+  # registrations need to occur in the stable target).
+  - name: alloy
     repo: https://grafana.github.io/helm-charts
     #version:
 
     namespace: observability
-    releaseName: observability-mimir
+    releaseName: observability-alloy
 
     # Set this if necessary
     #includeCRDs: true
-    #valuesFile: mimir-values.yaml
+    #valuesFile: alloy-values.yaml
+
+  # Display and alert system for the various log, stat, trace, and metric collection services
+  # configured in this manifest.
+  #
+  # We want to automatically setup our datasources for this one. Other services can automatically
+  # deploy managed dashboards but it requires the CRDs defined in this chart. To get around this
+  # catch 22, any chart that can deploy a dashboard before this is setup will require a stable mode
+  # version to enable that dashboard.
   - name: grafana
     repo: https://grafana.github.io/helm-charts
     version: 8.5.12
@@ -68,8 +101,5 @@ helmCharts:
     #includeCRDs: true
     #valuesFile: values.yaml
 
-# Only needed if you need to create the namespace this chart is deploying into. For charts that are
-# application/environment specific or have multiple deploys this should happen in the overlay
-# directory so the namespace can include deployment specific indicators.
 resources:
   - namespace.yaml

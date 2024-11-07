@@ -24,6 +24,7 @@ helmCharts:
     releaseName: kyverno-policies
 
     version: 3.3.0
+    includeCRDs: true
     valuesFile: values.yaml
 
 resources:

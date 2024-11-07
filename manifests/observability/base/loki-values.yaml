@@ -1,0 +1,74 @@
+---
+# Note: This config is the simple standalone version of the deployment, the simple scalable is a
+# better base for a production cluster.
+loki:
+  commonConfig:
+    replication_factor: 1
+  schemaConfig:
+    configs:
+      - from: 2024-04-01
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 6h
+  ingester:
+    chunk_encoding: snappy
+  tracing:
+    enabled: true
+  querier:
+    # Default is 4, reduced to run a bit lighter in the integration cluster
+    max_concurrent: 2
+
+deploymentMode: SingleBinary
+singleBinary:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 2
+      memory: 1Gi
+  extraEnv:
+    # Keep a little bit lower than memory limits set above
+    - name: GOMEMLIMIT
+      value: 1750MiB
+
+chunksCache:
+  # Default is 500MB, there won't be significant log volume in this cluster, production should tune
+  # this appropriately.
+  writebackSizeLimit: 16MB
+
+# TODO: This is probably temporary, it should point at our Ceph cluster
+minio:
+  enabled: true
+
+# Small to medium clusters can get away with scaling the system with chunkier components.
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+# These are for the distributed config and are most appropriate for large deployments
+ingester:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+queryScheduler:
+  replicas: 0
+distributor:
+  replicas: 0
+compactor:
+  replicas: 0
+indexGateway:
+  replicas: 0
+bloomCompactor:
+  replicas: 0
+bloomGateway:
+  replicas: 0
