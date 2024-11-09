@@ -32,24 +32,6 @@ cgroup:
 k8sServiceHost: localhost
 k8sServicePort: 7445
 
-# Unavailability of the network control plane will break the clusters networking. This should have
-# a rate limit that trips before the service gets DoS'd by requests to allow the small thing to
-# fail when it would otherwise impact everything. Should be set to a generous value that won't
-# normally be hit.
-#apiRateLimit:
-
-authentication:
-  mutual:
-    # The following is the default port used by the agent to perform mutual authentication. We'll
-    # need to make sure this is allowed through the host firewalls.
-    #port: 4250
-    spire:
-      install:
-        agent:
-          # Disabled by default, there wasn't much on this setting where I found it but seems
-          # like a good thing to enable... Probably needs certificate rotation.
-          #skipKubeletVerification: false
-
 # Enable the Google designed traffic congestion TCP mechanism
 bandwidthManager:
   bbr: true
@@ -62,8 +44,8 @@ bpf:
     policyVerdict: true
     # I should review the trace events to see how impactful they are on the performance of the
     # network. They may not be worth the threat hunting benefits they provide.
-    trace:
-      enabled: true
+    #trace:
+    #  enabled: true
 
   # This is the default, but set it explicitly as cluster IPs should not be available outside the
   # cluster
@@ -78,10 +60,6 @@ bpf:
 
 # More efficient clock probing
 bpfClockProbe: true
-
-# Another rate-limit config but a more complex one, need to look into further.
-#ciliumEndpointSlice:
-#  rateLimits:
 
 # Only needed in cluster mesh. ID must be unique among all clusters. Name is limited to 32
 # alpha-numeric + hyphen and must begin and end with an alpha.
@@ -100,6 +78,37 @@ cluster:
 #encryption:
 #  enabled: true
 
-#hubble:
+priorityClassName: system-node-critical
+resources:
+  requests:
+    cpu: 100m       # Base requirement for packet processing
+    memory: 200Mi   # Minimum for BPF maps and agent
+  limits:
+    # No CPU limit, this is very bursty based on service's usage. We don't want these getting
+    # killed because a service sends a bunch of traffic unexpectedly.
+    memory: 500Mi   # Trigger resets if there is a memory leak, disruptive but more noticable
+
+# Additional security hardening
+enableXTSocketFallback: false
+policyEnforcementMode: "default"
+
+# Node initialization
+waitForKubeProxy: false
+
+operator:
+  enabled: true
+  replicas: 1
+  rollOutPods: true
+
+hubble:
+  enabled: true
+  metrics:
+    enabled:
+      - drop  # Track dropped packets for troubleshooting
+      - tcp   # Basic TCP connection metrics
+      - flow  # General network flow information
+    serviceMonitor:
+      enabled: false # Should be enabled in the stable phase
+#  redact: {} # Check out this config object, allows filtering out known sensitive headers from traces...
 #  relay:
 #    enabled: true
