@@ -25,8 +25,6 @@ helmCharts:
     #includeCRDs: true
     valuesFile: mimir-values.yaml
 
-  # TODO: Prometheus here
-
   # TODO: This needs an object store available before it gets applied. For this cluster that is
   # going to be Ceph S3 Gateway.
   - name: loki
@@ -47,7 +45,6 @@ helmCharts:
     namespace: observability
     releaseName: observability-grafana
 
-    # Set this if necessary
     #includeCRDs: true
     #valuesFile: promtail-values.yaml
 
@@ -65,23 +62,22 @@ helmCharts:
     namespace: observability
     releaseName: observability-tempo
 
-    # Set this if necessary
     #includeCRDs: true
     #valuesFile: tempo-values.yaml
 
-  # OpenTelemetry collector, not to be confused with OpenTracing which is handled by tempo. This
-  # sends its data to the Loki, Tempo, Mimir stack and exposes dashboards via Grafana (though those
-  # registrations need to occur in the stable target).
-  - name: alloy
-    repo: https://grafana.github.io/helm-charts
-    #version:
+  # Alloy is Grafana Labs combo Mimir/Loki/Tempo all in one which can be more resource efficient
+  # but it's less proven and not feature compatible to date. There are some additional features it
+  # does provide like better correlation of data between different sources. Worth trying out but
+  # not for this cluster...
+  #- name: alloy
+  #  repo: https://grafana.github.io/helm-charts
+  #  version:
 
-    namespace: observability
-    releaseName: observability-alloy
+  #  namespace: observability
+  #  releaseName: observability-alloy
 
-    # Set this if necessary
-    #includeCRDs: true
-    #valuesFile: alloy-values.yaml
+  #  includeCRDs: true
+  #  valuesFile: alloy-values.yaml
 
   # Display and alert system for the various log, stat, trace, and metric collection services
   # configured in this manifest.
@@ -97,7 +93,6 @@ helmCharts:
     namespace: observability
     releaseName: observability-grafana
 
-    # Set this if necessary
     #includeCRDs: true
     #valuesFile: values.yaml
 
