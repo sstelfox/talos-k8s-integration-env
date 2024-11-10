@@ -28,7 +28,7 @@ sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
   --vmlinuz-path=./_out/vmlinuz-${TALOS_ARCH}-${TALOS_VERSION} \
   --initrd-path=./_out/initramfs-${TALOS_ARCH}-${TALOS_VERSION}.xz \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
-  --disk 6144 --extra-disks 1 --extra-disks-size 5120
+  --disk 6148 --extra-disks 1 --extra-disks-size 10240
 if [ $? -ne 0 ]; then
   # We're going to want to diagnose why the bring-up failed, setup the kubeconfig so we can just do
   # that.
@@ -44,6 +44,6 @@ fi
 #
 # This test does deploy privileged containers into the cluster and tried to clean up after itself,
 # but we should avoid running it on the production airgap cluster.
-#./tests/cilium/validate_core.sh
+./tests/cilium/validate_core.sh
 
 ./scripts/bootstrap-apps.sh
