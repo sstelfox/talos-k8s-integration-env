@@ -2,6 +2,10 @@
 ipam:
   mode: kubernetes
 
+# We manage the entire system's network policies using Cilium
+hostFirewall:
+  enabled: true
+
 kubeProxyReplacement: true
 
 securityContext:
@@ -90,7 +94,10 @@ resources:
 
 # Additional security hardening
 enableXTSocketFallback: false
-policyEnforcementMode: "default"
+#policyEnforcementMode: "always" # All traffic must be explicitly allowed
+
+# While diagnosing the host traffic I don't want to block anything
+policyEnforcementMode: "never"
 
 # Node initialization
 waitForKubeProxy: false
@@ -109,6 +116,15 @@ hubble:
       - flow  # General network flow information
     serviceMonitor:
       enabled: false # Should be enabled in the stable phase
-#  redact: {} # Check out this config object, allows filtering out known sensitive headers from traces...
-#  relay:
-#    enabled: true
+  #redact: {} # Check out this config object, allows filtering out known sensitive headers from traces...
+  peerService:
+    clusterDomain: "firmament-integration.k8s.grayiron.io"
+  relay:
+    enabled: true
+  tls:
+    enabled: true
+    auto:
+      enabled: true
+      # Warning: This is a temporary certificate and no automated rotation is setup for these
+      # self-signed certs. I intend to replace these in a later stage.
+      method: "cronJob"
