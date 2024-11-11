@@ -44,6 +44,6 @@ fi
 #
 # This test does deploy privileged containers into the cluster and tried to clean up after itself,
 # but we should avoid running it on the production airgap cluster.
-./tests/cilium/validate_core.sh
+#./tests/cilium/validate_core.sh
 
-./scripts/bootstrap-apps.sh
+#./scripts/bootstrap-apps.sh

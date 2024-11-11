@@ -92,8 +92,11 @@ resources:
     # killed because a service sends a bunch of traffic unexpectedly.
     memory: 500Mi   # Trigger resets if there is a memory leak, disruptive but more noticable
 
-enableXTSocketFallback: false   # Traffic must go through our filters
-policyEnforcementMode: "always" # All traffic must be explicitly allowed
+# Traffic must go through our filters, we do not want to fail safe here
+enableXTSocketFallback: false
+
+# All traffic must be explicitly allowed
+policyEnforcementMode: "always"
 
 # While diagnosing the host traffic I don't want to block anything
 policyAuditMode: true

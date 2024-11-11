@@ -22,6 +22,7 @@ spec:
       - kube-apiserver
   ingress:
     # Let port-forwarded CLI connections the ability to talk to the relay as well
+    # Not convinced this is useful
     - fromEntities:
       - host
       toPorts:
