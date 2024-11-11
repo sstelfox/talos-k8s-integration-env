@@ -92,12 +92,11 @@ resources:
     # killed because a service sends a bunch of traffic unexpectedly.
     memory: 500Mi   # Trigger resets if there is a memory leak, disruptive but more noticable
 
-# Additional security hardening
-enableXTSocketFallback: false
-#policyEnforcementMode: "always" # All traffic must be explicitly allowed
+enableXTSocketFallback: false   # Traffic must go through our filters
+policyEnforcementMode: "always" # All traffic must be explicitly allowed
 
 # While diagnosing the host traffic I don't want to block anything
-policyEnforcementMode: "never"
+policyAuditMode: true
 
 # Node initialization
 waitForKubeProxy: false

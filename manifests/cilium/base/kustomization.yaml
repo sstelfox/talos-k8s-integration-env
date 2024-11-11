@@ -17,3 +17,6 @@ helmCharts:
 
     includeCRDs: true
     valuesFile: values.yaml
+
+resources:
+  - ../policies/hubble-relay-policy.yaml

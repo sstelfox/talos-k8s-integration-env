@@ -1,0 +1,39 @@
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "hubble-relay-policy"
+  namespace: kube-system
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s-app: hubble-relay
+  egress:
+    # Allow the hubble-relay to access the agent pods to collect information on active flows
+    - toEndpoints:
+        - matchLabels:
+            k8s-app: cilium
+      toPorts:
+        - ports:
+          - port: "4244"
+            protocol: TCP
+    # The relay talks to the API server to retrieve metadata about other hosts and containers
+    - toEntities:
+      - kube-apiserver
+  ingress:
+    # Let port-forwarded CLI connections the ability to talk to the relay as well
+    - fromEntities:
+      - host
+      toPorts:
+        - ports:
+          - port: "4245"
+            protocol: TCP
+    # I don't make use of the Hubble UI, but leaving this in the policy for others that may come
+    # across this.
+    #- fromEndpoints:
+    #    - matchLabels:
+    #        k8s-app: hubble-ui
+    #  toPorts:
+    #    - ports:
+    #      - port: "4245"
+    #        protocol: TCP
