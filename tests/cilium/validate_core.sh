@@ -11,6 +11,14 @@ fi
 
 kubectl apply -f tests/cilium/relaxed-cilium-test-psp.yaml
 
+# Hubble tests require a port-forward to the relay:
+#
+# kubectl port-forward -n kube-system svc/hubble-relay --address ::1 4245:80
+#
+# It is weirdly looking specifically for the v6 loopback address, that may be system dependent
+# based on whether your system includes that address in its localhost lookup. It seems to prefer v6
+# when available.
+
 EXIT_CODE=0
 if ! cilium connectivity test; then
   echo "error: connectivity test failed"

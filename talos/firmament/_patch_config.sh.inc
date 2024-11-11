@@ -25,5 +25,8 @@ shared_patches="--config-patch @talos/common/storage/enable_disk_encryption.yaml
 shared_patches="--config-patch @talos/common/health/enable_watchdog.yaml ${shared_patches}"
 
 
+worker_patches="--config-patch-worker @talos/common/meta/annotate_worker_roles.yaml ${worker_patches}"
+
+
 shared_patches="--config-patch @talos/common/network/disable_flannel.yaml ${shared_patches}"
 control_plane_patches="--config-patch-control-plane @talos/common/network/setup_cillium.yaml ${control_plane_patches}"
