@@ -1,0 +1,107 @@
+---
+# Note: By default this policy also allows ICMP & ICMPv6 traffic at a maximum rate of 5pps. This
+# _may_ allow traffic between the pod/service subnets by default for allowing native routing CNIs
+# to work.
+#
+# TODO: Cilium has a native routing mode that has a more efficient MTU, this tunnel feels like it
+# might make this firewall simpler, but because of the default native routing rules it may make
+# sense... Will need to see how the Cilium host firewall interacts with this...
+apiVersion: v1alpha1
+kind: NetworkDefaultActionConfig
+ingress: block
+---
+# Etcd control and synchronization traffic should only occur between the control plane nodes.
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: etcd-ingress
+portSelector:
+  ports:
+    - 2379-2380
+  protocol: tcp
+ingress:
+  # These three hardcoded addresses are the control plane addresses I'll get as long as I leave the
+  # control plane node count at 3. This is VERY fragile. It might be worth actually using different
+  # subnets for the control and worker nodes to simplify the deployment...
+  - subnet: 10.5.0.2/32
+  - subnet: 10.5.0.3/32
+  - subnet: 10.5.0.4/32
+---
+# All nodes need to be able to access each other's Kubernetes API servers and the management nodes
+# need to be able to as well.
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: kubernetes-api-ingress
+portSelector:
+  ports:
+    - 6443
+  protocol: tcp
+ingress:
+  # Management access to the cluster, recommended defaults is are wide open, and roll the
+  # inter-cluster communication into the single set of rules like so:
+  #- subnet: 0.0.0.0/0
+  #- subnet: ::/0
+  # ... Instead we'll allow our management host explicitly:
+  - subnet: 10.5.0.1/32
+  # ... and also explicitly allow our cluster's network. This looks a little funny as I'm
+  # excluding an address already alllowed but I've left it as an explicit reminder to update for
+  # the production clusters:
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32
+---
+# Allow Cilium's inter-node tunneling between cluster nodes only
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: cni-cilium-vxlan-ingress
+portSelector:
+  ports:
+    - 8472
+  protocol: udp
+ingress:
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32
+---
+# All nodes need to be able to access each other's Kubelet services
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: kubelet-ingress
+portSelector:
+  ports:
+    - 10250
+  protocol: tcp
+ingress:
+  # This could be tightened up more by restricting to just the nodes in the network, but the
+  # services are both encrypted and authenticated, and for now not worth the added overhead that
+  # would be templating this file.
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: apid-ingress
+portSelector:
+  ports:
+    - 50000
+  protocol: tcp
+ingress:
+  # Management access to the cluster, recommended defaults is are wide open, and roll the
+  # inter-cluster communication into the single set of rules like so:
+  #- subnet: 0.0.0.0/0
+  #- subnet: ::/0
+  # ... Instead we'll allow our management host explicitly:
+  - subnet: 10.5.0.1/32
+  # ... and also explicitly allow our cluster's network. This looks a little funny as I'm
+  # excluding an address already alllowed but I've left it as an explicit reminder to update for
+  # the production clusters:
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: trustd-ingress
+portSelector:
+  ports:
+    - 50001
+  protocol: tcp
+ingress:
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32

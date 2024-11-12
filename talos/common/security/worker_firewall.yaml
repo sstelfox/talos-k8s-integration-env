@@ -1,0 +1,50 @@
+---
+# Note: By default this policy also allows ICMP & ICMPv6 traffic at a maximum rate of 5pps. This
+# _may_ allow traffic between the pod/service subnets by default for allowing native routing CNIs
+# to work.
+#
+# TODO: Cilium has a native routing mode that has a more efficient MTU, this tunnel feels like it
+# might make this firewall simpler, but because of the default native routing rules it may make
+# sense... Will need to see how the Cilium host firewall interacts with this...
+apiVersion: v1alpha1
+kind: NetworkDefaultActionConfig
+ingress: block
+---
+# All nodes need to be able to access each other's Kubelet services
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: kubelet-ingress
+portSelector:
+  ports:
+    - 10250
+  protocol: tcp
+ingress:
+  # This could be tightened up more by restricting to just the nodes in the network, but the
+  # services are both encrypted and authenticated, and for now not worth the added overhead that
+  # would be templating this file.
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32
+---
+# All nodes need to be able to access each other's Kubernetes API servers.
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: kubernetes-api-ingress
+portSelector:
+  ports:
+    - 50000
+  protocol: tcp
+ingress:
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32
+---
+# Allow Cilium's inter-node tunneling between cluster nodes only
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: cni-cilium-vxlan-ingress
+portSelector:
+  ports:
+    - 8472
+  protocol: udp
+ingress:
+  - subnet: 10.5.0.0/24
+    except: 10.5.0.1/32

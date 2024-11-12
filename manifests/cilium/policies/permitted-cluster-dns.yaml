@@ -1,0 +1,36 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumClusterWideNetworkPolicy
+metadata:
+  name: permitted-cluster-dns
+spec:
+  endpointSelector:
+    matchLabels:
+      k8s-app: kube-dns
+  ingress:
+    - fromEndpoints:
+        # Match all pods, everything within the cluster is permitted to query the cluster DNS
+        # servers, but only the CoreDNS pods are allowed to talk to our upstreams.
+        - {}
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+          # Can restrict lookups to an explicit allow-list of queries...
+          #rules:
+          #  dns:
+          #    - matchPattern: "*.grayiron.io"
+  egress:
+    - toCIDRSet:
+        # Cloudflare addresses
+        - cidr: "1.1.1.1/32"
+        - cidr: "1.0.0.1/32"
+        - cidr: "2606:4700:4700::1111/128"
+        - cidr: "2606:4700:4700::1001/128"
+      toPorts:
+        - ports:
+          - port: "53"
+            protocol: UDP
+          - port: "53"
+            protocol: TCP
