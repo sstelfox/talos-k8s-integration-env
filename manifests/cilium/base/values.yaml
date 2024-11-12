@@ -8,6 +8,7 @@ routingMode: native
 autoDirectNodeRoutes: true
 directRoutingSkipUnreachable: true
 ipv4NativeRoutingCIDR: 10.5.0.0/24
+ipv6NativeRoutingCIDR: fd42:cafe:face:d00d::/64
 
 ipv6:
   enabled: true
