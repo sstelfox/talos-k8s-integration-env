@@ -1,0 +1,9 @@
+---
+# Customize the specific time servers that wer're using. Largely left as placeholders here until
+# the proper environment is setup.
+version: v1alpha1
+machine:
+  time:
+    servers:
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org

@@ -1,0 +1,11 @@
+---
+# Customize the specific nameservers that wer're using. Largely left as placeholders here until the
+# proper environment is setup.
+version: v1alpha1
+machine:
+  network:
+    nameservers:
+      - 1.1.1.1
+      - 1.0.0.1
+      - 2606:4700:4700::1111
+      - 2606:4700:4700::1001

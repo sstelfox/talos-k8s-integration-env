@@ -6,10 +6,11 @@ worker_patches=""
 
 
 shared_patches="--config-patch @talos/firmament/cluster-meta.yaml ${shared_patches}"
+shared_patches="--config-patch @talos/common/network/name_servers.yaml ${shared_patches}"
+shared_patches="--config-patch @talos/common/network/time_servers.yaml ${shared_patches}"
 
 
 shared_patches="--config-patch @talos/common/airgap_config/internal_discovery_service.yaml ${shared_patches}"
-#shared_patches="--config-patch @talos/common/airgap_config/pause_image.yaml ${shared_patches}"
 shared_patches="--config-patch @talos/common/airgap_config/ptp_host_clock.yaml ${shared_patches}"
 shared_patches="--config-patch @talos/common/airgap_config/registry.yaml ${shared_patches}"
 
