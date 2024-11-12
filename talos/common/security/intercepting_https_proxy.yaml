@@ -1,0 +1,32 @@
+---
+machine:
+  env:
+    http_proxy: "http://10.5.0.1:8888"
+    https_proxy: "http://10.5.0.1:8889"
+---
+apiVersion: v1alpha1
+kind: TrustedRootsConfig
+name: intercepting-proxy-ca
+# This comes from the generated ./services/intercepting_proxy/certs/proxy.crt file
+certificates: |-
+  -----BEGIN CERTIFICATE-----
+  MIIDbTCCAlWgAwIBAgIUNBHRMtmdyoqMaMPEFwNyFdGo2zAwDQYJKoZIhvcNAQEL
+  BQAwRjELMAkGA1UEBhMCWFgxEzARBgNVBAgMClNvbWUtU3RhdGUxCjAIBgNVBAcM
+  ASAxCjAIBgNVBAoMASAxCjAIBgNVBAMMASowHhcNMjQxMTEyMDMxNjM0WhcNMjUw
+  MjEwMDMxNjM0WjBGMQswCQYDVQQGEwJYWDETMBEGA1UECAwKU29tZS1TdGF0ZTEK
+  MAgGA1UEBwwBIDEKMAgGA1UECgwBIDEKMAgGA1UEAwwBKjCCASIwDQYJKoZIhvcN
+  AQEBBQADggEPADCCAQoCggEBAL4iKrNJw0m06EY9BCto4/e0A4d/YCnLUxEZfZLS
+  yy41FHrs85SNqpT69XTVLXjkBpn12pTMGZ6wtu5rtDKe/seibjWErIvNmsVLriRp
+  0ZhbovRAuCpK5uYsvXc7GIwhLk+mntsu39Dyxbr7bR+CS5jbRP86warPE7OKLRSu
+  xTRwYg+b0PvkFKkfOLHE4ABDUPNat6LP+JrTTw7kJAWEFMfZQPJ511xZF/6w5d8z
+  XuYC8LA4HFG6CeA7T84fDA9mli7FbpBXnKd/8csfbHokp9nug/7gbpl1tfL9dhYS
+  NpzkmHhhlAjkW8RKeBwRvUNzZOxk7FeoG6XgKHCP7nJ2XhUCAwEAAaNTMFEwHQYD
+  VR0OBBYEFBP6ezMzL0kO+dopH++Myd8vs6WqMB8GA1UdIwQYMBaAFBP6ezMzL0kO
+  +dopH++Myd8vs6WqMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEB
+  ABWfVQvRgyrqQvvw4LFz6xGfUzMiI5Y+qD09yf6Bqcaaz+vgoIJcRzKGiZUD8Jcj
+  /F4nKUvnS8n8S/LjSZ7J/zGl84gqDfGYasxKX6VIT8YG8gHROuxodiTLcFVFSccH
+  y4yHkAiwYHI3p6vBc0vBdGarXLxpZU5PekjNOgBuC9q9aR+KysLI0siIkc8lTWVb
+  3zpfGyxw1SYKWVIk8L8yqzwkfcDfxaQ8yeSS0IPducQFAoZuVlSR3wW3qq1oRsNL
+  qTN82/V7aA/dUFhQCtWQVWzpQ4HJ5rdKkOe+VaSY2y0saZ6uLJpjw6jVdUfTSq8U
+  gvODd9bhCdbL7bMgisiQK0U=
+  -----END CERTIFICATE-----
