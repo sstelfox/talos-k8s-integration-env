@@ -34,30 +34,19 @@ portSelector:
     - 50000
   protocol: tcp
 ingress:
-  # On the workers, this wouldn't normally be needed but the installer needs to access it...
-  - subnet: 0.0.0.0/0
-  - subnet: ::/0
-  #- subnet: 10.5.0.0/24
-    #  except: 10.5.0.1/32
----
-# Allow Cilium's inter-node tunneling between cluster nodes only
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: cni-cilium-vxlan-ingress
-portSelector:
-  ports:
-    - 8472
-  protocol: udp
-ingress:
+  # Worker nodes should be accessed via a control plane endpoint so does not need direct access
+  # from the management network.
   - subnet: 10.5.0.0/24
     except: 10.5.0.1/32
 ---
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
-name: dns-ingress
-portSelector:
-  ports:
-    - 53
-ingress:
-  - subnet: 0.0.0.0/0
-  - subnet: ::/0
+# Allow Cilium's inter-node tunneling between cluster nodes only
+#apiVersion: v1alpha1
+#kind: NetworkRuleConfig
+#name: cni-cilium-vxlan-ingress
+#portSelector:
+#  ports:
+#    - 8472
+#  protocol: udp
+#ingress:
+#  - subnet: 10.5.0.0/24
+#    except: 10.5.0.1/32
