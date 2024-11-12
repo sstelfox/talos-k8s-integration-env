@@ -46,7 +46,7 @@ ingress:
   # excluding an address already alllowed but I've left it as an explicit reminder to update for
   # the production clusters:
   - subnet: 10.5.0.0/24
-    except: 10.5.0.1/32
+    #  except: 10.5.0.1/32
 ---
 # Allow Cilium's inter-node tunneling between cluster nodes only
 apiVersion: v1alpha1
@@ -93,7 +93,7 @@ ingress:
   # excluding an address already alllowed but I've left it as an explicit reminder to update for
   # the production clusters:
   - subnet: 10.5.0.0/24
-    except: 10.5.0.1/32
+    #  except: 10.5.0.1/32
 ---
 apiVersion: v1alpha1
 kind: NetworkRuleConfig
