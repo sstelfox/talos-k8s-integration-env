@@ -2,6 +2,16 @@
 ipam:
   mode: kubernetes
 
+# Use routing mode as its more efficient on a per-packet level and will be necessary in the larger
+# clusters.
+routingMode: native
+autoDirectNodeRoutes: true
+directRoutingSkipUnreachable: true
+ipv4NativeRoutingCIDR: 10.5.0.0/24
+
+ipv6:
+  enabled: true
+
 # We manage the entire system's network policies using Cilium
 hostFirewall:
   enabled: true
