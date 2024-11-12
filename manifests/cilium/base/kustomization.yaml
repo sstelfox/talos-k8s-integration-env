@@ -20,4 +20,4 @@ helmCharts:
 
 resources:
   - ../policies/hubble-relay-policy.yaml
-  #- ../policies/permitted-cluster-dns.yaml
+  - ../policies/permitted-cluster-dns.yaml

@@ -102,7 +102,7 @@ resources:
     # killed because a service sends a bunch of traffic unexpectedly.
     memory: 500Mi   # Trigger resets if there is a memory leak, disruptive but more noticable
 
-# Traffic must go through our filters, we do not want to fail safe here
+# Traffic must go through our filters, we do not want to fail open here
 enableXTSocketFallback: false
 
 # All traffic must be explicitly allowed
@@ -123,9 +123,12 @@ hubble:
   enabled: true
   metrics:
     enabled:
+      - dns:query # Track DNS metrics
       - drop  # Track dropped packets for troubleshooting
       - tcp   # Basic TCP connection metrics
       - flow  # General network flow information
+      - icmp  # And network diagnostic mode
+      - http  # We'll want to allow matches to selective routes
     serviceMonitor:
       enabled: false # Should be enabled in the stable phase
   #redact: {} # Check out this config object, allows filtering out known sensitive headers from traces...
