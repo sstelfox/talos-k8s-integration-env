@@ -101,7 +101,7 @@ policyEnforcementMode: "always"
 # While diagnosing the host traffic I don't want to block anything
 policyAuditMode: true
 
-# Node initialization
+# We're taking over as the kube-proxy, we don't need to wait for anything
 waitForKubeProxy: false
 
 operator:

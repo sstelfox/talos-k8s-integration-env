@@ -10,6 +10,26 @@ apiVersion: v1alpha1
 kind: NetworkDefaultActionConfig
 ingress: block
 ---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: apid-ingress
+portSelector:
+  ports:
+    - 50000
+  protocol: tcp
+ingress:
+  # Management access to the cluster, recommended defaults is are wide open, and roll the
+  # inter-cluster communication into the single set of rules like so:
+  - subnet: 0.0.0.0/0
+  - subnet: ::/0
+  # ... Instead we'll allow our management host explicitly:
+  #- subnet: 10.5.0.1/32
+  # ... and also explicitly allow our cluster's network. This looks a little funny as I'm
+  # excluding an address already alllowed but I've left it as an explicit reminder to update for
+  # the production clusters:
+  #- subnet: 10.5.0.0/24
+    #  except: 10.5.0.1/32
+---
 # Etcd control and synchronization traffic should only occur between the control plane nodes.
 apiVersion: v1alpha1
 kind: NetworkRuleConfig
@@ -77,26 +97,6 @@ ingress:
 ---
 apiVersion: v1alpha1
 kind: NetworkRuleConfig
-name: apid-ingress
-portSelector:
-  ports:
-    - 50000
-  protocol: tcp
-ingress:
-  # Management access to the cluster, recommended defaults is are wide open, and roll the
-  # inter-cluster communication into the single set of rules like so:
-  #- subnet: 0.0.0.0/0
-  #- subnet: ::/0
-  # ... Instead we'll allow our management host explicitly:
-  - subnet: 10.5.0.1/32
-  # ... and also explicitly allow our cluster's network. This looks a little funny as I'm
-  # excluding an address already alllowed but I've left it as an explicit reminder to update for
-  # the production clusters:
-  - subnet: 10.5.0.0/24
-    #  except: 10.5.0.1/32
----
-apiVersion: v1alpha1
-kind: NetworkRuleConfig
 name: trustd-ingress
 portSelector:
   ports:
@@ -105,3 +105,13 @@ portSelector:
 ingress:
   - subnet: 10.5.0.0/24
     except: 10.5.0.1/32
+---
+apiVersion: v1alpha1
+kind: NetworkRuleConfig
+name: dns-ingress
+portSelector:
+  ports:
+    - 53
+ingress:
+  - subnet: 0.0.0.0/0
+  - subnet: ::/0
