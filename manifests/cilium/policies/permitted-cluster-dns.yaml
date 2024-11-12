@@ -1,11 +1,12 @@
+---
 apiVersion: "cilium.io/v2"
-kind: CiliumClusterWideNetworkPolicy
+kind: CiliumNetworkPolicy
 metadata:
   name: permitted-cluster-dns
+  namespace: kube-system
+  labels:
+    "io.cilium.policy.audit-mode": "enabled"
 spec:
-  annotations:
-    "cilium.io/policy-audit-mode": "enabled"
-
   endpointSelector:
     matchLabels:
       k8s-app: kube-dns
