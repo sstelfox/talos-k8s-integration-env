@@ -1,0 +1,13 @@
+# Github domains...
+github.com
+*.github.com
+*.githubusercontent.com
+*.github.io
+
+# Some docker domains...
+*.docker.io
+*.docker.com
+
+# Maybe the quay registries for now?
+quay.io
+*.quay.io
