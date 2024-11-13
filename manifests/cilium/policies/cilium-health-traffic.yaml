@@ -7,21 +7,37 @@ metadata:
   #  "io.cilium.policy.audit-mode": "enabled"
 spec:
   description: "Allow Cilium health check traffic to health endpoints"
+
   endpointSelector:
     matchLabels:
       reserved:health: ""
+
   ingress:
+    # Allow node to check on Cilium's backbone health directly
     - fromEntities:
-        - "remote-node"
-        - "host"
+        - remote-node
+        - host
       toPorts:
         - ports:
           - port: "4240"
             protocol: TCP
+
+    # The API server also makes use of ICMP to monitor node health
+    - fromEntities:
+        - kube-apiserver
+      icmps:
+        - fields:
+          - type: 8
+            family: IPv4
+          # I don't currently have IPv6 setup in the cluster but its on the todo list and this is
+          # one less issue we'll hit when that happens.
+          - type: 128
+            family: IPv6
+
   egress:
     - toEntities:
-        - "remote-node"
-        - "host"
+        - remote-node
+        - host
       toPorts:
         - ports:
           - port: "4240"

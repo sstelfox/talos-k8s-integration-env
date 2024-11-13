@@ -22,6 +22,7 @@ resources:
   # Core service network policies
   - ../policies/kube-apiserver.yaml
   - ../policies/permitted-cluster-dns.yaml
+  - ../policies/host-cluster-traffic.yaml
 
   # Cilium service network traffic (required for core operation)
   - ../policies/cilium-health-traffic.yaml

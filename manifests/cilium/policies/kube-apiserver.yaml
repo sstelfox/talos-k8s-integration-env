@@ -12,6 +12,17 @@ spec:
       - { key: kube-apiserver, operator: Exists }
 
   egress:
+
+    # Allow the kube API server to talk to the etcd peer port. I'd kind of expect it to be treated
+    # as a client but this is what it was connecting to and is probably using a faster data exchange
+    # method than a normal client...
+    - toEntities:
+        - host
+      toPorts:
+        - ports:
+          - port: "2380"
+            protocol: TCP
+
     # The Kube API Server connects to kube-dns on 8080 for its liveness and readiness checks. 8081
     # is apparently the metrics port and I haven't been able to find any documentation as to why
     # the API server talks to the DNS metrics.
@@ -24,16 +35,6 @@ spec:
           - port: "8080"
             protocol: TCP
           - port: "8081"
-            protocol: TCP
-
-    # Allow the kube API server to talk to the etcd peer port. I'd kind of expect it to be treated
-    # as a client but this is what it was connecting to and is probably using a faster data exchange
-    # method than a normal client...
-    - toEntities:
-        - host
-      toPorts:
-        - ports:
-          - port: "2380"
             protocol: TCP
 
   ingress:
