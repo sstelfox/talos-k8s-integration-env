@@ -1,0 +1,28 @@
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "health-check-policy"
+  #labels:
+  #  "io.cilium.policy.audit-mode": "enabled"
+spec:
+  description: "Allow Cilium health check traffic to health endpoints"
+  endpointSelector:
+    matchLabels:
+      reserved:health: ""
+  ingress:
+    - fromEntities:
+        - "remote-node"
+        - "host"
+      toPorts:
+        - ports:
+          - port: "4240"
+            protocol: TCP
+  egress:
+    - toEntities:
+        - "remote-node"
+        - "host"
+      toPorts:
+        - ports:
+          - port: "4240"
+            protocol: TCP

@@ -4,8 +4,8 @@ kind: CiliumNetworkPolicy
 metadata:
   name: permitted-cluster-dns
   namespace: kube-system
-  labels:
-    "io.cilium.policy.audit-mode": "enabled"
+  #labels:
+  #  "io.cilium.policy.audit-mode": "enabled"
 spec:
   endpointSelector:
     matchExpressions:
