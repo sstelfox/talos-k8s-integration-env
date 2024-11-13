@@ -46,4 +46,4 @@ fi
 # but we should avoid running it on the production airgap cluster.
 #./tests/cilium/validate_core.sh
 
-#./scripts/bootstrap-apps.sh
+./scripts/bootstrap-apps.sh

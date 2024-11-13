@@ -10,6 +10,7 @@ helmCharts:
   - name: cilium
     repo: https://helm.cilium.io/
     version: 1.15.6
+
     includeCRDs: true
     valuesFile: ../base/values.yaml
     additionalValuesFiles:
@@ -18,6 +19,15 @@ helmCharts:
       #- enable-bgp-lb.yaml
 
 resources:
+  # Core service network policies
+  - ../policies/kube-apiserver.yaml
+  - ../policies/permitted-cluster-dns.yaml
+
+  # Cilium service network traffic (required for core operation)
+  - ../policies/cilium-health-traffic.yaml
+  - ../policies/hubble-relay-policy.yaml
+
+  # Configuration refinement for Cilium services
   - l2-lb-cfg.yaml
   #- bgp-lb-cfg.yaml
   #- bgp-lb-peer-secrets.yaml

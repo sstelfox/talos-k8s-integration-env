@@ -22,7 +22,5 @@ authentication:
 #  namespace: grafana
 
 #hubble:
-#  relay:
-#    enabled: true
 #  ui:
 #    enabled: true
