@@ -19,7 +19,7 @@ helmCharts:
     valuesFile: values.yaml
 
 resources:
-  # Need to wait for the CRDs to settle before we can apply these policies,
-  # we'll apply them during bootstrap
-  #- ../policies/hubble-relay-policy.yaml
-  #- ../policies/permitted-cluster-dns.yaml
+  # If these break there is probably an error in them
+  - ../policies/hubble-relay-policy.yaml
+  - ../policies/permitted-cluster-dns.yaml
+  - ../policies/kube-apiserver.yaml

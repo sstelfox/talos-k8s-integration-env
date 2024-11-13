@@ -1,0 +1,27 @@
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+  labels:
+    "io.cilium.policy.audit-mode": "enabled"
+spec:
+  endpointSelector:
+    matchExpressions:
+      - { key: kube-apiserver, operator: Exists }
+
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s-app: kube-dns
+            io.kubernetes.pod.namespace: kube-system
+      toPorts:
+        - ports:
+          - port: "8080"
+            protocol: TCP
+          - port: "8081"
+            protocol: TCP
+
+  ingress:
+    - {}

@@ -8,9 +8,8 @@ metadata:
     "io.cilium.policy.audit-mode": "enabled"
 spec:
   endpointSelector:
-    matchLabels:
-      k8s-app: kube-dns
-      io.kubernetes.pod.namespace: kube-system
+    matchExpressions:
+      - { key: kube-dns, operator: Exists }
 
   egress:
     - toCIDRSet:
@@ -27,16 +26,28 @@ spec:
             protocol: UDP
 
   ingress:
+    # Allow the Kube API server to access the health endpoint used by liveness and readiness probes
+    # (port 8080/tcp). The API server also talks to port 8081/tcp supposedly for accessing metrics
+    # but I couldn't find any details on this behavior. Leaving for now...
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+          - port: "8080"
+            protocol: TCP
+          - port: "8081"
+            protocol: TCP
+
     - fromEndpoints:
         # Match all pods, everything within the cluster is permitted to query the cluster DNS
         # servers, but only the CoreDNS pods are allowed to talk to our upstreams.
         - {}
       toPorts:
         - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
+          - port: "53"
+            protocol: UDP
+          - port: "53"
+            protocol: TCP
           # Can restrict lookups to an explicit allow-list of queries...
           #rules:
           #  dns:
