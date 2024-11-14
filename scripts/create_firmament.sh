@@ -29,12 +29,19 @@ sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
   --initrd-path=./_out/initramfs-${TALOS_ARCH}-${TALOS_VERSION}.xz \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6148 --extra-disks 1 --extra-disks-size 10240
+
 if [ $? -ne 0 ]; then
   # We're going to want to diagnose why the bring-up failed, setup the kubeconfig so we can just do
   # that.
   talosctl kubeconfig --force-context-name ${CLUSTER_NAME} -n 10.5.0.2 --force >/dev/null 2>&1
 
   echo 'error: failed to create the firmament integration cluster' >&2
+  exit 1
+fi
+
+echo 'Waiting for Cilium network to become healthy...'
+if ! timeout 5m cilium status --wait; then
+  echo 'Network never stabilized...'
   exit 1
 fi
 
