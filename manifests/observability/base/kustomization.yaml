@@ -96,5 +96,7 @@ helmCharts:
     #includeCRDs: true
     #valuesFile: values.yaml
 
+  # TODO: Look into Grafana Pyroscope as well
+
 resources:
   - namespace.yaml
