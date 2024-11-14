@@ -2,21 +2,36 @@
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
 metadata:
-  name: "health-check-policy"
+  name: health-check-policy
+  namespace: kube-system
+
+  annotations:
+    version: "20241111.01"
+    last-updated: "2024-11-11T18:50:36-05:00"
+
   #labels:
   #  "io.cilium.policy.audit-mode": "enabled"
 spec:
   description: "Allow Cilium health check traffic to health endpoints"
 
   endpointSelector:
-    matchLabels:
-      reserved:health: ""
+    matchExpressions:
+      - { key: reserved:health, operator: Exists }
+
+  egress:
+    - toEntities:
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+          - port: "4240"
+            protocol: TCP
 
   ingress:
     # Allow node to check on Cilium's backbone health directly
     - fromEntities:
-        - remote-node
         - host
+        - remote-node
       toPorts:
         - ports:
           - port: "4240"
@@ -33,12 +48,3 @@ spec:
           # one less issue we'll hit when that happens.
           - type: 128
             family: IPv6
-
-  egress:
-    - toEntities:
-        - remote-node
-        - host
-      toPorts:
-        - ports:
-          - port: "4240"
-            protocol: TCP

@@ -4,15 +4,21 @@ kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: kube-apiserver
   namespace: kube-system
+
+  annotations:
+    version: "20241111.01"
+    last-updated: "2024-11-11T18:50:36-05:00"
+
   labels:
     "io.cilium.policy.audit-mode": "enabled"
 spec:
+  description: "TODO"
+
   endpointSelector:
     matchExpressions:
-      - { key: kube-apiserver, operator: Exists }
+      - { key: reserved:kube-apiserver, operator: Exists }
 
   egress:
-
     # Allow the kube API server to talk to the etcd peer port. I'd kind of expect it to be treated
     # as a client but this is what it was connecting to and is probably using a faster data exchange
     # method than a normal client...

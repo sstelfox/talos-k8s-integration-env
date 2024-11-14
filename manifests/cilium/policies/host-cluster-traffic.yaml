@@ -4,9 +4,16 @@ kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: host-cluster-traffic
   namespace: kube-system
+
+  annotations:
+    version: "20241111.01"
+    last-updated: "2024-11-11T18:50:36-05:00"
+
   labels:
     "io.cilium.policy.audit-mode": "enabled"
 spec:
+  description: "TODO"
+
   endpointSelector:
     matchExpressions:
       - { key: host, operator: Exists }

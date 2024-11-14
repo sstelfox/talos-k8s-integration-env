@@ -2,15 +2,18 @@
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
 metadata:
-  name: "hubble-relay-policy"
+  name: hubble-relay-policy
   namespace: kube-system
+
   annotations:
-    description: "Explicit network policy for hubble-relay in default-deny environment"
     version: "20241111.01"
     last-updated: "2024-11-11T18:50:36-05:00"
+
   #labels:
   #  "io.cilium.policy.audit-mode": "enabled"
 spec:
+  description: "Explicit network policy for hubble-relay in default-deny environment"
+
   endpointSelector:
     matchLabels:
       k8s-app: hubble-relay
