@@ -5,10 +5,10 @@ metadata:
   name: host-cluster-traffic
   namespace: kube-system
   annotations:
-    version: "20241117.08"
-    last-updated: "2024-11-17T18:28:00-05:00"
+    version: "20241117.09"
+    last-updated: "2024-11-17T18:48:00-05:00"
   labels:
-    "io.cilium.policy.audit-mode": "enabled"
+    io.cilium.policy.audit-mode: enabled
 spec:
   description: "Host firewall policy for cluster traffic"
 
@@ -57,7 +57,7 @@ spec:
           - type: 8
             family: IPv4
 
-    # Allow CoreDNS access
+    # Allow CoreDNS access for DNS resolution and health checks
     - toEndpoints:
         - matchLabels:
             k8s-app: kube-dns
@@ -69,7 +69,7 @@ spec:
           - port: "8181"
             protocol: TCP
 
-    # Allow Hubble relay access
+    # Allow Hubble relay access for monitoring
     - toEndpoints:
         - matchLabels:
             k8s-app: hubble-relay
