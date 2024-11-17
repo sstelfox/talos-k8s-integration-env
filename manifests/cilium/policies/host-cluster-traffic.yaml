@@ -5,8 +5,8 @@ metadata:
   name: host-cluster-traffic
   namespace: kube-system
   annotations:
-    version: "20241117.07"
-    last-updated: "2024-11-17T17:47:00-05:00"
+    version: "20241117.08"
+    last-updated: "2024-11-17T18:28:00-05:00"
   labels:
     "io.cilium.policy.audit-mode": "enabled"
 spec:
@@ -39,6 +39,8 @@ spec:
           - port: "10250"
             protocol: TCP
           - port: "6443"
+            protocol: TCP
+          - port: "4244"
             protocol: TCP
       icmps:
         - fields:
@@ -73,6 +75,8 @@ spec:
       toPorts:
         - ports:
           - port: "4222"
+            protocol: TCP
+          - port: "4244"
             protocol: TCP
 
     # Allow access to management host API server
@@ -109,6 +113,8 @@ spec:
             protocol: TCP
           - port: "10250"
             protocol: TCP
+          - port: "4244"
+            protocol: TCP
       icmps:
         - fields:
           - type: 8
@@ -120,6 +126,16 @@ spec:
       toPorts:
         - ports:
           - port: "6443"
+            protocol: TCP
+
+    # Allow Hubble relay pods to connect back to hosts
+    - fromEndpoints:
+        - matchLabels:
+            k8s-app: hubble-relay
+            io.kubernetes.pod.namespace: kube-system
+      toPorts:
+        - ports:
+          - port: "4244"
             protocol: TCP
 
     # Allow pod network traffic for monitoring services
