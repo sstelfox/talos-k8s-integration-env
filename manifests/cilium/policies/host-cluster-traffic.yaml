@@ -4,11 +4,9 @@ kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: host-cluster-traffic
   namespace: kube-system
-
   annotations:
-    version: "20241111.01"
-    last-updated: "2024-11-11T18:50:36-05:00"
-
+    version: "20241117.03"
+    last-updated: "2024-11-17T16:45:00-05:00"
   labels:
     "io.cilium.policy.audit-mode": "enabled"
 spec:
@@ -17,31 +15,38 @@ spec:
   nodeSelector: {}
 
   egress:
+    # Allow nodes to reach the Kubernetes API servers for cluster operations and etcd for cluster state
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
-          # Etcd traffic (not sure if client or replication traffic)
+          # Etcd client and replication traffic between cluster members
           - port: "2380"
             protocol: TCP
-          # Kubernetes API traffic
+          # Kubernetes API server access for node registration and operation
           - port: "6443"
             protocol: TCP
-      # Part of the health check involves pinging the API server's to ensure their health
+      # Allow ping traffic to verify API server availability as part of health checks
       icmps:
         - fields:
           - type: 8
             family: IPv4
 
-    # We check on the health of other nodes in the cluster using ping traffic
+    # Allow nodes to communicate with other cluster nodes for kubelet metrics and health verification
     - toEntities:
         - remote-node
+      toPorts:
+        # Access to kubelet metrics endpoints for cluster monitoring
+        - ports:
+          - port: "10250"
+            protocol: TCP
+      # Allow ping traffic between nodes to verify connectivity
       icmps:
         - fields:
           - type: 8
             family: IPv4
 
-    # Active health checking of address availability
+    # Allow nodes to perform health checks on cluster endpoints to verify service availability
     - toEntities:
         - health
       icmps:
@@ -49,7 +54,7 @@ spec:
           - type: 8
             family: IPv4
 
-    # Hubble relay access
+    # Allow access to Hubble relay for network flow monitoring and troubleshooting
     - toEndpoints:
         - matchLabels:
             k8s:app: hubble-relay
@@ -59,20 +64,21 @@ spec:
           - port: "4222"
             protocol: TCP
 
-    # CoreDNS health and metric monitoring
+    # Allow monitoring of CoreDNS health and metrics for DNS service reliability
     - toEndpoints:
         - matchLabels:
             k8s:k8s-app: kube-dns
             k8s:io.kubernetes.pod.namespace: kube-system
       toPorts:
         - ports:
+          # HTTP port for CoreDNS health checks
           - port: "8080"
             protocol: TCP
+          # HTTP port for CoreDNS metrics scraping
           - port: "8181"
             protocol: TCP
 
-    # The QEMU host participates as a k8s API server in some cases and we need to allow it in that
-    # environment.
+    # Allow access to QEMU host when it acts as a Kubernetes API server in development environments
     - toCIDRSet:
         - cidr: "10.5.0.1/32"
       toPorts:
@@ -81,18 +87,61 @@ spec:
             protocol: TCP
 
   ingress:
+    # Allow API servers to communicate with nodes for control plane operations
     - fromEntities:
         - kube-apiserver
       toPorts:
+        # Etcd replication and cluster state management
         - ports:
           - port: "2380"
             protocol: TCP
+          # API server to node communication for cluster operations
+          - port: "6443"
+            protocol: TCP
+          # Access to kubelet metrics and pod management
+          - port: "10250"
+            protocol: TCP
+      # Allow ping responses for API server health verification
+      icmps:
+        - fields:
+          - type: 8
+            family: IPv4
 
-    # TODO: tighten this up, really the only outside host that needs this access is 10.5.0.1 during
-    # this stage
+    # Allow other nodes to access this node's services for cluster operations
     - fromEntities:
-        - world
+        - remote-node
+      toPorts:
+        # Node-to-node API communication
+        - ports:
+          - port: "6443"
+            protocol: TCP
+          # Access to local kubelet metrics
+          - port: "10250"
+            protocol: TCP
+      # Allow ping responses for node health verification
+      icmps:
+        - fields:
+          - type: 8
+            family: IPv4
+
+    # Allow only the QEMU host to access the Kubernetes API for development environments
+    - fromCIDRSet:
+        - cidr: "10.5.0.1/32"
       toPorts:
         - ports:
           - port: "6443"
+            protocol: TCP
+
+    # Allow cross-node communication for host networking pods
+    - fromCIDR:
+        - "10.244.0.0/16"
+      toPorts:
+        - ports:
+          # Allow access to Hubble relay
+          - port: "4222"
+            protocol: TCP
+          # Allow access to CoreDNS health and metrics
+          - port: "8080"
+            protocol: TCP
+          - port: "8181"
             protocol: TCP
