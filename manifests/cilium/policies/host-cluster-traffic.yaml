@@ -47,15 +47,17 @@ spec:
           - type: 8
             family: IPv4
 
-    # Allow nodes to perform health checks on cluster endpoints
+    # Allow health checks between nodes and endpoints
     - toEntities:
+        - host
+        - remote-node
         - health
       icmps:
         - fields:
           - type: 8
             family: IPv4
 
-    # Allow access to CoreDNS pods for monitoring
+    # Allow CoreDNS access
     - toEndpoints:
         - matchLabels:
             k8s-app: kube-dns
@@ -67,7 +69,7 @@ spec:
           - port: "8181"
             protocol: TCP
 
-    # Allow access to Hubble relay for monitoring
+    # Allow Hubble relay access
     - toEndpoints:
         - matchLabels:
             k8s-app: hubble-relay
@@ -136,6 +138,8 @@ spec:
       toPorts:
         - ports:
           - port: "4244"
+            protocol: TCP
+          - port: "4222"
             protocol: TCP
 
     # Allow pod network traffic for monitoring services
