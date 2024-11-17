@@ -12,19 +12,87 @@ metadata:
   labels:
     "io.cilium.policy.audit-mode": "enabled"
 spec:
-  description: "TODO"
+  description: "Host firewall policy for cluster traffic"
 
-  endpointSelector:
-    matchExpressions:
-      - { key: host, operator: Exists }
+  nodeSelector: {}
 
   egress:
     - toEntities:
         - kube-apiserver
       toPorts:
         - ports:
+          # Etcd traffic (not sure if client or replication traffic)
           - port: "2380"
+            protocol: TCP
+          # Kubernetes API traffic
+          - port: "6443"
+            protocol: TCP
+      # Part of the health check involves pinging the API server's to ensure their health
+      icmps:
+        - fields:
+          - type: 8
+            family: IPv4
+
+    # We check on the health of other nodes in the cluster using ping traffic
+    - toEntities:
+        - remote-node
+      icmps:
+        - fields:
+          - type: 8
+            family: IPv4
+
+    # Active health checking of address availability
+    - toEntities:
+        - health
+      icmps:
+        - fields:
+          - type: 8
+            family: IPv4
+
+    # Hubble relay access
+    - toEndpoints:
+        - matchLabels:
+            k8s:app: hubble-relay
+            k8s:io.kubernetes.pod.namespace: kube-system
+      toPorts:
+        - ports:
+          - port: "4222"
+            protocol: TCP
+
+    # CoreDNS health and metric monitoring
+    - toEndpoints:
+        - matchLabels:
+            k8s:k8s-app: kube-dns
+            k8s:io.kubernetes.pod.namespace: kube-system
+      toPorts:
+        - ports:
+          - port: "8080"
+            protocol: TCP
+          - port: "8181"
+            protocol: TCP
+
+    # The QEMU host participates as a k8s API server in some cases and we need to allow it in that
+    # environment.
+    - toCIDRSet:
+        - cidr: "10.5.0.1/32"
+      toPorts:
+        - ports:
+          - port: "6443"
             protocol: TCP
 
   ingress:
-    - {}
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+          - port: "2380"
+            protocol: TCP
+
+    # TODO: tighten this up, really the only outside host that needs this access is 10.5.0.1 during
+    # this stage
+    - fromEntities:
+        - world
+      toPorts:
+        - ports:
+          - port: "6443"
+            protocol: TCP

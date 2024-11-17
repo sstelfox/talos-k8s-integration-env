@@ -15,4 +15,4 @@ manifest_render rook-ceph/init
 manifest_render rook-ceph/bootstrap
 manifest_render argocd/bootstrap
 manifest_render falco/bootstrap
-manifest_render observability/bootstrap
+#manifest_render observability/bootstrap

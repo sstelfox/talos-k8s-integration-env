@@ -27,6 +27,16 @@ spec:
           - port: "4240"
             protocol: TCP
 
+    # Health checking and metric collection of the DNS system
+    - toEntities:
+        - kube-dns
+      toPorts:
+        - ports:
+          - port: "8080"
+            protocol: TCP
+          - port: "8181"
+            protocol: TCP
+
   ingress:
     # Allow node to check on Cilium's backbone health directly
     - fromEntities:
@@ -35,6 +45,16 @@ spec:
       toPorts:
         - ports:
           - port: "4240"
+            protocol: TCP
+
+    # Allow the hubble-relay service to reach out and collect information
+    - fromEndpoints:
+      - matchLabels:
+          k8s:io.kubernetes.pod.namespace: kube-system
+          k8s:app: hubble-relay
+      toPorts:
+        - ports:
+          - port: "4244"
             protocol: TCP
 
     # The API server also makes use of ICMP to monitor node health

@@ -2,6 +2,8 @@
 ipam:
   mode: kubernetes
 
+#namespaceOverride: kube-system
+
 # Use routing mode as its more efficient on a per-packet level and will be necessary in the larger
 # clusters.
 routingMode: native
