@@ -28,14 +28,14 @@ spec:
             protocol: TCP
 
     # Health checking and metric collection of the DNS system
-    - toEntities:
-        - kube-dns
-      toPorts:
-        - ports:
-          - port: "8080"
-            protocol: TCP
-          - port: "8181"
-            protocol: TCP
+    #- toEntities:
+    #    - kube-dns
+    #  toPorts:
+    #    - ports:
+    #      - port: "8080"
+    #        protocol: TCP
+    #      - port: "8181"
+    #        protocol: TCP
 
   ingress:
     # Allow node to check on Cilium's backbone health directly
