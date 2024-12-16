@@ -6,8 +6,7 @@ set -o pipefail
 
 # This is expected to be run from the root of the repo
 
-TALOS_ARCH="amd64"
-TALOS_VERSION="v1.8.2"
+source ./scripts/cfg/talos.sh.inc
 
 # Generate a fresh schematic:
 FACTORY_ID="$(curl -X POST --data-binary @firmament_integration/source_installer/talos-secure-imagefactory-schematic.yaml https://factory.talos.dev/schematics | jq -r .id)"

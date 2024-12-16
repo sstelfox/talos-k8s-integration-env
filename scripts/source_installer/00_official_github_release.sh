@@ -6,13 +6,32 @@ set -o pipefail
 
 # This is expected to be run from the root of the repo
 
-TALOS_ARCH="amd64"
-TALOS_VERSION="v1.8.2"
+source ./scripts/cfg/talos.sh.inc
 
 BASE_URL="https://github.com/siderolabs/talos/releases/download/${TALOS_VERSION}"
+SOURCE_KEY="github-official"
 
-mkdir -p _out/
+download_repo_release_file() {
+  local file_base="${1:-}"
+  local suffix="${2:-}"
 
-curl ${BASE_URL}/vmlinuz-${TALOS_ARCH} -L -o _out/vmlinuz-${TALOS_ARCH}-${TALOS_VERSION}
-curl ${BASE_URL}/initramfs-${TALOS_ARCH}.xz -L -o _out/initramfs-${TALOS_ARCH}-${TALOS_VERSION}.xz
-curl ${BASE_URL}/metal-${TALOS_ARCH}.iso -L -o _out/metal-${TALOS_ARCH}-${TALOS_VERSION}.iso
+  if [ -z "${file_base}" ]; then
+    echo "usage: download_repo_release_file FILE [FILE_EXTENSION]"
+    return 1
+  fi
+
+  # If we already have the specific source/arch/version don't download again...
+  if [ -f "_out/${file_base}-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION}${suffix}" ]; then
+    echo "already have ${file_base}${suffix} for talos/${TALOS_VERSION}-${TALOS_ARCH}" >&2
+    return 0
+  fi
+
+  mkdir -p _out/
+
+  echo "downloading ${file_base}${suffix} for talos/${TALOS_VERSION}-${TALOS_ARCH}" >&2
+  curl -s ${BASE_URL}/${file_base}-${TALOS_ARCH}${suffix} -L -o _out/${file_base}-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION}${suffix}
+}
+
+download_repo_release_file vmlinuz
+download_repo_release_file initramfs .xz
+download_repo_release_file metal .iso

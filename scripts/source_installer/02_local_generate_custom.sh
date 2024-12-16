@@ -2,10 +2,9 @@
 
 set -o errexit
 
-TALOS_ARCH="amd64"
-TALOS_VERSION="v1.8.2"
+source ./scripts/cfg/talos.sh.inc
 
-mkdir -p _out/
+mkdir -p _out/gen/
 
 if [ ! -f _out/uki-signing-key.pem ]; then
   talosctl gen secureboot uki --common-name "Firmament SecureBoot Key"
@@ -46,7 +45,8 @@ podman run --rm -t -v ${PWD}/_out:/secureboot:ro -v $PWD/_out:/out \
   ghcr.io/siderolabs/imager:${TALOS_VERSION} secureboot-iso \
   ${COMMON_IMAGER_OPTIONS}
 
-podman run --rm -t -v ${PWD}/_out:/out ghcr.io/siderolabs/imager:${TALOS_VERSION} iso --output-kind kernel
-podman run --rm -t -v ${PWD}/_out:/out ghcr.io/siderolabs/imager:${TALOS_VERSION} iso --output-kind initramfs
+podman run --rm -t -v ${PWD}/_out/gen:/out ghcr.io/siderolabs/imager:${TALOS_VERSION} iso --output-kind kernel
+podman run --rm -t -v ${PWD}/_out/gen:/out ghcr.io/siderolabs/imager:${TALOS_VERSION} iso --output-kind initramfs
 
-# TODO: Need to properly rename the file to match the other generation methods
+# TODO: Need to properly rename the file to match the other generation methods and move it directly
+# into the _out directory...

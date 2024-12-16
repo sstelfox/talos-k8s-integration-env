@@ -18,7 +18,7 @@ shared_patches="--config-patch @talos/common/airgap_config/registry.yaml ${share
 #control_plane_patches="--config-patch-control-plane @talos/common/debug/enable_workloads_on_control_plane.yaml ${control_plane_patches}"
 #control_plane_patches="--config-patch-control-plane @talos/common/network/enable_vip.yaml ${control_plane_patches}"
 control_plane_patches="--config-patch-control-plane @talos/common/security/restrict_system_services_control_network.yaml ${control_plane_patches}"
-#control_plane_patches="--config-patch-control-plane @talos/common/security/controlplane_firewall.yaml ${control_plane_patches}"
+#control_plane_patches="--config-patch-control-plane @talos/common/security/control_plane_firewall.yaml ${control_plane_patches}"
 
 
 shared_patches="--config-patch @talos/common/network/internal_node_resolution.yaml ${shared_patches}"

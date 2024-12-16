@@ -2,10 +2,7 @@
 
 set -o errexit
 
-TALOS_ARCH="amd64"
-TALOS_VERSION="v1.8.2"
-
-CLUSTER_NAME="firmament-integration"
+source ./scripts/cfg/talos.sh.inc
 
 if [ ! -f "./_out/vmlinuz-${TALOS_ARCH}-${TALOS_VERSION}" ] || [ ! -f "./_out/initramfs-${TALOS_ARCH}-${TALOS_VERSION}.xz" ]; then
   echo 'error: need kernel and initramfs before the integration cluster can be booted' >&2
@@ -24,7 +21,7 @@ mkdir -p ~/.talos/clusters
 sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
   ${shared_patches} ${control_plane_patches} ${worker_patches} \
   --extra-uefi-search-paths /usr/share/ovmf/x64/ --with-tpm2 --with-uefi \
-  --name ${CLUSTER_NAME} --controlplanes 3 --workers 2 \
+  --name ${TALOS_CLUSTER_NAME} --controlplanes 3 --workers 2 \
   --vmlinuz-path=./_out/vmlinuz-${TALOS_ARCH}-${TALOS_VERSION} \
   --initrd-path=./_out/initramfs-${TALOS_ARCH}-${TALOS_VERSION}.xz \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
@@ -33,7 +30,7 @@ sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
 if [ $? -ne 0 ]; then
   # We're going to want to diagnose why the bring-up failed, setup the kubeconfig so we can just do
   # that.
-  talosctl kubeconfig --force-context-name ${CLUSTER_NAME} -n 10.5.0.2 --force >/dev/null 2>&1
+  talosctl kubeconfig --force-context-name ${TALOS_CLUSTER_NAME} -n 10.5.0.2 --force >/dev/null 2>&1
 
   echo 'error: failed to create the firmament integration cluster' >&2
   exit 1
