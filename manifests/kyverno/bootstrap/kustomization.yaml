@@ -1,8 +1,25 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-#helmGlobals:
-#  chartHome: ../../../_out/charts/
+buildMetadata:
+- originAnnotations
+- transformerAnnotations
 
 resources:
-  - ../base/
+- ../base/
+
+# Specific to our bootstrap process we want to remove the managed-by Helm that is generated here.
+# These will actually be managed by and take ownership from ArgoCD once its setup. We don't want
+# other things to own them or manual intervention will be required during bootstrapping.
+patches:
+  - target:
+      kind: ".*"
+      labelSelector: "app.kubernetes.io/managed-by=Helm"
+    patch: |-
+      - op: remove
+        path: /metadata/labels/app.kubernetes.io~1managed-by
+  - target:
+      kind: "Deployment"
+    patch: |-
+      - op: remove
+        path: /spec/template/metadata/labels/app.kubernetes.io~1managed-by
