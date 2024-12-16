@@ -56,8 +56,8 @@ launch_initial_manifest_server() {
   mkdir -p _out/manifests/
 
   if ! service_check_available ${MANIFEST_CONTAINER_NAME}; then
-    podman run -d -p 6100:80 --replace --name ${MANIFEST_CONTAINER_NAME} \
-      --mount type=bind,src=${PWD}/_out/manifests,dst=/usr/share/nginx/html,readonly \
+    podman run -d -p 6100:80 --replace --rm --name ${MANIFEST_CONTAINER_NAME} \
+      --mount type=bind,src=${PWD}/_out,dst=/usr/share/nginx/html,readonly \
       docker.io/library/nginx:alpine >/dev/null 2>&1
 
     echo "fresh talos manifest server started up" >&2
