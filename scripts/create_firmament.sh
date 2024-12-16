@@ -29,7 +29,6 @@ sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
   --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION} \
   --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
   --cni-bundle-url http://10.5.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
-  --cni-cache-dir ./_out/ \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6148 --extra-disks 1 --extra-disks-size 10240
 

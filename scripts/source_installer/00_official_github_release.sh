@@ -39,9 +39,17 @@ download_repo_release_file talosctl-cni-bundle .tar.gz
 
 download_repo_release_file talosctl-linux
 
+# Ensure we use a matching talosctl binary
 (
   cd ./_out
+
   rm -f talosctl
   ln -s talosctl-linux-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION} talosctl
   chmod +x talosctl
 )
+
+# Ensure the CNI bundle we downloaded is available via the local web server if it isn't already
+CNI_BUNDLE_FILE="talosctl-cni-bundle-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz"
+if [ ! -f "./_out/public/${CNI_BUNDLE_FILE}" ]; then
+  cp -f "./_out/${CNI_BUNDLE_FILE}" "./_out/public/${CNI_BUNDLE_FILE}"
+fi

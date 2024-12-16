@@ -3,6 +3,11 @@
 set -o errexit
 set -o pipefail
 
+source ./scripts/cfg/talos.sh.inc
+
+source ./scripts/lib/manifests.sh.inc
+source ./scripts/lib/services.sh.inc
+
 INCLUDE_TEST_IMAGES=true
 
 MANIFEST_CONTAINER_NAME="talos-manifest-server"
@@ -10,10 +15,6 @@ REGISTRY_CONTAINER_NAME="talos-airgap-registry"
 
 # Initialize our image list with the official ones
 IMAGE_LIST=$(./_out/talosctl image default)
-
-source ./scripts/cfg/talos.sh.inc
-source ./scripts/lib/manifests.sh.inc
-source ./scripts/lib/services.sh.inc
 
 add_image_to_list() {
   local new_image="${1:-}"
@@ -57,7 +58,7 @@ launch_initial_manifest_server() {
 
   if ! service_check_available ${MANIFEST_CONTAINER_NAME}; then
     podman run -d -p 6100:80 --replace --rm --name ${MANIFEST_CONTAINER_NAME} \
-      --mount type=bind,src=${PWD}/_out,dst=/usr/share/nginx/html,readonly \
+      --mount type=bind,src=${PWD}/_out/public,dst=/usr/share/nginx/html,readonly \
       docker.io/library/nginx:alpine >/dev/null 2>&1
 
     echo "fresh talos manifest server started up" >&2
@@ -122,5 +123,6 @@ populate_airgap_cache
 # an upstream...
 launch_initial_manifest_server
 
-# Make sure we have a fresh copy of our Cilium initialization manifest
+# Make sure we have a fresh copy of our Cilium initialization manifest available in the local web server
 manifest_render cilium/init
+cp -f ./_out/manifests/cilium-init.yaml ./_out/public/cilium-init.yaml
