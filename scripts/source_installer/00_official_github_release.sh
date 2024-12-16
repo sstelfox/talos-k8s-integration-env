@@ -35,3 +35,13 @@ download_repo_release_file() {
 download_repo_release_file vmlinuz
 download_repo_release_file initramfs .xz
 download_repo_release_file metal .iso
+download_repo_release_file talosctl-cni-bundle .tar.gz
+
+download_repo_release_file talosctl-linux
+
+(
+  cd ./_out
+  rm -f talosctl
+  ln -s talosctl-linux-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION} talosctl
+  chmod +x talosctl
+)

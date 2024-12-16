@@ -4,12 +4,14 @@ set -o errexit
 set -o pipefail
 
 INCLUDE_TEST_IMAGES=true
+
 MANIFEST_CONTAINER_NAME="talos-manifest-server"
 REGISTRY_CONTAINER_NAME="talos-airgap-registry"
 
 # Initialize our image list with the official ones
-IMAGE_LIST=$(talosctl image default)
+IMAGE_LIST=$(./_out/talosctl image default)
 
+source ./scripts/cfg/talos.sh.inc
 source ./scripts/lib/manifests.sh.inc
 source ./scripts/lib/services.sh.inc
 
@@ -96,6 +98,9 @@ populate_airgap_cache() {
 }
 
 # TODO: All images should be referenced using immutable tags
+
+add_image_to_list ghcr.io/siderolabs/installer:${TALOS_VERSION}
+add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
 
 add_image_to_list docker.io/library/nginx:alpine
 add_image_to_list docker.io/library/registry:2

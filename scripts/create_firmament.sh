@@ -18,19 +18,25 @@ mkdir -p ~/.talos/clusters
 # --iso-path=./_out/metal-${TALOS_ARCH}-${TALOS_VERSION}.iso --skip-injecting-config --with-apply-config \
 # --image=ghcr.io/siderolabs/talos:${TALOS_VERSION} --install-image=ghcr.io/siderolabs/installer:${TALOS_VERSION} \
 
-sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
+# Should be using the local registry for the installer even with the official image present here but
+# I can't be sure of that and should test it...
+sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
   ${shared_patches} ${control_plane_patches} ${worker_patches} \
   --extra-uefi-search-paths /usr/share/ovmf/x64/ --with-tpm2 --with-uefi \
   --name ${TALOS_CLUSTER_NAME} --talos-version ${TALOS_VERSION} --controlplanes 3 --workers 2 \
   --vmlinuz-path=./_out/vmlinuz-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION} \
   --initrd-path=./_out/initramfs-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.xz \
+  --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION} \
+  --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
+  --cni-bundle-url http://10.5.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
+  --cni-cache-dir ./_out/ \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6148 --extra-disks 1 --extra-disks-size 10240
 
 if [ $? -ne 0 ]; then
   # We're going to want to diagnose why the bring-up failed, setup the kubeconfig so we can just do
   # that.
-  talosctl kubeconfig --force-context-name ${TALOS_CLUSTER_NAME} -n 10.5.0.2 --force >/dev/null 2>&1
+  ./_out/talosctl kubeconfig --force-context-name ${TALOS_CLUSTER_NAME} -n 10.5.0.2 --force >/dev/null 2>&1
 
   echo 'error: failed to create the firmament integration cluster' >&2
   exit 1
