@@ -4,7 +4,7 @@ set -o errexit
 
 source ./scripts/cfg/talos.sh.inc
 
-if [ ! -f "./_out/vmlinuz-${TALOS_ARCH}-${TALOS_VERSION}" ] || [ ! -f "./_out/initramfs-${TALOS_ARCH}-${TALOS_VERSION}.xz" ]; then
+if [ ! -f "./_out/vmlinuz-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}" ] || [ ! -f "./_out/initramfs-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.xz" ]; then
   echo 'error: need kernel and initramfs before the integration cluster can be booted' >&2
   exit 1
 fi
@@ -21,9 +21,9 @@ mkdir -p ~/.talos/clusters
 sudo --preserve-env=HOME talosctl cluster create --provisioner qemu \
   ${shared_patches} ${control_plane_patches} ${worker_patches} \
   --extra-uefi-search-paths /usr/share/ovmf/x64/ --with-tpm2 --with-uefi \
-  --name ${TALOS_CLUSTER_NAME} --controlplanes 3 --workers 2 \
-  --vmlinuz-path=./_out/vmlinuz-${TALOS_ARCH}-${TALOS_VERSION} \
-  --initrd-path=./_out/initramfs-${TALOS_ARCH}-${TALOS_VERSION}.xz \
+  --name ${TALOS_CLUSTER_NAME} --talos-version ${TALOS_VERSION} --controlplanes 3 --workers 2 \
+  --vmlinuz-path=./_out/vmlinuz-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION} \
+  --initrd-path=./_out/initramfs-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.xz \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6148 --extra-disks 1 --extra-disks-size 10240
 
@@ -50,4 +50,4 @@ fi
 # but we should avoid running it on the production airgap cluster.
 #./tests/cilium/validate_core.sh
 
-./scripts/bootstrap-apps.sh
+#./scripts/bootstrap-apps.sh

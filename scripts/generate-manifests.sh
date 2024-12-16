@@ -8,10 +8,13 @@ set -o pipefail
 
 source ./scripts/lib/manifests.sh.inc
 
-manifest_render kyverno/bootstrap
+# Used during cluster bring up
 manifest_render cilium/init
-manifest_render cilium/bootstrap
 #manifest_render rook-ceph/init
+
+# Used post-boot
+manifest_render cilium/bootstrap
+manifest_render kyverno/bootstrap
 #manifest_render rook-ceph/bootstrap
 #manifest_render argocd/bootstrap
 #manifest_render falco/bootstrap

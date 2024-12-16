@@ -19,7 +19,7 @@ manifest_apply cilium/bootstrap
 
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.
-#manifest_apply kyverno/bootstrap
+manifest_apply kyverno/bootstrap
 
 # Ceph fails after multiple runs due to the operator taking over control of some of the resources.
 # Some of these values are resource definitions and are very weird to take over. I bet I could

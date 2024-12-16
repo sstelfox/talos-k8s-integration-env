@@ -18,6 +18,4 @@ esac
 ./scripts/generate-manifests.sh
 ./scripts/start-installer-services.sh
 
-exit 0
-
 ./scripts/create_firmament.sh
