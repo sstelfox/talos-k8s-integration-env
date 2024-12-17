@@ -15,7 +15,7 @@ manifest_render cilium/init
 # Used post-boot
 manifest_render cilium/bootstrap
 manifest_render kyverno/bootstrap
-#manifest_render rook-ceph/bootstrap
-#manifest_render argocd/bootstrap
-#manifest_render falco/bootstrap
+manifest_render rook-ceph/bootstrap
+manifest_render argocd/bootstrap
+manifest_render falco/bootstrap
 #manifest_render observability/bootstrap
