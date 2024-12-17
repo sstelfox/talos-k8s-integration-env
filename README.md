@@ -18,6 +18,16 @@ The services currently present in the repo, but may not be fully configured are:
 * Tempo
 * Grafana
 
+Outstanding services that I intend to stand-up but haven't yet:
+
+* Gitea
+* Dependency Track
+* Postgres (likely using an operator)
+* Redis/Redis-Clusters (likely using an operator)
+* Keycloak?
+* Plane (<https://github.com/makeplane/plane>)
+* SIEM? Wazah?
+
 ## Cluster Bring Up
 
 The cluster comes up in three stages:
@@ -29,7 +39,8 @@ The cluster comes up in three stages:
   fine-tuning of the network, basic storage availability, security policy enforcement, etc. The
   final stage of this sets up ArgoCD to transition us to the last stage.
 * The stable stage loads the full structure up using an app of apps style manifest in Argo which
-  will also take over the services setup in the previous stages.
+  will also take over the services setup in the previous stages. Part of this transition is switching
+  the source to an in-cluster code forge to be the source of truth for ArgoCD.
 
 ## Usage
 

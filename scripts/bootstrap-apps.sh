@@ -21,14 +21,16 @@ manifest_apply cilium/bootstrap
 # get kicked out for being out of spec the faster I can fix them.
 manifest_apply kyverno/bootstrap
 
+# We also want to start monitoring for security related events coming from the kubernetes audit logs
+# (TODO: needs to be configured during cluster initialization, though I'd prefer to figure out a way
+# for ArgoCD to also manage that...)
+manifest_apply falco/bootstrap
+
 # Ceph fails after multiple runs due to the operator taking over control of some of the resources.
 # Some of these values are resource definitions and are very weird to take over. I bet I could
 # solve this by using the patch delete syntax.
 #manifest_apply rook-ceph/bootstrap || true
 
 #manifest_apply vault/bootstrap
-
-# Might want this earlier, need to assess what services it needs...
-#manifest_apply falco/bootstrap
 
 #manifest_apply argocd/bootstrap
