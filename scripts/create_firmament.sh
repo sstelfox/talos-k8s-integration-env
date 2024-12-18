@@ -1,12 +1,19 @@
 #!/usr/bin/env sh
 
 set -o errexit
+set -o nounset
+set -o pipefail
 
 source ./scripts/cfg/talos.sh.inc
 
 if [ ! -f "./_out/vmlinuz-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}" ] || [ ! -f "./_out/initramfs-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.xz" ]; then
   echo 'error: need kernel and initramfs before the integration cluster can be booted' >&2
   exit 1
+fi
+
+if [ "${EUID}" = "0" ]; then
+  echo "this script will ask for sudo permission itself, do not run it additionally with sudo"
+  exit 2
 fi
 
 source talos/firmament/_patch_config.sh.inc
@@ -38,13 +45,13 @@ if [ $? -ne 0 ]; then
   ./_out/talosctl kubeconfig --force-context-name ${TALOS_CLUSTER_NAME} -n 10.5.0.2 --force >/dev/null 2>&1
 
   echo 'error: failed to create the firmament integration cluster' >&2
-  exit 1
+  exit 3
 fi
 
 echo 'Waiting for Cilium network to become healthy...'
 if ! timeout 5m cilium status --wait; then
   echo 'Network never stabilized...'
-  exit 1
+  exit 4
 fi
 
 # Once the cluster is initially bootstrapped we want to verify that our the fundamental internal
