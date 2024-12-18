@@ -27,6 +27,9 @@ mkdir -p ~/.talos/clusters
 
 # Should be using the local registry for the installer even with the official image present here but
 # I can't be sure of that and should test it...
+#
+# * For the CNI bundle, it is this tool's instance that will be downloading the file which is why
+#   localhost is referenced instead of the cluster/gateway address.
 sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
   ${shared_patches} ${control_plane_patches} ${worker_patches} \
   --extra-uefi-search-paths /usr/share/ovmf/x64/ --with-tpm2 --with-uefi \
@@ -35,7 +38,7 @@ sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
   --initrd-path=./_out/initramfs-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.xz \
   --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION} \
   --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
-  --cni-bundle-url http://10.5.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
+  --cni-bundle-url http://127.0.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6148 --extra-disks 1 --extra-disks-size 10240
 
