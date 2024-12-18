@@ -45,7 +45,7 @@ launch_airgap_cache_registry() {
   mkdir -p airgap_registry/
 
   if ! service_check_available ${REGISTRY_CONTAINER_NAME}; then
-    podman run -d -p 6000:5000 --replace --name ${REGISTRY_CONTAINER_NAME} \
+    podman run -d -p 6000:5000 --replace --rm --name ${REGISTRY_CONTAINER_NAME} \
       --mount type=bind,src=${PWD}/airgap_registry,dst=/var/lib/registry \
       docker.io/library/registry:2 >/dev/null 2>&1
 
