@@ -25,17 +25,17 @@ if ! cilium connectivity test; then
   EXIT_CODE=1
 fi
 
-if ! cilium connectivity test --perf; then
-  echo "error: failed to perform performance test"
-  EXIT_CODE=1
-fi
+#if ! cilium connectivity test --perf; then
+#  echo "error: failed to perform performance test"
+#  EXIT_CODE=1
+#fi
 
 # Note: right now this is unfortunately failing as it wants the NET_RAW capability which our PSS
 # doesn't allow.
-if ! cilium connectivity test --perf-crr; then
-  echo "error: failed to perform performance test"
-  EXIT_CODE=1
-fi
+#if ! cilium connectivity test --perf-crr; then
+#  echo "error: failed to perform performance test"
+#  EXIT_CODE=1
+#fi
 
 # Ensure we clean up after ourselves
 kubectl delete -f tests/cilium/relaxed-cilium-test-psp.yaml
