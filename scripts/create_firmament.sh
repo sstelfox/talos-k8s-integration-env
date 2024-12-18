@@ -18,7 +18,11 @@ fi
 
 source talos/firmament/_patch_config.sh.inc
 
-mkdir -p ~/.talos/clusters
+# This is a workaround, talosctl needs to run as root and will create the kube config with root
+# permissions and ownership if it doesn't exist already. This will break the later parts of the
+# script that try and use kubectl to verify the health of the cluster.
+mkdir -p ~/.kube ~/.talos/clusters
+touch ~/.kube/config
 
 # TODO: switch the images to a local pull so I can switch to custom builds and handle this in the airgap env
 # TODO: build up the arguments for the installer piecemeal to allow selection of different install paths such as ISO vs kernel:
