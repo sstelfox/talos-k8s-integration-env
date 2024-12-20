@@ -31,55 +31,76 @@ ensure_acl_key_exists() {
   return 0
 }
 
-ensure_service_key_exists() {
-  local service="${1:-}"
-
-  if [ -z "${key_name}" ]; then
-    echo 'usage: ensure_service_key_exists KEY_NAME' 2>&1
-    return 1
-  fi
-
-  # TODO: Should verify the user has the ability to read the service key using the contents of
-  # `secrets/humans.acl`. We actually need to confirm at least one human has a public key that can
-  # be used to encrypt the value, if the current user can read it back that implies they are on the
-  # list of encryption recipients and ensures that users which shouldn't have access to it are
-  # unable to initialize (and potentially hold onto) keys they shouldn't have access to.
-
-  if [ ! -f "${SHARED_KEY_ROOT}/${service}.key" ]; then
-    mkdir -p "${SHARED_KEY_ROOT}"
-    PUBLIC_KEY="$(age-keygen -o "${SHARED_KEY_ROOT}/${service}.key" 2>&1 | awk '{ print $3 }')"
-    sops encrypt -i ${SHARED_KEY_ROOT}/${service}.key
-
-    echo "${PUBLIC_KEY}" >"${SHARED_KEY_ROOT}/${service}.pub"
-  fi
-
-  # TODO: Should ensure the SOPS configuration has this public listed matching the paths it is
-  # configured to have access to via `${SHARED_KEY_ROOT}/humans.acl` and
-
-  echo "${service} public key: $(cat "${SHARED_KEY_ROOT}/${service}.pub")" >&2
-
-  return 0
-}
+#ensure_service_key_exists() {
+#  local service="${1:-}"
+#
+#  if [ -z "${key_name}" ]; then
+#    echo 'usage: ensure_service_key_exists KEY_NAME' 2>&1
+#    return 1
+#  fi
+#
+#  # TODO: Should verify the user has the ability to read the service key using the contents of
+#  # `secrets/humans.acl`. We actually need to confirm at least one human has a public key that can
+#  # be used to encrypt the value, if the current user can read it back that implies they are on the
+#  # list of encryption recipients and ensures that users which shouldn't have access to it are
+#  # unable to initialize (and potentially hold onto) keys they shouldn't have access to.
+#
+#  if [ ! -f "${SHARED_KEY_ROOT}/${service}.key" ]; then
+#    mkdir -p "${SHARED_KEY_ROOT}"
+#    PUBLIC_KEY="$(age-keygen -o "${SHARED_KEY_ROOT}/${service}.key" 2>&1 | awk '{ print $3 }')"
+#    sops encrypt -i ${SHARED_KEY_ROOT}/${service}.key
+#
+#    echo "${PUBLIC_KEY}" >"${SHARED_KEY_ROOT}/${service}.pub"
+#  fi
+#
+#  # TODO: Should ensure the SOPS configuration has this public listed matching the paths it is
+#  # configured to have access to via `${SHARED_KEY_ROOT}/humans.acl` and
+#
+#  echo "${service} public key: $(cat "${SHARED_KEY_ROOT}/${service}.pub")" >&2
+#
+#  return 0
+#}
 
 # Users share the same identity across all environments
 ensure_current_user_key_exists() {
-  # TODO: Should this support multiple identities per user? Can it (probably by finding the specific
-  # handle based on the output of `-m`...)?
-
   if [ ! -r "secrets/identities/${KEY_USER_ID}.handle" ]; then
+    echo "It seems like you're identity isn't currently configured in this repo, but we may have" >&2
+    echo "misdetected your identity. We've recognized you as '${KEY_USER_ID}', if this isn't correct" >&2
+    echo "you can override it by setting (and exporting) the environment variable 'KEY_USER_ID' with a" >&2
+    echo "different value." >&2
+    echo >&2
+
+    read -erp "Would you like to initialize '${KEY_USER_ID}' with a new FIDO2 identity (Y/n)? " CONTINUE
+    case "${CONTINUE}" in
+    "" | "y" | "Y")
+      echo >&2
+      ;;
+    "n" | "N")
+      exit 0
+      ;;
+    *)
+      echo "unknown response! bailing!" >&2
+      exit 1
+      ;;
+    esac
+
     mkdir -p secrets/identities/
 
-    # TODO: Should give more instructions and pause for input from the user before running the key
-    # generation. The user needs to be present.
-    echo "You can omit the identity as it is the same one returned by $(age-plugin-fido2-hmac -m)" >&2
+    echo "Great! The next step is to provision a credential with your FIDO2 token. Please make sure its" >&2
+    echo "plugged in and we'll start the provisioning process. The key never leaves your device but does" >&2
+    echo "require user confirmation during the process so pay attention!" >&2
+    echo >&2
+
+    echo 'You can omit the identity as it is the same one returned by `age-plugin-fido2-hmac -m`' >&2
 
     # TODO: This tool is _ok_ but it isn't polished and doesn't allow policies to be applied to
-    # identities such as requiring presence, or support for authenticator attestations.
-    age-plugin-fido2-hmac -g >"secrets/identities/${KEY_USERID}.handle"
+    # identities such as requiring presence, or support for authenticator attestations. Might be
+    # worth actually writing and opensourcing my own...
+    age-plugin-fido2-hmac -g >"secrets/identities/${KEY_USER_ID}.handle"
 
-    cat "secrets/identities/${KEY_USERID}.handle" |
+    cat "secrets/identities/${KEY_USER_ID}.handle" |
       grep 'public key' |
-      grep -oP 'age1.*' >"secrets/identities/${KEY_USERID}.pub"
+      grep -oP 'age1.*' >"secrets/identities/${KEY_USER_ID}.pub"
   fi
 
   # TODO: Should add public key to SOPS configuration where appropriate
@@ -94,9 +115,9 @@ ensure_current_user_key_exists() {
 # During initialization its important
 ensure_current_user_key_exists
 
-ensure_acl_key_exists app-eng
-ensure_acl_key_exists operations
-ensure_acl_key_exists root
+#ensure_acl_key_exists app-eng
+#ensure_acl_key_exists operations
+#ensure_acl_key_exists root
 
-ensure_service_key_exists argocd
-ensure_service_key_exists backups
+#ensure_service_key_exists argocd
+#ensure_service_key_exists backups
