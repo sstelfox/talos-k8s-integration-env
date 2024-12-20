@@ -6,7 +6,7 @@ set -o pipefail
 
 source ./scripts/cfg/talos.sh.inc
 
-SHARED_KEY_ROOT="./secrets/${TALOS_CLUSTER_NAME}"
+CLUSTER_SECRET_ROOT="./secrets/${TALOS_CLUSTER_NAME}"
 
 # Default to the current username which works well when machine usernames align with our internal
 # account names, this is not universally enforced yet so we allow grandfathered usernames via an
@@ -30,36 +30,6 @@ ensure_acl_key_exists() {
 
   return 0
 }
-
-#ensure_service_key_exists() {
-#  local service="${1:-}"
-#
-#  if [ -z "${key_name}" ]; then
-#    echo 'usage: ensure_service_key_exists KEY_NAME' 2>&1
-#    return 1
-#  fi
-#
-#  # TODO: Should verify the user has the ability to read the service key using the contents of
-#  # `secrets/humans.acl`. We actually need to confirm at least one human has a public key that can
-#  # be used to encrypt the value, if the current user can read it back that implies they are on the
-#  # list of encryption recipients and ensures that users which shouldn't have access to it are
-#  # unable to initialize (and potentially hold onto) keys they shouldn't have access to.
-#
-#  if [ ! -f "${SHARED_KEY_ROOT}/${service}.key" ]; then
-#    mkdir -p "${SHARED_KEY_ROOT}"
-#    PUBLIC_KEY="$(age-keygen -o "${SHARED_KEY_ROOT}/${service}.key" 2>&1 | awk '{ print $3 }')"
-#    sops encrypt -i ${SHARED_KEY_ROOT}/${service}.key
-#
-#    echo "${PUBLIC_KEY}" >"${SHARED_KEY_ROOT}/${service}.pub"
-#  fi
-#
-#  # TODO: Should ensure the SOPS configuration has this public listed matching the paths it is
-#  # configured to have access to via `${SHARED_KEY_ROOT}/humans.acl` and
-#
-#  echo "${service} public key: $(cat "${SHARED_KEY_ROOT}/${service}.pub")" >&2
-#
-#  return 0
-#}
 
 # Users share the same identity across all environments
 ensure_current_user_key_exists() {
@@ -112,12 +82,59 @@ ensure_current_user_key_exists() {
   return 0
 }
 
-# During initialization its important
-ensure_current_user_key_exists
+ensure_service_key_exists() {
+  local service="${1:-}"
 
-#ensure_acl_key_exists app-eng
-#ensure_acl_key_exists operations
-#ensure_acl_key_exists root
+  if [ -z "${key_name}" ]; then
+    echo 'usage: ensure_service_key_exists KEY_NAME' 2>&1
+    return 1
+  fi
 
-#ensure_service_key_exists argocd
-#ensure_service_key_exists backups
+  # TODO: Should verify the user has the ability to read the service key using the contents of
+  # `secrets/humans.acl`. We actually need to confirm at least one human has a public key that can
+  # be used to encrypt the value, if the current user can read it back that implies they are on the
+  # list of encryption recipients and ensures that users which shouldn't have access to it are
+  # unable to initialize (and potentially hold onto) keys they shouldn't have access to.
+
+  if [ ! -f "${CLUSTER_SECRET_ROOT}/${service}.key" ]; then
+    mkdir -p "${CLUSTER_SECRET_ROOT}"
+    PUBLIC_KEY="$(age-keygen -o "${CLUSTER_SECRET_ROOT}/${service}.key" 2>&1 | awk '{ print $3 }')"
+    sops encrypt -i ${CLUSTER_SECRET_ROOT}/${service}.key
+
+    echo "${PUBLIC_KEY}" >"${CLUSTER_SECRET_ROOT}/${service}.pub"
+  fi""
+
+  # TODO: Should ensure the SOPS configuration has this public listed matching the paths it is
+  # configured to have access to via `${CLUSTER_SECRET_ROOT}/humans.acl` and
+
+  echo "${service} public key: $(cat "${CLUSTER_SECRET_ROOT}/${service}.pub")" >&2
+
+  return 0
+}
+
+initialize_cluster_permissions() {
+  if [ -d "${CLUSTER_SECRET_ROOT}" ]; then
+    return 0
+  fi
+
+  cat <<-EOF > "${CLUSTER_SECRET_ROOT}/humans.acl"
+  EOF
+
+  return 0
+}
+
+main() {
+  initialize_cluster_permissions
+
+  # During initialization its important
+  ensure_current_user_key_exists
+
+  ensure_acl_key_exists app-eng
+  ensure_acl_key_exists operations
+  ensure_acl_key_exists root
+
+  ensure_service_key_exists argocd
+  ensure_service_key_exists backups
+}
+
+main
