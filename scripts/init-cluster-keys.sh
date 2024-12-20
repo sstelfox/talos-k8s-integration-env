@@ -60,8 +60,9 @@ ensure_current_user_key_exists() {
     echo "plugged in and we'll start the provisioning process. The key never leaves your device but does" >&2
     echo "require user confirmation during the process so pay attention!" >&2
     echo >&2
-
-    echo 'You can omit the identity as it is the same one returned by `age-plugin-fido2-hmac -m`' >&2
+    echo "When prompted whether you are 'fine with having a separate identity' you should choose No." >&2
+    echo "Under this use case with dedicated hardware keys for this purpose there is no privacy" >&2
+    echo "concerns this remediates and the hardware identifier is required for our key audits." >&2
 
     # TODO: This tool is _ok_ but it isn't polished and doesn't allow policies to be applied to
     # identities such as requiring presence, or support for authenticator attestations. Might be
@@ -73,11 +74,10 @@ ensure_current_user_key_exists() {
       grep -oP 'age1.*' >"secrets/identities/${KEY_USER_ID}.pub"
   fi
 
-  # TODO: Should add public key to SOPS configuration where appropriate
+  # TODO: Should generate .sop.yaml file based on config
 
-  # TODO: Need to warn on any acl key the new user is supposed to have access to via humans.acl as
-  # they won't be able to re-encrypt the secrets themselves. This should be done in the PR by a user
-  # with at least the level of privilege required.
+  # TODO: Need to warn on any acl key the new user is supposed to have access to according to the
+  # humans.acl file, as users forget to notify someone to grant them the desired level of access.
 
   return 0
 }
@@ -96,13 +96,13 @@ ensure_service_key_exists() {
   # list of encryption recipients and ensures that users which shouldn't have access to it are
   # unable to initialize (and potentially hold onto) keys they shouldn't have access to.
 
-  if [ ! -f "${CLUSTER_SECRET_ROOT}/${service}.key" ]; then
+  if [ ! -f "${CLUSTER_SECRET_ROOT}/${service}.enc" ]; then
     mkdir -p "${CLUSTER_SECRET_ROOT}"
-    PUBLIC_KEY="$(age-keygen -o "${CLUSTER_SECRET_ROOT}/${service}.key" 2>&1 | awk '{ print $3 }')"
-    sops encrypt -i ${CLUSTER_SECRET_ROOT}/${service}.key
+    PUBLIC_KEY="$(age-keygen -o "${CLUSTER_SECRET_ROOT}/${service}.enc" 2>&1 | awk '{ print $3 }')"
+    sops encrypt -i ${CLUSTER_SECRET_ROOT}/${service}.enc
 
     echo "${PUBLIC_KEY}" >"${CLUSTER_SECRET_ROOT}/${service}.pub"
-  fi""
+  fi
 
   # TODO: Should ensure the SOPS configuration has this public listed matching the paths it is
   # configured to have access to via `${CLUSTER_SECRET_ROOT}/humans.acl` and
@@ -117,9 +117,60 @@ initialize_cluster_permissions() {
     return 0
   fi
 
-  cat <<-EOF > "${CLUSTER_SECRET_ROOT}/humans.acl"
-  EOF
+  mkdir -p "${CLUSTER_SECRET_ROOT}/backup-seed"
 
+  cat <<-EOF >"${CLUSTER_SECRET_ROOT}/humans.acl"
+# This file was automatically generated during cluster initialization and needs to be reviewed
+# and edited for approved access before making the cluster operational.
+
+# Initial user is granted the administrative roles
+${KEY_USER_ID}    root,operations
+EOF
+
+  cat <<-EOF >"${CLUSTER_SECRET_ROOT}/automations.acl"
+# This file was automatically generated during cluster initialization and needs to be reviewed
+# and edited for approved access before making the cluster operational
+
+# ArgoCD needs access to all secrets in the manifest directory
+argocd                path_regex:manifests/.*/secrets\.yaml$
+
+# The breakglass key is equivalent to root level access but its use does not require the two-man
+# rule. The private portion of this key should not be persisted to this repo in any form. The
+# breakglass key is the only exception to the two-man rule for this level of access and MUST only
+# be used as an absolute last resort and only with explicit written executive sign-off.
+breakglass            path_regex:manifests/.*/secrets\.yaml$
+breakglass            path_regex:${CLUSTER_SECRET_ROOT}/.*\.enc$
+
+# This key is used for encrypting the backups needed for disaster recovery processes specific to
+# customers
+cluster-seed-backups  path_regex:${CLUSTER_SECRET_ROOT}/backup-seed/.*\.enc$
+EOF
+
+  cat <<-EOF >"${CLUSTER_SECRET_ROOT}/roles.acl"
+# This file was automatically generated during cluster initialization and needs to be reviewed
+# and edited for approved access before making the cluster operational.
+
+# This role is used for extreme privileged access. Use of this role requires at least two
+# permissioned users (the keys can not be owned by the same identity). During cluster
+# initialization this requirement is waved as we only have a single administrative user
+# provisioned. The cluster is not considered ready for production until the two-man rule on these
+# keys is enforced.
+root          path_regex:manifests/.*/secrets\.yaml$
+root          path_regex:${CLUSTER_SECRET_ROOT}/.*\.enc$
+
+# Operations staff are allowed access to all manifest secrets as they support both infrastructure
+# and application engineer deployments.
+operations    path_regex:manifests/.*/secrets\.yaml$
+
+# This repo currently doesn't have any application engineer managed resources defined in it, the
+# following is left in as a placeholder until then.
+app-eng       path_regex:manifests/_reference_template/secrets\.yaml$
+EOF
+
+  return 0
+}
+
+update_sops_config() {
   return 0
 }
 
@@ -129,12 +180,15 @@ main() {
   # During initialization its important
   ensure_current_user_key_exists
 
-  ensure_acl_key_exists app-eng
-  ensure_acl_key_exists operations
-  ensure_acl_key_exists root
+  #ensure_acl_key_exists root
+  #ensure_acl_key_exists operations
+  #ensure_acl_key_exists app-eng
 
-  ensure_service_key_exists argocd
-  ensure_service_key_exists backups
+  #ensure_service_key_exists argocd
+  #ensure_service_key_exists breakglass
+  #ensure_service_key_exists cluster-seed-backups
+
+  #update_sops_config
 }
 
 main

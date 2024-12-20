@@ -1,4 +1,14 @@
-# Cached images
+# Cached container images
 /airgap_registry/
-# Downloaded charts, rendered manifests, kernel/intiramfs, etc
+
+# Downloaded charts, rendered manifests, kernel/intiramfs, etc. Any artifacts needed outside the
+# control of this repo needed for bootstrapping and recovering the airgapped cluster. This is
+# intended to both be something to keep periodic backups of for DR purposes but is otherwise
+# intended to be ephemeral.
 /_out/
+
+# The breakglass private keys are not to be checked into the repo. The root level access this
+# provides is normally constrained with a "two-man" rule for access requiring coordinated access to
+# those keys from multiple unique identities. The breakglass key is the exception and MUST only be
+# used as an absolute last resort and only with explicit written executive sign-off.
+/secrets/*/breakglass.enc
