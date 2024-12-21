@@ -256,6 +256,9 @@ EOF
 main() {
   local headless_user
 
+  # The headless user is used during integration tests in place of the current user. This is the
+  # only key that is allowed to be decrypted on disk as its ephemeral, existing only for the
+  # duration of the tests.
   if [ "${1:-}" = "-a" ]; then
     headless_user="true"
   else
