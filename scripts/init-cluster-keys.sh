@@ -13,45 +13,6 @@ CLUSTER_SECRET_ROOT="./secrets/${TALOS_CLUSTER_NAME}"
 # environment variable.
 KEY_USER_ID="${KEY_USER_ID:-$(whoami)}"
 
-# These keys are shared by the different groups with the private key stored in the repo. User
-# access is controlled by granting a user's private key the ability to decrypt the appropriate
-# service key. This decryption process should never write the unencrypted secret to disk for
-# intermediate stages to ensure it isn't checked-in or leaked to other programs.
-#
-# Removal of access requires first rotating the acl keys the user had access to, followed by the
-# secrets they could access using them.
-ensure_acl_key_exists() {
-  local key_name="${1:-}"
-  local headless_user="${2:-false}"
-
-  if [ -z "${key_name}" ]; then
-    echo 'usage: ensure_shared_key_exists KEY_NAME' 2>&1
-    return 1
-  fi
-
-  if [ ! -f "${CLUSTER_SECRET_ROOT}/acl-${key_name}.enc" ]; then
-    # Generate new key pair
-    local acl_private_key="$(age-keygen 2>${CLUSTER_SECRET_ROOT}/acl-${key_name}.pub)"
-    local acl_public_key="$(cat ${CLUSTER_SECRET_ROOT}/acl-${key_name}.pub)"
-
-    local encrypting_key
-
-    if [ "${headless_user}" = "true" ]; then
-      encrypting_key="$(cat ./secrets/identities/headless.pub)"
-    else
-      encrypting_key="$(cat ./secrets/identities/${KEY_USER_ID}.pub)"
-    fi
-
-    PRIVATE_KEY="$(age-keygen 2>/dev/null)"
-    PUBLIC_KEY="$(echo "${PRIVATE_KEY}" | grep 'public key:' | grep -oP 'age1.*')"
-
-    #sops encrypt --age "${encrypting_key}" --input-type binary \
-    #  --output "${CLUSTER_SECRET_ROOT}/acl-${key_name}.enc"
-  fi
-
-  return 0
-}
-
 ensure_current_user_key_exists() {
   if [ ! -r "secrets/identities/${KEY_USER_ID}.handle" ]; then
     echo "It seems like you're identity isn't currently configured in this repo, but we may have" >&2
@@ -116,31 +77,51 @@ ensure_headless_user_key_exists() {
   return 0
 }
 
-ensure_service_key_exists() {
-  local service="${1:-}"
-  local headless="${2:-}"
+# These keys are shared by the different groups with the private key stored in the repo. User
+# access is controlled by granting a user's private key the ability to decrypt the appropriate
+# service key. This decryption process should never write the unencrypted secret to disk for
+# intermediate stages to ensure it isn't checked-in or leaked to other programs.
+#
+# Removal of access requires first rotating the acl keys the user had access to, followed by the
+# secrets they could access using them.
+ensure_key_exists() {
+  local prefix="${1:-}"
+  local service="${2:-}"
+  local headless="${3:-}"
 
   if [ -z "${service}" ] || [ -z "${headless}" ]; then
-    echo 'usage: ensure_service_key_exists SERVICE HEADLESS' 2>&1
+    echo 'usage: ensure_key_exists TYPE SERVICE HEADLESS' 2>&1
     return 1
   fi
 
-  if [ ! -f "${CLUSTER_SECRET_ROOT}/svc-${service}.enc" ]; then
+  if [ ! -r "${CLUSTER_SECRET_ROOT}/${prefix}-${service}.enc" ]; then
     mkdir -p "${CLUSTER_SECRET_ROOT}"
 
-    PRIVATE_KEY="$(age-keygen 2>/dev/null)"
-    echo "${PRIVATE_KEY}" | grep 'public key:' | grep -oP 'age1.*'>"${CLUSTER_SECRET_ROOT}/svc-${service}.pub"
+    local private_key="$(age-keygen 2>/dev/null)"
+    echo "${private_key}" |
+      grep 'public key:' |
+      grep -oP 'age1.*'>"${CLUSTER_SECRET_ROOT}/${prefix}-${service}.pub"
 
-    #echo sops encrypt --age "${SERVICE_PUBLIC_KEY}" >"${CLUSTER_SECRET_ROOT}/${service}.enc"
-    exit 1
+    local encrypting_key
+    if [ "${headless}" = "true" ]; then
+      encrypting_key="$(cat ./secrets/identities/headless.pub)"
+    else
+      encrypting_key="$(cat ./secrets/identities/${KEY_USER_ID}.pub)"
+    fi
 
-    echo "${PUBLIC_KEY}" >"${CLUSTER_SECRET_ROOT}/${service}.pub"
+    local last_umask="$(umask)"
+    umask 0077
+
+    # This could have been written directly above, but ideally we could pipe this value through
+    # sops so the unencrypted version never touches disk. I'm going to hold out hope this is
+    # possible in the future and keep it in a variable form for now.
+    echo "${private_key}" > "${CLUSTER_SECRET_ROOT}/${prefix}-${service}.enc"
+    sops encrypt --age "${encrypting_key}" -i "${CLUSTER_SECRET_ROOT}/${prefix}-${service}.enc"
+
+    umask "${last_umask}"
   fi
 
-  # TODO: Should ensure the SOPS configuration has this public listed matching the paths it is
-  # configured to have access to via `${CLUSTER_SECRET_ROOT}/humans.acl` and
-
-  echo "${service} public key: $(cat "${CLUSTER_SECRET_ROOT}/${service}.pub")" >&2
+  echo "${prefix}-${service} public key: $(cat "${CLUSTER_SECRET_ROOT}/${prefix}-${service}.pub")" >&2
 
   return 0
 }
@@ -152,53 +133,9 @@ initialize_cluster_permissions() {
 
   mkdir -p "${CLUSTER_SECRET_ROOT}/backup-seed"
 
-  cat <<-EOF >"${CLUSTER_SECRET_ROOT}/humans.acl"
-		# This file was automatically generated during cluster initialization and needs to be reviewed
-		# and edited for approved access before making the cluster operational.
-
-		# Initial user is granted the administrative roles
-		${KEY_USER_ID}    root,operations
-	EOF
-
-  cat <<-EOF >"${CLUSTER_SECRET_ROOT}/automations.acl"
-		# This file was automatically generated during cluster initialization and needs to be reviewed
-		# and edited for approved access before making the cluster operational
-
-		# ArgoCD needs access to all secrets in the manifest directory
-		argocd                path_regex:manifests/.*/secrets\.yaml$
-
-		# The breakglass key is equivalent to root level access but its use does not require the two-man
-		# rule. The private portion of this key should not be persisted to this repo in any form. The
-		# breakglass key is the only exception to the two-man rule for this level of access and MUST only
-		# be used as an absolute last resort and only with explicit written executive sign-off.
-		breakglass            path_regex:manifests/.*/secrets\.yaml$
-		breakglass            path_regex:${CLUSTER_SECRET_ROOT}/.*\.enc$
-
-		# This key is used for encrypting the backups needed for disaster recovery processes specific to
-		# customers
-		cluster-seed-backups  path_regex:${CLUSTER_SECRET_ROOT}/backup-seed/.*\.enc$
-	EOF
-
-  cat <<-EOF >"${CLUSTER_SECRET_ROOT}/roles.acl"
-		# This file was automatically generated during cluster initialization and needs to be reviewed
-		# and edited for approved access before making the cluster operational.
-
-		# This role is used for extreme privileged access. Use of this role requires at least two
-		# permissioned users (the keys can not be owned by the same identity). During cluster
-		# initialization this requirement is waved as we only have a single administrative user
-		# provisioned. The cluster is not considered ready for production until the two-man rule on these
-		# keys is enforced.
-		root          path_regex:manifests/.*/secrets\.yaml$
-		root          path_regex:${CLUSTER_SECRET_ROOT}/.*\.enc$
-
-		# Operations staff are allowed access to all manifest secrets as they support both infrastructure
-		# and application engineer deployments.
-		operations    path_regex:manifests/.*/secrets\.yaml$
-
-		# This repo currently doesn't have any application engineer managed resources defined in it, the
-		# following is left in as a placeholder until then.
-		app-eng       path_regex:manifests/_reference_template/secrets\.yaml$
-	EOF
+  # "${CLUSTER_SECRET_ROOT}/humans.acl"
+  # "${CLUSTER_SECRET_ROOT}/automations.acl"
+  # "${CLUSTER_SECRET_ROOT}/roles.acl"
 
   return 0
 }
@@ -227,13 +164,13 @@ main() {
     ensure_current_user_key_exists
   fi
 
-  ensure_service_key_exists argocd ${headless_user}
-  #ensure_service_key_exists breakglass ${headless_user}
-  #ensure_service_key_exists cluster-seed-backups ${headless_user}
+  ensure_key_exists acl root ${headless_user}
+  ensure_key_exists acl operations ${headless_user}
+  ensure_key_exists acl app-eng ${headless_user}
 
-  #ensure_acl_key_exists root ${headless_user}
-  #ensure_acl_key_exists operations ${headless_user}
-  #ensure_acl_key_exists app-eng ${headless_user}
+  ensure_key_exists svc argocd ${headless_user}
+  ensure_key_exists svc breakglass ${headless_user}
+  ensure_key_exists scv cluster-seed-backups ${headless_user}
 
   #update_sops_config ${headless_user}
 
