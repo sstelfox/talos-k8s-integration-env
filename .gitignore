@@ -12,3 +12,7 @@
 # those keys from multiple unique identities. The breakglass key is the exception and MUST only be
 # used as an absolute last resort and only with explicit written executive sign-off.
 /secrets/*/breakglass.enc
+
+# While I'm working out the development of the root of trust keys these are going to be ignored
+/secrets/identities/
+/secrets/firmament-integration/

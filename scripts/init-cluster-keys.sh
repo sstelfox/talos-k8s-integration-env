@@ -116,7 +116,7 @@ ensure_key_exists() {
     # sops so the unencrypted version never touches disk. I'm going to hold out hope this is
     # possible in the future and keep it in a variable form for now.
     echo "${private_key}" > "${CLUSTER_SECRET_ROOT}/${prefix}-${service}.enc"
-    sops encrypt --age "${encrypting_key}" -i "${CLUSTER_SECRET_ROOT}/${prefix}-${service}.enc"
+    #sops encrypt -i "${CLUSTER_SECRET_ROOT}/${prefix}-${service}.enc"
 
     umask "${last_umask}"
   fi
@@ -127,20 +127,47 @@ ensure_key_exists() {
 }
 
 initialize_cluster_permissions() {
+  local headless="${1:-}"
+
+  if [ -z "${headless}" ]; then
+    echo 'usage: initialize_cluster_permissions HEADLESS' 2>&1
+    return 1
+  fi
+
   if [ -d "${CLUSTER_SECRET_ROOT}" ]; then
     return 0
   fi
 
   mkdir -p "${CLUSTER_SECRET_ROOT}/backup-seed"
+  touch "${CLUSTER_SECRET_ROOT}/backup-seed/.gitkeep"
 
-  # "${CLUSTER_SECRET_ROOT}/humans.acl"
-  # "${CLUSTER_SECRET_ROOT}/automations.acl"
-  # "${CLUSTER_SECRET_ROOT}/roles.acl"
+  local root_user
+  if [ "${headless}" = "true" ]; then
+    root_user="headless"
+  else
+    root_user="${KEY_USER_ID}"
+  fi
+
+  env ROOT_USER_ID="${root_user}" \
+    envsubst <"./secrets/templates/humans.acl.template" >"${CLUSTER_SECRET_ROOT}/humans.acl"
+
+  env CLUSTER_SECRET_ROOT="${CLUSTER_SECRET_ROOT}" \
+    envsubst <"./secrets/templates/automations.acl.template" >"${CLUSTER_SECRET_ROOT}/automations.acl"
+
+  env CLUSTER_SECRET_ROOT="${CLUSTER_SECRET_ROOT}" \
+    envsubst <"./secrets/templates/roles.acl.template" >"${CLUSTER_SECRET_ROOT}/roles.acl"
 
   return 0
 }
 
 update_sops_config() {
+  local headless="${1:-}"
+
+  if [ -z "${headless}" ]; then
+    echo 'usage: update_sops_config HEADLESS' 2>&1
+    return 1
+  fi
+
   return 0
 }
 
@@ -156,7 +183,7 @@ main() {
     headless_user="false"
   fi
 
-  initialize_cluster_permissions
+  initialize_cluster_permissions ${headless_user}
 
   if [ "${headless_user}" = "true" ]; then
     ensure_headless_user_key_exists
@@ -170,9 +197,9 @@ main() {
 
   ensure_key_exists svc argocd ${headless_user}
   ensure_key_exists svc breakglass ${headless_user}
-  ensure_key_exists scv cluster-seed-backups ${headless_user}
+  ensure_key_exists scv cluster-seed-backup ${headless_user}
 
-  #update_sops_config ${headless_user}
+  update_sops_config ${headless_user}
 
   # TODO: Need to warn on any acl key the new user is supposed to have access to according to the
   # humans.acl file, as users forget to notify someone to grant them the desired level of access.
