@@ -49,7 +49,7 @@ ensure_current_user_key_exists() {
     # TODO: This tool is _ok_ but it isn't polished and doesn't allow policies to be applied to
     # identities such as requiring presence, or support for authenticator attestations. Might be
     # worth actually writing and opensourcing my own...
-    age-plugin-fido2-hmac -g >"secrets/identities/${KEY_USER_ID}.handle"
+    age-plugin-fido2-hmac -a es256 -g >"secrets/identities/${KEY_USER_ID}.handle"
 
     cat "secrets/identities/${KEY_USER_ID}.handle" |
       grep 'public key' |
