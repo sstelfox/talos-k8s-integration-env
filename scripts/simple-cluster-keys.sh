@@ -8,67 +8,79 @@ source ./scripts/cfg/talos.sh.inc
 
 CLUSTER_SECRET_ROOT="./secrets/${TALOS_CLUSTER_NAME}"
 
-validate_fido2_tokens() {
-  # Check if fido2-token is available
+locate_valid_fido2_token() {
+  # Ensure we can perform these sanity checks
   if ! command -v fido2-token >/dev/null 2>&1; then
     echo "fido2-token command not found" >&2
     return 1
   fi
 
-  # Get list of tokens
-  tokens=$(fido2-token -L)
+  tokens="$(fido2-token -L)"
   if [ -z "$tokens" ]; then
     echo "no fido2 tokens found" >&2
     return 1
   fi
 
-  valid_token_found=1
+  local selected_token
+  local valid_tokens_found=0
 
   while IFS= read -r token_line; do
-    # Extract token path (everything before the colon)
-    token_path=$(echo "$token_line" | cut -d: -f1-2)
-    violations=0
+    local token_path="$(echo "${token_line}" | sed 's/\([^:]*\): .*/\1/')"
+    local token_info="$(fido2-token -I "$token_path")"
+    local violations=""
 
-    # Get token info
-    token_info=$(fido2-token -I "$token_path")
-
-    # Check for resident keys (rk)
-    if ! echo "$token_info" | grep -q "options:.*rk"; then
-      echo "token $token_path missing resident key support" >&2
-      violations=$((violations + 1))
+    # Confirm the device supports resident keys
+    if ! echo "${token_info}" | grep -q "options:.*rk"; then
+      violations="no-resident-key"
     fi
 
-    # Check for user presence (up)
-    if ! echo "$token_info" | grep -q "options:.*up"; then
-      echo "token $token_path missing user presence support" >&2
-      violations=$((violations + 1))
+    # Confirm we can confirm a user is present when we try and use the key
+    if ! echo "${token_info}" | grep -q "options:.*up"; then
+      if [ -n "${violations:-}" ]; then
+        violations="${violations},"
+      fi
+
+      violations="${violations}no-user-presence"
     fi
 
-    # Check for ES256 algorithm
-    if ! echo "$token_info" | grep -q "algorithms:.*es256"; then
-      echo "token $token_path missing es256 algorithm support" >&2
-      violations=$((violations + 1))
+    # The device must support our chosen algorithm
+    if ! echo "${token_info}" | grep -q "algorithms:.*es256"; then
+      if [ -n "${violations:-}" ]; then
+        violations="${violations},"
+      fi
+
+      violations="${violations}missing-algorithm"
     fi
 
-    # Check for FIDO 2.0 or 2.1 support
-    if ! echo "$token_info" | grep -q "version strings:.*\(FIDO_2_0\|FIDO_2_1_PRE\)"; then
-      echo "token $token_path missing fido 2.0/2.1 support" >&2
-      violations=$((violations + 1))
+    # The device must be new enough to support at least FIDO2
+    if ! echo "${token_info}" | grep -q "version strings:.*\(FIDO_2_0\|FIDO_2_1_PRE\)"; then
+      if [ -n "${violations:-}" ]; then
+        violations="${violations},"
+      fi
+
+      violations="${violations}no-fido2-support"
     fi
 
-    # If no violations found, echo the token path and update return status
-    if [ "$violations" -eq 0 ]; then
-      echo "$token_path"
-      valid_token_found=0
+    if [ -n "${violations:-}" ]; then
+      echo "candidate key ${token_path} has policy violations: ${violations}" >&2
+    elif [ -z "${selected_token:-}" ]; then
+      echo "selecting candidate key ${token_path}" >&2
+      selected_token="${token_path}"
     fi
   done <<EOF
 $(echo "$tokens")
 EOF
 
-  return ${valid_token_found}
+  if [ -z "${selected_token}" ]; then
+    echo "failed to locate valid candidate key" >&2
+    return 1
+  fi
+
+  echo "${selected_token}"
+  return 0
 }
 
-validate_fido2_tokens
+TARGET_TOKEN="$(locate_valid_fido2_token)"
 
 # Might be able to use ssh key backed by the token instead of age-hmac directly and  could use this
 # to potentially sign commits and auth to a repo.. Nice to have it all in one place... (the answer
