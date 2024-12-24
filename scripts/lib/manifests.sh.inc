@@ -89,8 +89,20 @@ manifest_sanity_check() {
   # avoid. This goes against best practices but we prefer this during bootstrapping as we explicitly
   # KNOW we don't want helm managing these.
   if grep -q "app.kubernetes.io/managed-by: Helm" "${rendered_file}"; then
-    echo "found managed-by helm label in generated manifest"
+    echo "found managed-by helm label in generated manifest" >&2
     lint_status=1
+  fi
+
+  # Note: Can set environment variables here such as deployment stage or environment which may be
+  # useful
+  local policy_report="$(kyverno apply ./policies/ --resource "${rendered_file}" 2>&1)"
+  if [ ! "$?" ]; then
+    echo -e "manifest failed to meet policy requirements, report results:\n" >&2
+
+    # Print out the report with a little bit of an indent to make it neat
+    echo "${policy_report}" | sed 's/^/    /' >&2
+
+    lint_status=2
   fi
 
   return ${lint_status}
