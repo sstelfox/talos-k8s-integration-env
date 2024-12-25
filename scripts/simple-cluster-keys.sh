@@ -80,7 +80,7 @@ EOF
   return 0
 }
 
-TARGET_TOKEN="$(locate_valid_fido2_token)"
+IDENTITY_PATH="./secrets/identities/$(whoami).sk"
 
 # Might be able to use ssh key backed by the token instead of age-hmac directly and  could use this
 # to potentially sign commits and auth to a repo.. Nice to have it all in one place... (the answer
@@ -88,7 +88,29 @@ TARGET_TOKEN="$(locate_valid_fido2_token)"
 #
 # Should test -O verify-required, that pin request may not work with our tokens
 #ssh-keygen -t ed25520-sk -O resident -O user=$(whoami) -O device=${device from validate_fido2_tokens} -C "$(whoami) cluster key" -f ~/.ssh/cluster-key-sk-fido2
-# The following option is senstive but I'm curious about what it contains: -O write-attestation=./path
+if [ ! -f "${IDENTITY_PATH}" ]; then
+  TARGET_TOKEN="$(locate_valid_fido2_token)"
+
+  # Might be able to use ssh key backed by the token instead of age-hmac directly and  could use this
+  # to potentially sign commits and auth to a repo.. Nice to have it all in one place...
+  #
+  # Should test -O verify-required, that pin request may not work with our tokens
+  mkdir -p "$(basename ${IDENTITY_PATH})"
+
+  # The write-attestation details are VERY senstitive and should be encrypted and likely not stored
+  # in the database. We don't make use of it yet, its been included for curiousity for now.
+  ssh-keygen -t ed25519-sk -O resident -O user="$(whoami)" -O device="${TARGET_TOKEN}" \
+    -C "$(whoami) cluster key" -O verify-required \
+    -O write-attestation=./secrets/identities/$(whoami).att \
+    -f "${IDENTITY_PATH}"
+
+  # Confirm the key had a passphrase set on it
+  if ssh-keygen -y -P "" -f "${IDENTITY_PATH}" &>/dev/null; then
+    echo "SSH key needs to have a passphrase set on it!"
+    rm -f "${IDENTITY_PATH}"
+    exit 1
+  fi
+fi
 
 # https://emmanuelbernard.com/blog/2023/11/27/git-signing-ssh/
 # https://threatzer.com/posts/wsl-yubikeys/

@@ -11,8 +11,12 @@
 # provides is normally constrained with a "two-man" rule for access requiring coordinated access to
 # those keys from multiple unique identities. The breakglass key is the exception and MUST only be
 # used as an absolute last resort and only with explicit written executive sign-off.
-/secrets/*/breakglass.enc
+/secrets/*/breakglass.age
 
 # While I'm working out the development of the root of trust keys these are going to be ignored
 /secrets/identities/
 /secrets/firmament-integration/
+
+# Sensitive values being temporarily held on to, want to make sure these never get checked in until
+# we are ready to protect them appropriately.
+/secrets/identities/*.att
