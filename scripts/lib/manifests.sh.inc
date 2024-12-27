@@ -100,10 +100,11 @@ manifest_sanity_check() {
     echo -e "manifest failed to meet policy requirements, report results:\n" >&2
 
     # Print out the report with a little bit of an indent to make it neat
-    echo "${policy_report}" | sed 's/^/    /' >&2
+    #echo "${policy_report}" | sed 's/^/    /' >&2
 
     lint_status=2
   fi
+  echo "${policy_report}" | sed 's/^/    /' >&2
 
   return ${lint_status}
 }
