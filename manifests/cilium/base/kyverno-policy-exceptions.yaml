@@ -1,8 +1,16 @@
+---
 apiVersion: kyverno.io/v2
 kind: PolicyException
 metadata:
-  name: cilium-cluster-capabilities-exception
+  name: cilium-hubble-certificate-job-capabilities-exception
   namespace: kube-system
+  annotations:
+    description: >-
+      The hubble certificate job likely doesn't need these permissions, we could patch the resource
+      or fix it upstream but this mechanism being used for certificate generation shouldn't be
+      necessary as there are alternatives we intend to use.
+
+      TODO(high): This exception MUST be removed before the cluster enters production.
 spec:
   background: true
   match:
@@ -12,17 +20,45 @@ spec:
           - kube-system
         kinds:
           - CronJob
-          - DaemonSet
-          - Deployment
           - Job
         names:
-          - cilium
-          - cilium-operator
           - hubble-generate-certs
   exceptions:
   - policyName: disallow-capabilities-strict
     ruleNames:
-      - require-drop-all
       - autogen-require-drop-all
       - autogen-cronjob-require-drop-all
-      - adding-capabilities-strict
+---
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: cilium-core-capabilities-exception
+  namespace: kube-system
+  annotations:
+    description: >-
+      Cilium is the system's CNI and as such it needs more permissions that others, primarily
+      CAP_NET_RAW, CAP_NET_BIND_SERVICE, CAP_BPF, and CAP_NET_ADMIN. There may be others. The
+      generated charts currently do not attempt to drop any permissions which can likely be
+      tightened up via a kustomization patch.
+
+      The risk of the additional permissions here is minimal and has been formally accepted. This
+      exception is allowed to enter the production cluster.
+
+      TODO(low): Identify required capabilities and create patch to drop unecessary permissions.
+spec:
+  background: true
+  match:
+    any:
+    - resources:
+        namespaces:
+          - kube-system
+        kinds:
+          - DaemonSet
+          - Deployment
+        names:
+          - cilium
+          - cilium-operator
+  exceptions:
+  - policyName: disallow-capabilities-strict
+    ruleNames:
+      - autogen-require-drop-all
