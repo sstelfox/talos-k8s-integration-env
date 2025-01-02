@@ -23,9 +23,7 @@ helmCharts:
       #- enable-bgp-lb.yaml
 
 resources:
-  # TODO: this hasn't been tested yet and I haven't yet figured out how to get the local version to
-  # use exceptions.
-  #- kyverno-policy-exceptions.yaml
+  - ../base/kyverno-policy-exceptions.yaml
 
   # Core service network policies
   - ../policies/kube-apiserver.yaml
