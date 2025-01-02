@@ -97,7 +97,7 @@ manifest_sanity_check() {
 
   # Extract any exceptions in the rendered manifest so we can properly omit the results from
   # policies that would otherwise fail our checks.
-  yq -y 'select(.apiVersion == "kyverno.io/v2")' "${rendered_file}" > "${file_base}-kypols.yaml"
+  yq -y 'select(.apiVersion == "kyverno.io/v2beta1")' "${rendered_file}" > "${file_base}-kypols.yaml"
 
   # Note: Can set environment variables here such as deployment stage or environment which may be
   # useful or read in values using the -f flag. It does not respect any of the log CLI arguments

@@ -19,6 +19,7 @@ helmCharts:
     valuesFile: values.yaml
 
 resources:
+  - kyverno-policy-exceptions.yaml
   # These really do need to be applied during the bootstrap phase :(
   #- ../policies/hubble-relay-policy.yaml
   #- ../policies/permitted-cluster-dns.yaml
