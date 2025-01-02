@@ -97,13 +97,13 @@ manifest_sanity_check() {
 
   # Extract any exceptions in the rendered manifest so we can properly omit the results from
   # policies that would otherwise fail our checks.
-  yq -y 'select(.apiVersion == "kyverno.io/v2beta1")' "${rendered_file}" > "${file_base}-kypols.yaml"
+  yq -y 'select(.kind == "PolicyException" or .kind == "ClusterPolicyException")' "${rendered_file}" > "${file_base}-policy-exceptions.yaml"
 
   # Note: Can set environment variables here such as deployment stage or environment which may be
   # useful or read in values using the -f flag. It does not respect any of the log CLI arguments
   # (at least around STDERR) so that is a dead end if a refactor comes around to this bit in the
   # future... The warning exit codes also don't seem to work with apply...
-  local report="$(kyverno apply "${file_base}-kypols.yaml" ./policies/ --policy-report --resource  "${rendered_file}" |
+  local report="$(kyverno apply --exceptions "${file_base}-policy-exceptions.yaml" ./policies/ --policy-report --resource  "${rendered_file}" |
     tail -n +6 |
     yq --compact-output --monochrome-output '.results[] | select(.result == "fail")'
   )"
