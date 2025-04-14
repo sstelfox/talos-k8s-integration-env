@@ -32,12 +32,12 @@ download_repo_release_file() {
   curl -s ${BASE_URL}/${file_base}-${TALOS_ARCH}${suffix} -L -o _out/${file_base}-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION}${suffix}
 }
 
+download_repo_release_file talosctl-linux
+
 download_repo_release_file vmlinuz
 download_repo_release_file initramfs .xz
-download_repo_release_file metal .iso
-download_repo_release_file talosctl-cni-bundle .tar.gz
-
-download_repo_release_file talosctl-linux
+#download_repo_release_file metal .iso
+#download_repo_release_file talosctl-cni-bundle .tar.gz
 
 # Ensure we use a matching talosctl binary
 (
@@ -49,10 +49,10 @@ download_repo_release_file talosctl-linux
 )
 
 # Ensure the CNI bundle we downloaded is available via the local web server if it isn't already
-CNI_BUNDLE_FILE="talosctl-cni-bundle-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz"
-CNI_BUNDLE_FULL_PATH="./_out/public/${CNI_BUNDLE_FILE}"
+#CNI_BUNDLE_FILE="talosctl-cni-bundle-${SOURCE_KEY}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz"
+#CNI_BUNDLE_FULL_PATH="./_out/public/${CNI_BUNDLE_FILE}"
 
-if [ ! -f "${CNI_BUNDLE_FULL_PATH}" ]; then
-  mkdir -p "$(dirname "${CNI_BUNDLE_FULL_PATH}")"
-  cp -f "./_out/${CNI_BUNDLE_FILE}" "${CNI_BUNDLE_FULL_PATH}"
-fi
+#if [ ! -f "${CNI_BUNDLE_FULL_PATH}" ]; then
+#  mkdir -p "$(dirname "${CNI_BUNDLE_FULL_PATH}")"
+#  cp -f "./_out/${CNI_BUNDLE_FILE}" "${CNI_BUNDLE_FULL_PATH}"
+#fi

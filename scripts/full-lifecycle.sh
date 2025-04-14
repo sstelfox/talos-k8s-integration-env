@@ -16,7 +16,7 @@ case "${TALOS_SOURCE}" in
 esac
 
 # Ensure we're fully up to date
-./scripts/generate-manifests.sh
-./scripts/start-installer-services.sh
+#./scripts/generate-manifests.sh
+#./scripts/start-installer-services.sh
 
 ./scripts/create_firmament.sh
