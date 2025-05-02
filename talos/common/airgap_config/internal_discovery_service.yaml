@@ -1,13 +1,18 @@
 ---
 # By default Talos uses their publicly provided discovery service for node information exchange as
-# well as things like the KubeSpan certificate exchanges. This is the prototype for a truly
-# airgapped network and thus we must rely on the internal one's availability.
+# well as things like the KubeSpan certificate exchanges.
 version: v1alpha1
 cluster:
   discovery:
+    # To use KubeSpan we MUST have at least one discovery service setup.
     enabled: true
     registries:
+      # We'll swap the default and enable the discovery service using Kubernetes Node objects to
+      # store inter-node data such as wireguard public keys.
       kubernetes:
         disabled: false
+
+      # This is the Siderolabs public discovery service. We need to turn this off as it won't be
+      # accessible in the airgapped network.
       service:
         disabled: true

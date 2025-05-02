@@ -15,8 +15,10 @@ case "${TALOS_SOURCE}" in
   ;;
 esac
 
-# Ensure we're fully up to date
-#./scripts/generate-manifests.sh
-#./scripts/start-installer-services.sh
-
+./scripts/start-installer-services.sh
 ./scripts/create_firmament.sh
+
+# The installer services ensures the bootstrap manifests are up to date when it gets run, we don't
+# need the additional manifests until we start setting up the initial environment.
+#./scripts/generate-manifests.sh
+#./scripts/bootstrap-apps.sh

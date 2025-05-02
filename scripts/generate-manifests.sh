@@ -18,13 +18,13 @@ manifest_render cilium/init
 # applications should be defined in here, only cluster-wide services. The priority here is getting
 # the protection and support resources up and available so they're ready for ArgoCD to deploy our
 # intended workloads.
-manifest_render cilium/bootstrap
-manifest_render falco/bootstrap
-manifest_render kyverno/bootstrap
-
-manifest_render rook-ceph/bootstrap
-manifest_render vault/bootstrap
-manifest_render argocd/bootstrap
+#manifest_render cilium/bootstrap
+#manifest_render falco/bootstrap
+#manifest_render kyverno/bootstrap
+#
+#manifest_render rook-ceph/bootstrap
+#manifest_render vault/bootstrap
+#manifest_render argocd/bootstrap
 #manifest_render observability/bootstrap
 
 # The remaining manifests should never be deployed manually as ArgoCD owns them. We still want to

@@ -28,6 +28,19 @@ Outstanding services that I intend to stand-up but haven't yet:
 * Plane (<https://github.com/makeplane/plane>)
 * SIEM? Wazah?
 
+## Development Dependencies
+
+The following binaries are expected to be in your working path to run the various script. May
+create a nix flake for this development environment eventually.
+
+* helm
+* jq
+* yq
+* kubectl
+* kyverno
+* skopeo
+* cilium-cli
+
 ## Cluster Bring Up
 
 The cluster comes up in three stages:

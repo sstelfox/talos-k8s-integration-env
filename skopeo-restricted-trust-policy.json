@@ -1,0 +1,10 @@
+{
+    "default": [{ "type": "reject" }],
+    "transports": {
+        "docker": {
+            "ghcr.io/siderolabs": [{ "type": "insecureAcceptAnything" }],
+            "hosts.container.internal:6000": [{ "type": "insecureAcceptAnything" }],
+            "quay.io/cilium": [{ "type": "insecureAcceptAnything" }]
+        }
+    }
+}

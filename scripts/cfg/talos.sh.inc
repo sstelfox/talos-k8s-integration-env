@@ -4,7 +4,7 @@
 # consistent and can be updated / tweaked in a single location.
 
 TALOS_ARCH="amd64"
-TALOS_VERSION="v1.9.2"
+TALOS_VERSION="v1.10.0"
 
 TALOS_SOURCE="github-official"
 

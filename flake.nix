@@ -27,12 +27,19 @@
           name = "firmament-environment";
 
           buildInputs = with pkgs; [
+            cilium-cli
+            coreutils
+            curl
+            git
+            iproute2
+            iputils
             jq
-            yq
             kubectl
             kubernetes-helm
-            cilium-cli
             kyverno
+            nettools
+            skopeo
+            yq
 
             customBash
           ];

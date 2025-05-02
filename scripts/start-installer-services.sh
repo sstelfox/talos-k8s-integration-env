@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 
-set -o errexit
-set -o pipefail
+set -euo pipefail
 
 source ./scripts/cfg/talos.sh.inc
 
@@ -16,6 +15,9 @@ REGISTRY_CONTAINER_NAME="talos-airgap-registry"
 # Initialize our image list with the official ones
 IMAGE_LIST=$(./_out/talosctl image default)
 
+NIX_BASE="vnix nix --quiet --offline"
+SKOPEO_CMD="${NIX_BASE} develop --no-warn-dirty --command skopeo --policy skopeo-restricted-trust-policy.json"
+
 add_image_to_list() {
   local new_image="${1:-}"
 
@@ -25,6 +27,8 @@ add_image_to_list() {
   fi
 
   if ! is_image_in_list ${new_image}; then
+    echo "adding ${new_image} to locally replicated proxy" >&2
+
     IMAGE_LIST="${IMAGE_LIST}
 ${new_image}"
   fi
@@ -74,16 +78,16 @@ populate_cache_with_image() {
   fi
 
   local dest_image
-  dest_image="docker://127.0.0.1:6000/$(echo ${image_ref} | cut -d'/' -f2-)"
+  dest_image="docker://host.containers.internal:6000/$(echo ${image_ref} | cut -d'/' -f2-)"
 
-  if skopeo inspect --tls-verify=false "${dest_image}" >/dev/null 2>&1; then
+  if ${SKOPEO_CMD} inspect --tls-verify=false "${dest_image}" >/dev/null 2>&1; then
     echo "image already exists in local registry: ${image_ref}" 2>&1
     return 0
   fi
 
   echo "copying image '${image_ref}' into local cache..." 2>&1
 
-  if ! skopeo copy "docker://${image_ref}" --dest-tls-verify=false "${dest_image}" 2>&1 >/dev/null; then
+  if ! ${SKOPEO_CMD} copy "docker://${image_ref}" --dest-tls-verify=false "${dest_image}"; then
     echo "error: failed to copy image"
     return 1
   fi
@@ -103,18 +107,20 @@ populate_airgap_cache() {
 add_image_to_list ghcr.io/siderolabs/installer:${TALOS_VERSION}
 add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
 
-add_image_to_list docker.io/library/nginx:alpine
-add_image_to_list docker.io/library/registry:2
+# The following are used for the local manifest/registry servers. These would be needed to be
+# included in a fully offline environment but for now lets KISS.
+#add_image_to_list docker.io/library/nginx:alpine
+#add_image_to_list docker.io/library/registry:2
 
 #add_image_to_list quay.io/cilium/cilium:latest
-add_image_to_list quay.io/cilium/cilium-cli-ci:latest
-add_image_to_list quay.io/cilium/cilium-envoy:latest
+#add_image_to_list quay.io/cilium/cilium-cli-ci:latest
+#add_image_to_list quay.io/cilium/cilium-envoy:latest
 
-if [ "${INCLUDE_TEST_IMAGES}" = "true" ]; then
-  add_image_to_list quay.io/cilium/alpine-curl:v1.7.0
-  add_image_to_list quay.io/cilium/json-mock:v1.3.5
-  #add_image_to_list quay.io/cilium/network-perf:a816f935930cb2b40ba43230643da4d5751a5711@sha256:679d3a370c696f63884da4557a4466f3b5569b4719bb4f86e8aac02fbe390eea
-fi
+#if [ "${INCLUDE_TEST_IMAGES}" = "true" ]; then
+#  add_image_to_list quay.io/cilium/alpine-curl:v1.7.0
+#  add_image_to_list quay.io/cilium/json-mock:v1.3.5
+#  add_image_to_list quay.io/cilium/network-perf:a816f935930cb2b40ba43230643da4d5751a5711@sha256:679d3a370c696f63884da4557a4466f3b5569b4719bb4f86e8aac02fbe390eea
+#fi
 
 launch_airgap_cache_registry
 populate_airgap_cache
@@ -125,4 +131,5 @@ launch_initial_manifest_server
 
 # Make sure we have a fresh copy of our Cilium initialization manifest available in the local web server
 manifest_render cilium/init
+
 cp -f ./_out/manifests/cilium-init.yaml ./_out/public/cilium-init.yaml
