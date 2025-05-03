@@ -107,8 +107,8 @@ add_image_to_list ghcr.io/siderolabs/installer:${TALOS_VERSION}
 add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
 
 # These were requested and not present... something weird is happening
-add_image_to_list ghcr.io/siderolabs/kubelet:v1.33.0
-add_image_to_list gcr.io/etcd-development/etcd:v3.5.21
+#add_image_to_list ghcr.io/siderolabs/kubelet:v1.33.0
+#add_image_to_list gcr.io/etcd-development/etcd:v3.5.21
 
 # Used by the Cilium CNI installer
 #add_image_to_list docker.io/bitnami/kubectl:1.33.0

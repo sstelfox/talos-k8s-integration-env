@@ -23,7 +23,7 @@ Outstanding services that I intend to stand-up but haven't yet:
 * Gitea
 * Dependency Track
 * Postgres (likely using an operator)
-* Redis/Redis-Clusters (likely using an operator)
+* Valkey/Redis/Redis-Clusters (likely using an operator)
 * Keycloak?
 * Plane (<https://github.com/makeplane/plane>)
 * SIEM? Wazah?
