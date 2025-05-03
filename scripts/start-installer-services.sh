@@ -107,6 +107,9 @@ populate_airgap_cache() {
 add_image_to_list ghcr.io/siderolabs/installer:${TALOS_VERSION}
 add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
 
+# Used by the Cilium CNI installer
+add_image_to_list docker.io/bitnami/kubectl:1.33.0
+
 # The following are used for the local manifest/registry servers. These would be needed to be
 # included in a fully offline environment but for now lets KISS.
 #add_image_to_list docker.io/library/nginx:alpine

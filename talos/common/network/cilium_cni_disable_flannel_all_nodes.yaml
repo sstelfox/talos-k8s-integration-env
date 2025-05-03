@@ -1,5 +1,5 @@
 ---
-# This should run on all node and is paired alongside install_cillium.yaml, both of which need to
+# This should run on all nodes and is paired alongside install_cillium.yaml, both of which need to
 # be enabled/disabled together.
 cluster:
   network:

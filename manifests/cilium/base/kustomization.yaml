@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: cilium
     repo: https://helm.cilium.io/
-    version: 1.15.6
+    version: 1.17.3
 
     namespace: kube-system
     releaseName: cilium

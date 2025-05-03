@@ -24,33 +24,22 @@ source talos/firmament/_patch_config.sh.inc
 mkdir -p ~/.kube ~/.talos/clusters
 touch ~/.kube/config
 
-# TODO: switch the images to a local pull so I can switch to custom builds and handle this in the airgap env
-# TODO: build up the arguments for the installer piecemeal to allow selection of different install paths such as ISO vs kernel:
-# --iso-path=./_out/metal-${TALOS_ARCH}-${TALOS_VERSION}.iso --skip-injecting-config --with-apply-config \
-# --image=ghcr.io/siderolabs/talos:${TALOS_VERSION} --install-image=ghcr.io/siderolabs/installer:${TALOS_VERSION} \
+# May need the following when I go bare metal... Maybe
+# --iso-path=./_out/metal-${TALOS_ARCH}-${TALOS_VERSION}.iso --skip-injecting-config --with-apply-config
 
-# Should be using the local registry for the installer even with the official image present here but
-# I can't be sure of that and should test it...
-#
-# * For the CNI bundle, it is this tool's instance that will be downloading the file which is why
-#   localhost is referenced instead of the cluster/gateway address.
-#  --extra-uefi-search-paths /usr/share/ovmf/x64/ --with-tpm2 --with-uefi \
-#  --install-image 10.5.0.1:6000/siderolabs/installer:${TALOS_VERSION} \
-#  --image 10.5.0.1:6000/siderolabs/talos:${TALOS_VERSION} \
-#  --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION} \
-#  --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
+# * The CNI bundle is the only one on the list below that is downloaded by the system running this
+#   script. That qemu network address is still accessible to this host so we use it for consistency
 sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
   --name ${TALOS_CLUSTER_NAME} --talos-version ${TALOS_VERSION} --controlplanes 3 --workers 2 \
   --vmlinuz-path=./_out/vmlinuz-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION} \
   --initrd-path=./_out/initramfs-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.xz \
+  --extra-uefi-search-paths /usr/share/ovmf/x64/ --with-tpm2 --with-uefi \
   --cpus 2.0 --cpus-workers 4.0 --memory 2048 --memory-workers 4096 \
   --disk 6148 --extra-disks 1 --extra-disks-size 10240 \
   --install-image 10.5.0.1:6000/siderolabs/installer:${TALOS_VERSION} \
   --image 10.5.0.1:6000/siderolabs/talos:${TALOS_VERSION} \
   --cni-bundle-url http://10.5.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
-  ${shared_patches} \
-  ${control_plane_patches} \
-  ${worker_patches}
+  ${shared_patches} ${control_plane_patches} ${worker_patches}
 
 if [ $? -ne 0 ]; then
   # We're going to want to diagnose why the bring-up failed, setup the kubeconfig so we can just do
