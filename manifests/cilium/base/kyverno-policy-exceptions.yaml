@@ -1,5 +1,5 @@
 ---
-apiVersion: kyverno.io/v2
+apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
   name: cilium-hubble-certificate-job-capabilities-exception
@@ -12,9 +12,8 @@ metadata:
 
       TODO(high): This exception MUST be removed before the cluster enters production.
 spec:
-  background: true
   match:
-    any:
+    all:
     - resources:
         namespaces:
           - kube-system
@@ -29,7 +28,7 @@ spec:
       - autogen-require-drop-all
       - autogen-cronjob-require-drop-all
 ---
-apiVersion: kyverno.io/v2
+apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
   name: cilium-core-capabilities-exception
@@ -46,9 +45,8 @@ metadata:
 
       TODO(low): Identify required capabilities and create patch to drop unecessary permissions.
 spec:
-  background: true
   match:
-    any:
+    all:
     - resources:
         namespaces:
           - kube-system
@@ -62,3 +60,33 @@ spec:
   - policyName: disallow-capabilities-strict
     ruleNames:
       - autogen-require-drop-all
+---
+apiVersion: kyverno.io/v2beta1
+kind: PolicyException
+metadata:
+  name: cilium-envoy-capabilities-exception
+  namespace: kube-system
+  annotations:
+    description: >-
+      Envoy acts as a privileged intercepting proxy and need more privileges than your standard
+      container.
+
+      TODO(medium): I've omitted all the requirements here but we could enforce a different
+      restricted set to ensure it stays as low as possible.
+spec:
+  match:
+    all:
+    - resources:
+        namespaces:
+          - kube-system
+        kinds:
+          - DaemonSet
+          - Pod
+        names:
+          - cilium-envoy
+          - cilium-envoy-*
+  exceptions:
+  - policyName: disallow-capabilities-strict
+    ruleNames:
+      - autogen-adding-capabilities-strict
+      - adding-capabilities-strict

@@ -1,8 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
+set -euo pipefail
 
 source ./scripts/lib/manifests.sh.inc
 
@@ -21,7 +19,7 @@ manifest_render cilium/init
 #manifest_render cilium/bootstrap
 #manifest_render falco/bootstrap
 #manifest_render kyverno/bootstrap
-#
+
 #manifest_render rook-ceph/bootstrap
 #manifest_render vault/bootstrap
 #manifest_render argocd/bootstrap

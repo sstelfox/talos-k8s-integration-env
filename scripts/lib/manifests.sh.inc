@@ -118,6 +118,10 @@ manifest_sanity_check() {
     # TODO: This report needs to be broken down line-by-line and turned into a more meaningful output
     echo "${report}" >&2
 
+    # Generate a file that can be used to create exceptions from the detection
+    kyverno apply --exceptions "${file_base}-policy-exceptions.yaml" --remove-color \
+      --resource "${rendered_file}" --generate-exceptions ./policies/ > "${file_base}-missing-exceptions.yaml"
+
     # TODO: Don't fail the lint on these yet, they'll take a bit of work
     lint_status=0
   fi
