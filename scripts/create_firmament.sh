@@ -27,10 +27,14 @@ touch ~/.kube/config
 # May need the following when I go bare metal... Maybe
 # --iso-path=./_out/metal-${TALOS_ARCH}-${TALOS_VERSION}.iso --skip-injecting-config --with-apply-config
 
-# * The CNI bundle is the only one on the list below that is downloaded by the system running this
-#   script. That qemu network address is still accessible to this host so we use it for consistency
+# The CNI bundle is the only one on the list below that is downloaded by the system running this
+# script which is why it refers to localhost. The qemu network address isn't yet available when the
+# bundle is grabbed. In the future when testing, it seems this is only retrieved if the talos home
+# directory has been reset.
+#
 #  --image 10.5.0.1:6000/siderolabs/talos:${TALOS_VERSION} \
 #  --install-image 10.5.0.1:6000/siderolabs/installer:${TALOS_VERSION}
+#
 #  --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
 #  --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION}
 sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
