@@ -22,14 +22,19 @@ add_worker() {
 
 
 # Cluster specific configuration
-add_shared firmament/cluster-meta.yaml
+#if [ -f "./talos/clusters/${TALOS_CLUSTER_NAME}.yaml" ]; then
+#  add_shared "clusters/${TALOS_CLUSTER_NAME}.yaml"
+#else
+#  echo "cluster specific configuration for '${TALOS_CLUSTER_NAME}' was not found" >&2
+#  exit 3
+#fi
 
 
 # Core network and system service configs
 add_shared common/health/enable_watchdog.yaml
 add_shared common/network/internal_node_resolution.yaml
 add_shared common/network/name_servers.yaml
-add_shared common/network/time_servers.yaml
+add_shared time_synchronization.yaml
 add_control common/security/restrict_system_services_control_network.yaml
 
 
@@ -40,7 +45,6 @@ add_shared common/storage/enable_disk_encryption.yaml
 
 # Airgapped customizations
 add_shared common/airgap_config/internal_discovery_service.yaml
-add_shared common/airgap_config/ptp_host_clock.yaml
 add_shared common/airgap_config/registry.yaml
 
 

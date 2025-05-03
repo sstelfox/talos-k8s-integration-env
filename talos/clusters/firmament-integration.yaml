@@ -1,0 +1,8 @@
+# We'll set our custom cluster name
+- op: replace
+  path: /cluster/clusterName
+  value: firmament-integration
+# And the domain it will live at
+- op: replace
+  path: /cluster/network/dnsDomain
+  value: firmament-integration.k8s.grayiron.io

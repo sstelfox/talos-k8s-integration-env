@@ -16,7 +16,7 @@ if [ "${EUID}" = "0" ]; then
   exit 2
 fi
 
-source talos/firmament/_patch_config.sh.inc
+source ./talos/config.sh.inc
 
 # This is a workaround, talosctl needs to run as root and will create the kube config with root
 # permissions and ownership if it doesn't exist already. This will break the later parts of the
@@ -46,7 +46,7 @@ sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
   --disk 6148 --extra-disks 1 --extra-disks-size 10240 \
   --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION} \
   --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
-  --cni-bundle-url http://10.5.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
+  --cni-bundle-url http://127.0.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
   ${shared_patches} ${control_plane_patches} ${worker_patches}
 
 if [ $? -ne 0 ]; then

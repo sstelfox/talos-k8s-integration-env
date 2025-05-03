@@ -1,6 +1,0 @@
----
-version: v1alpha1
-cluster:
-  clusterName: firmament-integration
-  network:
-    dnsDomain: firmament-integration.k8s.grayiron.io

@@ -1,0 +1,27 @@
+# Whether to enable time synchronization on the servers at all, I needed to disable this when
+# trying out PTP as that didn't seem to immediately work. This might be something I can improve on
+# in the future.
+#- op: replace
+#  path: /machine/time
+#  value:
+#    disabled: true
+
+# By default Talos will use Cloudflare's time servers which are not available in the airgapped
+# environment. We do have NTP servers so this should be replaced there when set.
+- op: add
+  path: /machine/time
+  value:
+    servers:
+      - 0.pool.ntp.org
+      - 1.pool.ntp.org
+
+    # Our virtual machine hosts already have a finely synced clock and we can make use of that without
+# any additional network traffic. This may have the added benefit of a faster boot as we won't have
+# to wait for the network time source to connect and stabilize.
+#
+# Note: I had to disable this as the qemu provisioner doesn't seem to allocate this device or it
+# wasn't readable. I will want this in my VM environments.
+#- op: add
+#  path: /machine/time/servers
+#  value:
+#    - /dev/ptp0
