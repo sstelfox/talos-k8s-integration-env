@@ -13,10 +13,9 @@ MANIFEST_CONTAINER_NAME="talos-manifest-server"
 REGISTRY_CONTAINER_NAME="talos-airgap-registry"
 
 # Initialize our image list with the official ones
-IMAGE_LIST=$(./_out/talosctl image default)
+IMAGE_LIST="$(./_out/talosctl image default)"
 
-NIX_BASE="vnix nix --quiet --offline"
-SKOPEO_CMD="${NIX_BASE} develop --no-warn-dirty --command skopeo --policy skopeo-restricted-trust-policy.json"
+SKOPEO_CMD="skopeo --policy skopeo-restricted-trust-policy.json"
 
 add_image_to_list() {
   local new_image="${1:-}"
@@ -78,7 +77,7 @@ populate_cache_with_image() {
   fi
 
   local dest_image
-  dest_image="docker://host.containers.internal:6000/$(echo ${image_ref} | cut -d'/' -f2-)"
+  dest_image="docker://127.0.0.1:6000/$(echo ${image_ref} | cut -d'/' -f2-)"
 
   if ${SKOPEO_CMD} inspect --tls-verify=false "${dest_image}" >/dev/null 2>&1; then
     echo "image already exists in local registry: ${image_ref}" 2>&1
@@ -107,8 +106,12 @@ populate_airgap_cache() {
 add_image_to_list ghcr.io/siderolabs/installer:${TALOS_VERSION}
 add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
 
+# These were requested and not present... something weird is happening
+add_image_to_list ghcr.io/siderolabs/kubelet:v1.33.0
+add_image_to_list gcr.io/etcd-development/etcd:v3.5.21
+
 # Used by the Cilium CNI installer
-add_image_to_list docker.io/bitnami/kubectl:1.33.0
+#add_image_to_list docker.io/bitnami/kubectl:1.33.0
 
 # The following are used for the local manifest/registry servers. These would be needed to be
 # included in a fully offline environment but for now lets KISS.

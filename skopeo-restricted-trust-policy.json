@@ -2,9 +2,12 @@
     "default": [{ "type": "reject" }],
     "transports": {
         "docker": {
-            "ghcr.io/siderolabs": [{ "type": "insecureAcceptAnything" }],
             "hosts.container.internal:6000": [{ "type": "insecureAcceptAnything" }],
-            "quay.io/cilium": [{ "type": "insecureAcceptAnything" }]
+
+            "ghcr.io/siderolabs": [{ "type": "insecureAcceptAnything" }],
+            "gcr.io/etcd-development": [{ "type": "insecureAcceptAnything" }],
+            "quay.io/cilium": [{ "type": "insecureAcceptAnything" }],
+            "registry.k8s.io": [{ "type": "insecureAcceptAnything" }]
         }
     }
 }

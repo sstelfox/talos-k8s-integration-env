@@ -2,11 +2,6 @@
 
 MANIFEST_RENDERED_DIR="./_out/manifests"
 
-NIX_BASE="vnix nix --quiet --offline"
-
-KUBECTL_CMD="${NIX_BASE} develop --no-warn-dirty --command kubectl"
-KYVERNO_CMD="${NIX_BASE} develop --no-warn-dirty --command kyverno --logtostderr"
-
 manifest_apply() {
   local manifest_id="${1:-}"
 
@@ -19,7 +14,7 @@ manifest_apply() {
 
   echo "applying ${manifest_id}..." >&2
 
-  if ! ${KUBECTL_CMD} apply --server-side=true -f "$(manifest_output_file "${manifest_id}")" >/dev/null; then
+  if ! kubectl apply --server-side=true -f "$(manifest_output_file "${manifest_id}")" >/dev/null; then
     echo "failed to apply ${manifest_id}" >&2
     return 2
   fi
@@ -61,7 +56,7 @@ manifest_render() {
   # kustomization to be in the git repo root's common output directory rather than spreading the
   # generated/templated manifests all over the directory. This makes for quick clean-up, reset, and
   # spot checking of the cluster state.
-  ${KUBECTL_CMD} kustomize --enable-helm --load-restrictor=LoadRestrictionsNone \
+  kubectl kustomize --enable-helm --load-restrictor=LoadRestrictionsNone \
     -o "${manifest_output_file}" ./manifests/${manifest_id} >/dev/null
 
   if [ ! $? ]; then
@@ -108,7 +103,7 @@ manifest_sanity_check() {
   # useful or read in values using the -f flag. It does not respect any of the log CLI arguments
   # (at least around STDERR) so that is a dead end if a refactor comes around to this bit in the
   # future... The warning exit codes also don't seem to work with apply...
-  ${KYVERNO_CMD} apply --exceptions "${file_base}-policy-exceptions.yaml" --policy-report \
+  kyverno apply --exceptions "${file_base}-policy-exceptions.yaml" --policy-report \
     --audit-warn --remove-color --resource  "${rendered_file}" ./policies/ |
     tail -n+2 > _out/tmp-policy-report.out
 

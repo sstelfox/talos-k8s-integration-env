@@ -44,8 +44,8 @@ add_shared common/airgap_config/ptp_host_clock.yaml
 add_shared common/airgap_config/registry.yaml
 
 
-add_shared common/network/cilium_cni_disable_flannel_all_nodes.yaml
-add_control common/network/cilium_cni_enable_control_nodes.yaml
+#add_shared common/network/cilium_cni_disable_flannel_all_nodes.yaml
+#add_control common/network/cilium_cni_enable_control_nodes.yaml
 
 
 # Don't remember what this was for...
