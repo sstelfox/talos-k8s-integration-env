@@ -101,27 +101,21 @@ populate_airgap_cache() {
   done
 }
 
-# TODO: All images should be referenced using immutable tags
-
 add_image_to_list ghcr.io/siderolabs/installer:${TALOS_VERSION}
 add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
-add_image_to_list quay.io/cilium/cilium-cli-ci:latest
 
-# These were requested and not present... something weird is happening
-#add_image_to_list ghcr.io/siderolabs/kubelet:v1.33.0
-#add_image_to_list gcr.io/etcd-development/etcd:v3.5.21
+# The installer image used by the cilium install job
+add_image_to_list quay.io/cilium/cilium-cli-ci:${CILIUM_VERSION}
 
-# Used by the Cilium CNI installer
-#add_image_to_list docker.io/bitnami/kubectl:1.33.0
+# The runtime cilium container versions
+add_image_to_list quay.io/cilium/cilium:${CILIUM_VERSION}
+add_image_to_list quay.io/cilium/cilium-envoy:${CILIUM_ENVOY_VERSION}
+add_image_to_list quay.io/cilium/operator-generic:${CILIUM_VERSION}
 
 # The following are used for the local manifest/registry servers. These would be needed to be
 # included in a fully offline environment but for now lets KISS.
 #add_image_to_list docker.io/library/nginx:alpine
 #add_image_to_list docker.io/library/registry:2
-
-#add_image_to_list quay.io/cilium/cilium:latest
-#add_image_to_list quay.io/cilium/cilium-cli-ci:latest
-#add_image_to_list quay.io/cilium/cilium-envoy:latest
 
 #if [ "${INCLUDE_TEST_IMAGES}" = "true" ]; then
 #  add_image_to_list quay.io/cilium/alpine-curl:v1.7.0
@@ -135,8 +129,3 @@ populate_airgap_cache
 # I've left this after the populate as I may be want to use the pulled image instead of referencing
 # an upstream...
 launch_initial_manifest_server
-
-# Make sure we have a fresh copy of our Cilium initialization manifest available in the local web server
-manifest_render cilium/init
-
-cp -f ./_out/manifests/cilium-init.yaml ./_out/public/cilium-init.yaml
