@@ -17,6 +17,10 @@ source ./scripts/lib/manifests.sh.inc
 # well.
 manifest_apply cilium/bootstrap
 
+# Local path provisioner then vault
+
+#manifest_apply vault/bootstrap
+
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.
 manifest_apply kyverno/bootstrap
@@ -30,7 +34,5 @@ manifest_apply falco/bootstrap
 # Some of these values are resource definitions and are very weird to take over. I bet I could
 # solve this by using the patch delete syntax.
 #manifest_apply rook-ceph/bootstrap || true
-
-#manifest_apply vault/bootstrap
 
 #manifest_apply argocd/bootstrap

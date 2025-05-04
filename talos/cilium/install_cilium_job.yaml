@@ -67,7 +67,7 @@ cluster:
               hostNetwork: true
               containers:
               - name: cilium-install
-                image: 10.5.0.1:6000/bitnami/kubectl:1.33.0
+                image: quay.io/cilium/cilium-cli-ci:latest
                 env:
                   - name: KUBERNETES_SERVICE_HOST
                     valueFrom:
@@ -77,6 +77,21 @@ cluster:
                   - name: KUBERNETES_SERVICE_PORT
                     value: "6443"
                 command:
-                  - /bin/sh
-                  - -c
-                  - kubectl apply --server-side=true -f http://10.5.0.1:6100/cilium-init.yaml
+                  - cilium
+                  - install
+                  - --set
+                  - ipam.mode=kubernetes
+                  - --set
+                  - kubeProxyReplacement=true
+                  - --set
+                  - securityContext.capabilities.ciliumAgent={CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}
+                  - --set
+                  - securityContext.capabilities.cleanCiliumState={NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}
+                  - --set
+                  - cgroup.autoMount.enabled=false
+                  - --set
+                  - cgroup.hostRoot=/sys/fs/cgroup
+                  - --set
+                  - k8sServiceHost=localhost
+                  - --set
+                  - k8sServicePort=7445

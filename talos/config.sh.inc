@@ -22,12 +22,12 @@ add_worker() {
 
 
 # Cluster specific configuration
-#if [ -f "./talos/clusters/${TALOS_CLUSTER_NAME}.yaml" ]; then
-#  add_shared "clusters/${TALOS_CLUSTER_NAME}.yaml"
-#else
-#  echo "cluster specific configuration for '${TALOS_CLUSTER_NAME}' was not found" >&2
-#  exit 3
-#fi
+if [ -f "./talos/clusters/${TALOS_CLUSTER_NAME}.yaml" ]; then
+  add_shared "clusters/${TALOS_CLUSTER_NAME}.yaml"
+else
+  echo "cluster specific configuration for '${TALOS_CLUSTER_NAME}' was not found" >&2
+  exit 3
+fi
 
 
 # Core network and system service configs
@@ -48,8 +48,8 @@ add_shared common/airgap_config/internal_discovery_service.yaml
 add_shared common/airgap_config/registry.yaml
 
 
-#add_shared common/network/cilium_cni_disable_flannel_all_nodes.yaml
-#add_control common/network/cilium_cni_enable_control_nodes.yaml
+add_shared cilium/disable_flannel.yaml
+add_control cilium/install_cilium_job.yaml
 
 
 # Don't remember what this was for...

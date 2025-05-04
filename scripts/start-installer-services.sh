@@ -105,6 +105,7 @@ populate_airgap_cache() {
 
 add_image_to_list ghcr.io/siderolabs/installer:${TALOS_VERSION}
 add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
+add_image_to_list quay.io/cilium/cilium-cli-ci:latest
 
 # These were requested and not present... something weird is happening
 #add_image_to_list ghcr.io/siderolabs/kubelet:v1.33.0
