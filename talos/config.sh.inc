@@ -49,8 +49,8 @@ add_shared common/airgap_config/registry.yaml
 
 
 add_shared cilium/disable_flannel.yaml
-add_control cilium/install_cilium_job.yaml
-
+#add_control cilium/install_cilium_ci_utility.yaml
+add_control cilium/install_cilium_manifest.yaml
 
 # Don't remember what this was for...
 #add_worker common/meta/annotate_worker_roles.yaml

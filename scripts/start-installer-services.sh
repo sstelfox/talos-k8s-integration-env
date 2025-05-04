@@ -110,6 +110,7 @@ add_image_to_list quay.io/cilium/cilium-cli-ci:latest
 # The runtime cilium container versions
 add_image_to_list quay.io/cilium/cilium:${CILIUM_VERSION}
 add_image_to_list quay.io/cilium/operator-generic:${CILIUM_VERSION}
+add_image_to_list docker.io/bitnami/kubectl:1.33.0
 
 # The following are used for the local manifest/registry servers. These would be needed to be
 # included in a fully offline environment but for now lets KISS.
