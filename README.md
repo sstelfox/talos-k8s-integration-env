@@ -20,7 +20,7 @@ The services currently present in the repo, but may not be fully configured are:
 
 Outstanding services that I intend to stand-up but haven't yet:
 
-* Gitea
+* Forgejo
 * Dependency Track
 * Postgres (likely using an operator)
 * Valkey/Redis/Redis-Clusters (likely using an operator)
