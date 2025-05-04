@@ -20,5 +20,6 @@ esac
 
 # The installer services ensures the bootstrap manifests are up to date when it gets run, we don't
 # need the additional manifests until we start setting up the initial environment.
-#./scripts/generate-manifests.sh
+./scripts/generate-manifests.sh
+
 ./scripts/bootstrap-apps.sh

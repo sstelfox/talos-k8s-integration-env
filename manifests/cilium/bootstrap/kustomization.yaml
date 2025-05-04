@@ -26,15 +26,15 @@ resources:
   - ../base/kyverno-policy-exceptions.yaml
 
   # Core service network policies
-  - ../policies/kube-apiserver.yaml
-  - ../policies/permitted-cluster-dns.yaml
-  - ../policies/host-cluster-traffic.yaml
+  #- ../policies/kube-apiserver.yaml
+  #- ../policies/permitted-cluster-dns.yaml
+  #- ../policies/host-cluster-traffic.yaml
 
   # Cilium service network traffic (required for core operation)
-  - ../policies/cilium-health-traffic.yaml
-  - ../policies/hubble-relay-policy.yaml
+  #- ../policies/cilium-health-traffic.yaml
+  #- ../policies/hubble-relay-policy.yaml
 
   # Configuration refinement for Cilium services
-  - l2-lb-cfg.yaml
+  #- l2-lb-cfg.yaml
   #- bgp-lb-cfg.yaml
   #- bgp-lb-peer-secrets.yaml

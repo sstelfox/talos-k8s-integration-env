@@ -50,6 +50,8 @@ sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
   ${shared_patches} ${control_plane_patches} ${worker_patches}
 
 if [ $? -ne 0 ]; then
+  echo "initial cluster creation reported failure" >&2
+
   # We're going to want to diagnose why the bring-up failed, setup the kubeconfig so we can just do
   # that.
   ./_out/talosctl kubeconfig --force-context-name ${TALOS_CLUSTER_NAME} -n 10.5.0.2 --force >/dev/null 2>&1
@@ -58,11 +60,11 @@ if [ $? -ne 0 ]; then
   exit 3
 fi
 
-#echo 'Waiting for Cilium network to become healthy...'
-#if ! timeout 5m cilium status --wait; then
-#  echo 'Network never stabilized...'
-#  exit 4
-#fi
+echo 'Waiting for Cilium network to become healthy...'
+if ! timeout 5m cilium status --wait; then
+  echo 'Network never stabilized...'
+  exit 4
+fi
 
 # Once the cluster is initially bootstrapped we want to verify that our the fundamental internal
 # networking is working. All of our subsequent tests and use of the cluster rely on the cluster

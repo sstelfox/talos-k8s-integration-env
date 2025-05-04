@@ -11,11 +11,7 @@ source ./scripts/lib/manifests.sh.inc
 # Apply our actual network policies, ideally the core policies would get added during the init phase
 # so we could enter enforcing mode here but the job executes fast enough the CRD definitions are
 # not ready.
-#
-# I might be able to work around the issue by creating a separate manifest for the network policies
-# and applying them independently... Could give me a better organization structure around them as
-# well.
-#manifest_apply cilium/bootstrap
+manifest_apply cilium/bootstrap
 
 # Local path provisioner then vault
 manifest_apply local-path-provisioner/stable
@@ -37,3 +33,9 @@ manifest_apply local-path-provisioner/stable
 #manifest_apply rook-ceph/bootstrap || true
 
 #manifest_apply argocd/bootstrap
+
+# Apply our actual network policies, ideally the core policies would get added earlier but for now
+# while building up the core its an extra diagnostic headache. This can't be fully done during the
+# init phase as the job doesn't execute fast enough for CRDs to be installed and usable when its
+# evaluated.
+#manifest_apply cilium/stable

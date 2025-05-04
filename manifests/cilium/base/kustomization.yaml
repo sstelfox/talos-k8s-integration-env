@@ -20,8 +20,3 @@ helmCharts:
 
 resources:
   - kyverno-policy-exceptions.yaml
-  # These really do need to be applied during the bootstrap phase :(
-  #- ../policies/hubble-relay-policy.yaml
-  #- ../policies/permitted-cluster-dns.yaml
-  #- ../policies/kube-apiserver.yaml
-  #- ../policies/cilium-health-traffic.yaml

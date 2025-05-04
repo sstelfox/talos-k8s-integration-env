@@ -14,6 +14,9 @@ manifest_render cilium/init
 # We use LPP temporarily for vault before our actual cluster storage is available
 manifest_render local-path-provisioner/stable
 
+# A few additional features before we start setting everything up
+manifest_render cilium/bootstrap
+
 #manifest_render vault/bootstrap
 #manifest_render rook-ceph/init
 

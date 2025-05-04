@@ -36,11 +36,12 @@ k8sServicePort: 7445
 
 # Use routing mode as its more efficient on a per-packet level and will be necessary in the larger
 # clusters.
-#routingMode: native
-#ipv4NativeRoutingCIDR: 10.5.0.0/24
+routingMode: native
+ipv4NativeRoutingCIDR: 10.5.0.0/24
 
-#autoDirectNodeRoutes: true
-#directRoutingSkipUnreachable: true
+# todo: document these
+autoDirectNodeRoutes: true
+directRoutingSkipUnreachable: true
 
 # Couldn't immediately get this working
 #ipv6:

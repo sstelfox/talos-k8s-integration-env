@@ -10,11 +10,19 @@ helmGlobals:
 helmCharts:
   - name: vault
     repo: https://helm.releases.hashicorp.com
-    version: 0.28.1
+    version: 0.30.0
+
     namespace: vault
     releaseName: vault
+
     includeCRDs: true
-    valuesFile: values.yaml
+    valuesFile: vault-values.yaml
 
 resources:
   - namespace.yaml
+
+#configMapGenerator:
+#  - name: vault-config
+#    files:
+#      - config/audit-backend.json
+#      - config/auth-methods.json

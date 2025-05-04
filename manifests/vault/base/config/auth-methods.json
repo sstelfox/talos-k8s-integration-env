@@ -1,0 +1,10 @@
+{
+  "auth_methods": {
+    "kubernetes": {
+      "type": "kubernetes",
+      "config": {
+        "kubernetes_host": "https://kubernetes.default.svc"
+      }
+    }
+  }
+}

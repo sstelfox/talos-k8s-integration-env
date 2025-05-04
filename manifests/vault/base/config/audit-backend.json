@@ -1,0 +1,10 @@
+{
+  "audit_backend": {
+    "file": {
+      "type": "file",
+      "options": {
+        "file_path": "/vault/audit/vault_audit.log"
+      }
+    }
+  }
+}
