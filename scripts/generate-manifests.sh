@@ -11,8 +11,10 @@ source ./scripts/lib/manifests.sh.inc
 # deploys.
 manifest_render cilium/init
 
-manifest_render vault/bootstrap
+# We use LPP temporarily for vault before our actual cluster storage is available
+manifest_render local-path-provisioner/stable
 
+#manifest_render vault/bootstrap
 #manifest_render rook-ceph/init
 
 # Once the cluster is minimally up we need to prepare for it to be taken over by ArgoCD. No

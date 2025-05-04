@@ -15,9 +15,10 @@ source ./scripts/lib/manifests.sh.inc
 # I might be able to work around the issue by creating a separate manifest for the network policies
 # and applying them independently... Could give me a better organization structure around them as
 # well.
-manifest_apply cilium/bootstrap
+#manifest_apply cilium/bootstrap
 
 # Local path provisioner then vault
+manifest_apply local-path-provisioner/stable
 
 #manifest_apply vault/bootstrap
 

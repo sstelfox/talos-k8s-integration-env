@@ -1,0 +1,10 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmGlobals:
+  chartHome: ../../../_out/charts/
+
+resources:
+  - "github.com/rancher/local-path-provisioner/deploy?ref=v0.0.31"
+  - "github.com/rancher/local-path-provisioner/examples/pod?ref=v0.0.31"
