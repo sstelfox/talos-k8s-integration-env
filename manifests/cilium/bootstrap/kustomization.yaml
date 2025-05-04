@@ -10,7 +10,7 @@ helmGlobals:
 helmCharts:
   - name: cilium
     repo: https://helm.cilium.io/
-    version: 1.15.6
+    version: 1.17.2
 
     namespace: kube-system
     releaseName: cilium
@@ -19,7 +19,7 @@ helmCharts:
     valuesFile: ../base/values.yaml
     additionalValuesFiles:
       - values.yaml
-      - enable-l2-lb.yaml
+      #- enable-l2-lb.yaml
       #- enable-bgp-lb.yaml
 
 resources:

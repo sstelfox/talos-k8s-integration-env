@@ -23,12 +23,12 @@ manifest_apply cilium/bootstrap
 
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.
-manifest_apply kyverno/bootstrap
+#manifest_apply kyverno/bootstrap
 
 # We also want to start monitoring for security related events coming from the kubernetes audit logs
 # (TODO: needs to be configured during cluster initialization, though I'd prefer to figure out a way
 # for ArgoCD to also manage that...)
-manifest_apply falco/bootstrap
+#manifest_apply falco/bootstrap
 
 # Ceph fails after multiple runs due to the operator taking over control of some of the resources.
 # Some of these values are resource definitions and are very weird to take over. I bet I could

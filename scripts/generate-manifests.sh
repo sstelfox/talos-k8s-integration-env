@@ -10,6 +10,9 @@ source ./scripts/lib/manifests.sh.inc
 # be delayed until later, or more complex pieces that require services should take place in later
 # deploys.
 manifest_render cilium/init
+
+manifest_render vault/bootstrap
+
 #manifest_render rook-ceph/init
 
 # Once the cluster is minimally up we need to prepare for it to be taken over by ArgoCD. No
@@ -21,7 +24,6 @@ manifest_render cilium/init
 #manifest_render kyverno/bootstrap
 
 #manifest_render rook-ceph/bootstrap
-#manifest_render vault/bootstrap
 #manifest_render argocd/bootstrap
 #manifest_render observability/bootstrap
 
