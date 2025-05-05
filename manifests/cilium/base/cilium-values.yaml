@@ -39,7 +39,7 @@ k8sServicePort: 7445
 routingMode: native
 ipv4NativeRoutingCIDR: 10.5.0.0/24
 
-# todo: document these
+# todo: document these and why we wanted them
 autoDirectNodeRoutes: true
 directRoutingSkipUnreachable: true
 

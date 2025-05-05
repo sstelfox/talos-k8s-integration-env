@@ -16,14 +16,14 @@ helmCharts:
     releaseName: cilium
 
     includeCRDs: true
-    valuesFile: ../base/values.yaml
+    valuesFile: ../base/cilium-values.yaml
     additionalValuesFiles:
-      - values.yaml
+      - cilium-extra-values.yaml
       #- enable-l2-lb.yaml
       #- enable-bgp-lb.yaml
 
 resources:
-  - ../base/kyverno-policy-exceptions.yaml
+  #- ../base/kyverno-policy-exceptions.yaml
 
   # Core service network policies
   #- ../policies/kube-apiserver.yaml

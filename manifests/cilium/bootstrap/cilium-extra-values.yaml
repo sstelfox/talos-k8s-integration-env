@@ -4,9 +4,9 @@ hostFirewall:
   enabled: true
 
 # Enable the Google designed traffic congestion TCP mechanism
-#bandwidthManager:
-#  bbr: true
-#  enabled: true
+bandwidthManager:
+  bbr: true
+  enabled: true
 
 #bpf:
 #  events:

@@ -16,7 +16,7 @@ helmCharts:
     releaseName: cilium
 
     includeCRDs: true
-    valuesFile: values.yaml
+    valuesFile: cilium-values.yaml
 
 resources:
-  - kyverno-policy-exceptions.yaml
+  #- kyverno-policy-exceptions.yaml
