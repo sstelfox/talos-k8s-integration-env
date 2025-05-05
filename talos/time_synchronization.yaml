@@ -15,7 +15,7 @@
       - 0.pool.ntp.org
       - 1.pool.ntp.org
 
-    # Our virtual machine hosts already have a finely synced clock and we can make use of that without
+# Our virtual machine hosts already have a finely synced clock and we can make use of that without
 # any additional network traffic. This may have the added benefit of a faster boot as we won't have
 # to wait for the network time source to connect and stabilize.
 #

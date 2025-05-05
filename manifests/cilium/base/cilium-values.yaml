@@ -47,3 +47,28 @@ directRoutingSkipUnreachable: true
 #ipv6:
 #  enabled: true
 #ipv6NativeRoutingCIDR: fd42:cafe:face:d00d::/64
+
+# ID must be unique among all clusters. Name is limited to 32 alpha-numeric + hyphen and must begin
+# and end with an alpha.
+cluster:
+  id: 0
+  name: "firmament-integration"
+
+# We don't want to use the built-in certificate management here. At best this will cause a
+# collision when we hit the bootstrap process.
+certgen:
+  generateCA: false
+
+hubble:
+  enabled: false
+
+# The CNI for the cluster can not be evicted or everything else will be unavailable.
+priorityClassName: system-node-critical
+resources:
+  requests:
+    cpu: 100m       # Base requirement for packet processing
+    memory: 200Mi   # Minimum for BPF maps and agent
+  limits:
+    # No CPU limit, this is very bursty based on service's usage. We don't want these getting
+    # killed because a service sends a bunch of traffic unexpectedly.
+    memory: 500Mi   # Trigger resets if there is a memory leak, disruptive but more noticable
