@@ -45,7 +45,8 @@ if [ ! -d "${CHART_PATH}" ]; then
   exit 1
 fi
 
-HELM_CMD="helm template local-path-provisioner ${CHART_PATH} --namespace talos-state-local-path-storage"
+#HELM_CMD="helm template local-path-provisioner ${CHART_PATH} --namespace talos-state-local-path-storage"
+HELM_CMD="helm template local-path-provisioner ${CHART_PATH} --namespace kube-system"
 
 if [ -n "${VALUES_FILE}" ]; then
   if [ ! -f "${VALUES_FILE}" ]; then

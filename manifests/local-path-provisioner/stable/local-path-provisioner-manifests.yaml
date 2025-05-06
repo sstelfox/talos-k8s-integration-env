@@ -4,7 +4,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: local-path-provisioner
-  namespace: talos-state-local-path-storage
+  namespace: kube-system
   labels:
     app.kubernetes.io/name: local-path-provisioner
     helm.sh/chart: local-path-provisioner-0.0.31
@@ -18,7 +18,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: local-path-config
-  namespace: talos-state-local-path-storage
+  namespace: kube-system
   labels:
     app.kubernetes.io/name: local-path-provisioner
     helm.sh/chart: local-path-provisioner-0.0.31
@@ -50,7 +50,7 @@ data:
     kind: Pod
     metadata:
       name: helper-pod
-      namespace: talos-state-local-path-storage
+      namespace: kube-system
     spec:
       priorityClassName: system-node-critical
       tolerations:
@@ -126,14 +126,14 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: local-path-provisioner
-    namespace: talos-state-local-path-storage
+    namespace: kube-system
 ---
 # Source: local-path-provisioner/templates/role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: local-path-provisioner
-  namespace: talos-state-local-path-storage
+  namespace: kube-system
   labels:
     app.kubernetes.io/name: local-path-provisioner
     helm.sh/chart: local-path-provisioner-0.0.31
@@ -150,7 +150,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: local-path-provisioner
-  namespace: talos-state-local-path-storage
+  namespace: kube-system
   labels:
     app.kubernetes.io/name: local-path-provisioner
     helm.sh/chart: local-path-provisioner-0.0.31
@@ -164,14 +164,14 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: local-path-provisioner
-    namespace: talos-state-local-path-storage
+    namespace: kube-system
 ---
 # Source: local-path-provisioner/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: local-path-provisioner
-  namespace: talos-state-local-path-storage
+  namespace: kube-system
   labels:
     app.kubernetes.io/name: local-path-provisioner
     helm.sh/chart: local-path-provisioner-0.0.31
@@ -221,7 +221,7 @@ spec:
               mountPath: /etc/config/
           env:
             - name: POD_NAMESPACE
-              value: talos-state-local-path-storage
+              value: kube-system
             - name: CONFIG_MOUNT_PATH
               value: /etc/config/
           resources:

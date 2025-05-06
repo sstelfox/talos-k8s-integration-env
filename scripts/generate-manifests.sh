@@ -12,13 +12,13 @@ source ./scripts/lib/manifests.sh.inc
 manifest_render cilium/init
 
 # We use LPP temporarily for vault before our actual cluster storage is available
+./manifests/local-path-provisioner/stable/update.sh
 manifest_render local-path-provisioner/stable
 
 # This is a pretty insecure and non-HA deployment, we'll use it to bootstrap managing itself and the
 # reset of the cluster certificates including the node certificates. We use the local path
 # provisioner here which is safe due to the raft replication and inherent encryption vault always
 # uses. This does not have an audit log but that will be provisioned once ceph comes online.
-./manifests/local-path-provisioner/stable/update.sh
 manifest_render vault/init
 
 #manifest_render rook-ceph/init

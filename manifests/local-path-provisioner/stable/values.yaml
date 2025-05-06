@@ -1,12 +1,12 @@
 ---
 #name: talos-state-local-path
-#namespace: talos-state-local-path-storage
-#
+namespace: kube-system
+
 #configMap:
 #  name: talos-state-local-path-config
-#
+
 #storageClass:
-#  name: talos-state-local-path
+  #name: talos-state-local-path
   #defaultVolumeType: local
 
 #podSecurityContext:
