@@ -7,4 +7,18 @@ helmGlobals:
 
 resources:
   - "github.com/rancher/local-path-provisioner/deploy?ref=v0.0.31"
-  - "github.com/rancher/local-path-provisioner/examples/pod?ref=v0.0.31"
+
+# This namespace needs to be privileged to allow the use of hostPath
+patches:
+  - patch: |-
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: local-path-storage
+        labels:
+          pod-security.kubernetes.io/enforce: privileged
+          pod-security.kubernetes.io/audit: privileged
+          pod-security.kubernetes.io/warn: privileged
+    target:
+      kind: Namespace
+      name: local-path-storage

@@ -16,10 +16,11 @@ manifest_apply cilium/bootstrap
 # Local path provisioner then vault
 manifest_apply local-path-provisioner/stable
 
+# Initial insecure version
+manifest_apply vault/init
+
 # Need to generate certificates vault will use, should replace these later on
 #./scripts/generate-vault-tls.sh
-
-#manifest_apply vault/bootstrap
 
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.

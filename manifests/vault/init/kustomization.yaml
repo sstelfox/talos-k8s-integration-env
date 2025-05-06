@@ -1,0 +1,31 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: vault
+
+helmGlobals:
+  chartHome: ../../../_out/charts/
+
+helmCharts:
+  - name: vault
+    repo: https://helm.releases.hashicorp.com
+    version: 0.30.0
+
+    namespace: vault
+    releaseName: vault
+
+    includeCRDs: true
+    valuesFile: vault-insecure-values.yaml
+
+resources:
+  - ../base/namespace.yaml
+
+# Strip out the managed-by so this can be neatly inherited by ArgoCD later on
+patches:
+  - target:
+      kind: ".*"
+      labelSelector: "app.kubernetes.io/managed-by=Helm"
+    patch: |-
+      - op: remove
+        path: /metadata/labels/app.kubernetes.io~1managed-by

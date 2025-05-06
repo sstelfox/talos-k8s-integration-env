@@ -1,0 +1,9 @@
+---
+global:
+  tlsDisable: true
+server:
+  dataStorage:
+    size: 1Gi
+    storageClass: local-path
+    annotations:
+      volumeType: local
