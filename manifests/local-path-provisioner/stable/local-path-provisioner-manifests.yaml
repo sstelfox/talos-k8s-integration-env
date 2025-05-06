@@ -68,7 +68,7 @@ data:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: talos-state-local-path
+  name: local-path
   labels:
     app.kubernetes.io/name: local-path-provisioner
     helm.sh/chart: local-path-provisioner-0.0.31
@@ -199,11 +199,7 @@ spec:
       containers:
         - name: local-path-provisioner
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            readOnlyRootFilesystem: true
+            {}
           image: "rancher/local-path-provisioner:v0.0.31"
           imagePullPolicy: IfNotPresent
           command:

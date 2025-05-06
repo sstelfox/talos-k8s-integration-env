@@ -13,10 +13,16 @@ source ./scripts/lib/manifests.sh.inc
 # not ready.
 manifest_apply cilium/bootstrap
 
-# Local path provisioner then vault
+# Local path provisioner to provide minimal storage for vault. We don't use it for much, vault
+# replicates on its own, and ensures everything on disk is encrypted. It needs to come up before
+# any other service needs secrets.
 manifest_apply local-path-provisioner/stable
 
-# Initial insecure version
+# This is a pretty insecure and non-HA deployment, we'll use it to bootstrap managing itself and the
+# reset of the cluster certificates including the node certificates. We use the local path
+# provisioner here which is safe due to the raft replication and inherent encryption vault always
+# uses. This does not have an audit log but that will be provisioned once ceph comes online.
+./manifests/local-path-provisioner/stable/update.sh
 manifest_apply vault/init
 
 # Need to generate certificates vault will use, should replace these later on

@@ -1,26 +1,24 @@
 ---
-storageClass:
-  defaultVolumeType: local
-
-name: talos-state-local-path
-namespace: talos-state-local-path-storage
-
-configMap:
-  name: talos-state-local-path-config
-
-storageClass:
-  name: talos-state-local-path
+#name: talos-state-local-path
+#namespace: talos-state-local-path-storage
+#
+#configMap:
+#  name: talos-state-local-path-config
+#
+#storageClass:
+#  name: talos-state-local-path
+  #defaultVolumeType: local
 
 #podSecurityContext:
 #  runAsNonRoot: true
 
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop: ["ALL"]
-  readOnlyRootFilesystem: true
+#securityContext:
+#  allowPrivilegeEscalation: false
+#  capabilities:
+#    drop: ["ALL"]
+#  readOnlyRootFilesystem: true
 
-nodePathMap:
-  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
-    paths:
-      - /opt/local-path-provisioner
+#nodePathMap:
+#  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+#    paths:
+#      - /opt/local-path-provisioner

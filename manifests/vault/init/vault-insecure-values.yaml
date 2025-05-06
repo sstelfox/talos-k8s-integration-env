@@ -4,6 +4,7 @@ global:
 server:
   dataStorage:
     size: 1Gi
-    storageClass: talos-state-local-path
+    #storageClass: talos-state-local-path
+    storageClass: local-path
     annotations:
       volumeType: local
