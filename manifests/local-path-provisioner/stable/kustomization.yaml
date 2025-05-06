@@ -6,19 +6,30 @@ helmGlobals:
   chartHome: ../../../_out/charts/
 
 resources:
-  - "github.com/rancher/local-path-provisioner/deploy?ref=v0.0.31"
+  - namespace.yaml
+  - local-path-provisioner-manifests.yaml
 
-# This namespace needs to be privileged to allow the use of hostPath
-patches:
-  - patch: |-
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: local-path-storage
-        labels:
-          pod-security.kubernetes.io/enforce: privileged
-          pod-security.kubernetes.io/audit: privileged
-          pod-security.kubernetes.io/warn: privileged
-    target:
-      kind: Namespace
-      name: local-path-storage
+# Strip out all Helm-related labels so resources can be cleanly adopted by ArgoCD
+#patches:
+#  - target:
+#      kind: ".*"
+#    patch: |-
+#      - op: remove
+#        path: /metadata/labels/app.kubernetes.io~1managed-by
+#      - op: remove
+#        path: /metadata/labels/helm.sh~1chart
+
+#  - target:
+#      kind: "Deployment|StatefulSet|DaemonSet|Job|CronJob"
+#    patch: |-
+#      - op: remove
+#        path: /spec/template/metadata/labels/app.kubernetes.io~1managed-by
+#      - op: remove
+#        path: /spec/template/metadata/labels/helm.sh~1chart
+
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: ""
+      helm.sh/chart: ""
+    includeSelectors: false
+    includeTemplates: true
