@@ -42,6 +42,9 @@ add_control common/security/restrict_system_services_control_network.yaml
 # TODO: this still needs a lot of work but at lest it is encrypted even if its barely protected
 add_shared common/storage/enable_disk_encryption.yaml
 
+# Needed to allow the local-path-provisioner the ability to write to the ephemeral partition
+add_shared storage_local_write_mount.yaml
+
 
 # Airgapped customizations
 add_shared common/airgap_config/internal_discovery_service.yaml

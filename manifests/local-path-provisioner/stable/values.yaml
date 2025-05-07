@@ -1,24 +1,30 @@
 ---
-#name: talos-state-local-path
-namespace: kube-system
+# Note: The ephemeral here is referring the Talos partition name and not the persistence or
+# protection level of the data storage. This is disk backed and will migrate between version
+# upgrades. It is considered ephemeral for environments that dynamically provision nodes and this
+# storage will be bound to a specific node.
+#
+# This storage class should only be used with data that is encrypted and authenticated by the
+# container responsible for the volumes. There is limited space here and the container should also
+# ensure the data here _can be_ lost. This could be through a replication container or something
+# else.
+name: node-local-ephemeral
+namespace: local-path-storage
 
-#configMap:
-#  name: talos-state-local-path-config
+configMap:
+  name: node-local-ephemeral-config
 
-#storageClass:
-  #name: talos-state-local-path
-  #defaultVolumeType: local
+storageClass:
+  name: node-local-ephemeral
+  defaultVolumeType: local
 
-#podSecurityContext:
-#  runAsNonRoot: true
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  readOnlyRootFilesystem: true
 
-#securityContext:
-#  allowPrivilegeEscalation: false
-#  capabilities:
-#    drop: ["ALL"]
-#  readOnlyRootFilesystem: true
-
-#nodePathMap:
-#  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
-#    paths:
-#      - /opt/local-path-provisioner
+nodePathMap:
+  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+    paths:
+      - /var/mnt/local-path-provisioner
