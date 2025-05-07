@@ -15,11 +15,22 @@ case "${TALOS_SOURCE}" in
   ;;
 esac
 
+# todo(sstelfox): this does more than just start the containers providing specific services, it
+#   also populates the image store and generates the initial manifests that need to be present via
+#   the web server during cluster bring up. I need to split this script up into those respective
+#   functions.
 ./scripts/start-installer-services.sh
+
+# This creates our initial cluster according to the config and its own policies. This could use more
+# parameterization but is good enough for the purpose of integration testing all the components and
+# configurations for now.
+#
+# This relies on initial manifests and will bring up the cluster into a fairly minimal state. This
+# consists of a relatively insecure network and only minimal configuration.
 ./scripts/create_firmament.sh
 
-# The installer services ensures the bootstrap manifests are up to date when it gets run, we don't
-# need the additional manifests until we start setting up the initial environment.
-./scripts/generate-manifests.sh
-
-./scripts/bootstrap-apps.sh
+# Start bringing up the initial parts of the environment. This is primarily the infrastructure such
+# as storage, secret handling, networking, firewall, and policy enforcement. This sets up ArgoCD
+# and the code forge which will take over the deployment and management of the clsuter in the next
+# stage.
+./scripts/stages/bootstrap/execute-stage.sh

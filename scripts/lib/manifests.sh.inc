@@ -47,6 +47,15 @@ manifest_render() {
     return 2
   fi
 
+  if [ -x "./manifests/${manifest_id}/sync.sh" ]; then
+    echo "detected sync script for manifest stage, triggering before render" >&2
+
+    if ! "./manifests/${manifest_id}/sync.sh"; then
+      echo "sync script failed. manifest may be unavailable or invalid, aborting" >&2
+      return 3
+    fi
+  fi
+
   echo "rendering ${manifest_id}..."
 
   local manifest_output_file="$(manifest_output_file "${manifest_id}")"
@@ -61,16 +70,15 @@ manifest_render() {
 
   if [ ! $? ]; then
     echo "failed to render ${manifest_id}" >&2
-    return 3
+    return 4
   fi
 
   if ! manifest_sanity_check "${manifest_output_file}"; then
     echo "manifest failed sanity checks aborting generation" >&2
-    return 4
+    return 5
   fi
 
   echo "successfully rendered ${manifest_id}" >&2
-  return 0
 }
 
 # Perform various checks on generated manifests to ensure we don't run into known issues later on
@@ -115,7 +123,9 @@ manifest_sanity_check() {
   if [ -n "${report}" ]; then
     echo -e "manifest failed to meet policy requirements, report results:\n" >&2
 
-    # TODO: This report needs to be broken down line-by-line and turned into a more meaningful output
+    # TODO: This report needs to be turned into a more meaningful output
+    # TODO: During the 'init' phase this should lookup a specific exception file for that phase to
+    #   suppress approved findings.
     echo "${report}" >&2
 
     # Generate a file that can be used to create exceptions from the detection

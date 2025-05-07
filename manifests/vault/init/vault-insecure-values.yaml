@@ -1,10 +1,15 @@
 ---
 global:
   tlsDisable: true
+
 server:
   dataStorage:
     size: 1Gi
-    #storageClass: talos-state-local-path
-    storageClass: local-path
+    storageClass: node-local-ephemeral
+    #storageClass: local-path
     annotations:
       volumeType: local
+
+#ui:
+#  enabled: true
+#  serviceType: LoadBalancer

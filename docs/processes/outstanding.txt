@@ -1,0 +1,10 @@
+* Vault Root Rekey Procedure
+* Cold-Start Cluster Bring-Up
+* Cluster state backup and restoration
+* Application state backup and restoration
+* Cluster creation, initialization, and population
+* System admin user creation, deletion, credential rotation
+* Cluster certificate rotation
+* Adding new control nodes
+* Adding new worker nodes
+* Removing dead worker nodes

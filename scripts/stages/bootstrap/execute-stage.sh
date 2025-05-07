@@ -4,19 +4,18 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-# Before this can run we expect at a minimum a working network within the cluster
+# Before this can run we expect at a minimum a working network within the cluster but not much else.
 
-source ./scripts/lib/manifests.sh.inc
+REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
 
-# Apply our actual network policies, ideally the core policies would get added during the init phase
-# so we could enter enforcing mode here but the job executes fast enough the CRD definitions are
-# not ready.
-manifest_apply cilium/bootstrap
+source "${REPO_ROOT_DIR}/scripts/cfg/talos.sh.inc"
+source "${REPO_ROOT_DIR}/scripts/lib/manifests.sh.inc"
+
+STAGE_DIRECTORY="${REPO_ROOT_DIR}/scripts/stages/bootstrap"
 
 # Local path provisioner to provide minimal storage for vault. We don't use it for much, vault
 # replicates on its own, and ensures everything on disk is encrypted. It needs to come up before
 # any other service needs secrets.
-./manifests/local-path-provisioner/stable/update.sh
 manifest_apply local-path-provisioner/stable
 
 # This is a pretty insecure and non-HA deployment, we'll use it to bootstrap managing itself and the
@@ -24,6 +23,20 @@ manifest_apply local-path-provisioner/stable
 # provisioner here which is safe due to the raft replication and inherent encryption vault always
 # uses. This does not have an audit log but that will be provisioned once ceph comes online.
 manifest_apply vault/init
+
+# Vault requires some manual initialization and unsealing before it will become ready and we can
+# move on. This script sets up the initial vault before we switch to the HA and secure mode. The
+# service is not save to use yet as transport encryption is not available for the service. This
+# bootstrap process runs the initialization inside the running container.
+#
+# todo(sstelfox): the root token is transmitted use the kubectl exec output, I need to ensure that
+# connection is encrypted before that transfer occurs.
+${STAGE_DIRECTORY}/initialize-vault.sh
+
+# Apply our actual network policies, ideally the core policies would get added during the init phase
+# so we could enter enforcing mode here but the job executes fast enough the CRD definitions are
+# not ready.
+#manifest_apply cilium/bootstrap
 
 # Need to generate certificates vault will use, should replace these later on
 #./scripts/generate-vault-tls.sh
@@ -33,8 +46,6 @@ manifest_apply vault/init
 #manifest_apply kyverno/bootstrap
 
 # We also want to start monitoring for security related events coming from the kubernetes audit logs
-# (TODO: needs to be configured during cluster initialization, though I'd prefer to figure out a way
-# for ArgoCD to also manage that...)
 #manifest_apply falco/bootstrap
 
 # Ceph fails after multiple runs due to the operator taking over control of some of the resources.
