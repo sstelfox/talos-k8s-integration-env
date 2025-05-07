@@ -5,6 +5,9 @@ set -euo pipefail
 # This script expects to get run after the vault/init minimal bootstrap manifest is applied early
 # on in the cluster setup. Vault requires it to be initialized and unsealed using an external
 # process from the cluster which this script handles.
+#
+# todo(sstelfox): try switching away from RSA keys to EC keys (key_type=ec, key_bits=384)
+# todo(sstelfox): switch default private_key_format to pkcs8
 
 REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
 
@@ -75,6 +78,11 @@ vault_func write pki_root/root/generate/internal common_name=\"Cluster Root CA\"
 # Set these variables before we issue any certificates to ensure they're following best practices
 # even if we're likely not going to need them in this cluster. Vault will produce a warning without
 # these.
+#
+# Ref: https://developer.hashicorp.com/vault/api-docs/secret/pki
+# todo(sstelfox): AIA URLs are still not setup correctly, maybe issuer_ref needs to be set but I
+# think it defaults correctly? I don't think the following are relevant but maybe set
+# max_path_length? permitted_ip_ranges?
 vault_func write pki_root/config/urls \
   crl_distribution_points="https://${VAULT_CN}:8200/v1/pki_root/crl" \
   issuing_certificates="https://${VAULT_CN}:8200/v1/pki_root/ca" \
