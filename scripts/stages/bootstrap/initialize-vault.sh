@@ -67,15 +67,26 @@ VAULT_CN="vault.vault.svc.${CLUSTER_DOMAIN}"
 # but this is sufficient for now. Very short intervals here to battle test rotation procedures.
 
 # Enable configure and generate a Root CA certificate
-# todo(sstelfox): this needs some pretty heavy policy restrictions
 vault_func secrets enable -path=pki_root pki
 vault_func secrets tune -max-lease-ttl=720h pki_root # 30 days for root
 vault_func write pki_root/root/generate/internal common_name=\"Cluster Root CA\" ttl=720h
+# todo(sstelfox): need to configure some pretty heavy policy restrictions
 
 # Set these variables before we issue any certificates to ensure they're following best practices
 # even if we're likely not going to need them in this cluster. Vault will produce a warning without
 # these.
 vault_func write pki_root/config/urls \
+  crl_distribution_points="https://${VAULT_CN}:8200/v1/pki_root/crl" \
+  issuing_certificates="https://${VAULT_CN}:8200/v1/pki_root/ca" \
+  ocsp_servers="https://${VAULT_CN}:8200/v1/pki_root/ocsp"
+
+# The config URLs are not sufficient on their own to suppress the AIA warning, we need to extract
+# its self-signed issuer ID and feed it back to the issuer config
+vault_func list -format=json pki_root/issuers/ >"${SECRETS_DIR}/root_issuers.json"
+ROOT_ISSUER_ID=$(jq -r '.[0]' "${SECRETS_DIR}/root_issuers.json")
+
+# This is writing back that issuer config
+vault_func write pki_root/issuer/${ROOT_ISSUER_ID} \
   crl_distribution_points="https://${VAULT_CN}:8200/v1/pki_root/crl" \
   issuing_certificates="https://${VAULT_CN}:8200/v1/pki_root/ca" \
   ocsp_servers="https://${VAULT_CN}:8200/v1/pki_root/ocsp"
@@ -104,8 +115,14 @@ vault_func write pki_int/config/urls \
   issuing_certificates="https://${VAULT_CN}:8200/v1/pki_int/ca" \
   ocsp_servers="https://${VAULT_CN}:8200/v1/pki_int/ocsp"
 
-# Now that we have an issuing authority lets start by securing vault itself with certificate it
-# issues.
+# Similar to the root CA we need to register the available issuers
+vault_func list -format=json pki_int/issuers/ >"${SECRETS_DIR}/intermediate_issuers.json"
+ISSUER_ID=$(jq -r '.[0]' "${SECRETS_DIR}/intermediate_issuers.json")
+
+vault_func write pki_int/issuer/${ISSUER_ID} \
+  crl_distribution_points="https://${VAULT_CN}:8200/v1/pki_int/crl" \
+  issuing_certificates="https://${VAULT_CN}:8200/v1/pki_int/ca" \
+  ocsp_servers="https://${VAULT_CN}:8200/v1/pki_int/ocsp"
 
 # We need to allow these specific certificates to be issued.
 # todo(sstelfox): this authority can be restricted to the automated sidecars when that is setup to
@@ -116,4 +133,4 @@ vault_func write pki_int/roles/vault allowed_domains="vault,vault.svc.${CLUSTER_
 # Then issue the certificate. WARNING: This JSON file contains a private key
 # todo(sstelfox): more secrets to protect and possibly include in the DR bundle
 vault_func write -format=json pki_int/issue/vault common_name="${VAULT_CN}" \
-  alt_names="vault.vault,vault" ip_sans="127.0.0.1,[::1]" >"${SECRETS_DIR}/vault.svc-certs.json"
+  alt_names="vault.vault,vault" ip_sans="127.0.0.1,::1" >"${SECRETS_DIR}/vault.svc-certs.json"
