@@ -11,3 +11,6 @@ TALOS_SOURCE="github-official"
 
 TALOS_CLUSTER_NAME="firmament-integration"
 CLUSTER_DOMAIN="firmament-integration.k8s.grayiron.io"
+
+REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
+SECRETS_DIR="${REPO_ROOT_DIR}/_out/secrets"
