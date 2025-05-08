@@ -22,3 +22,12 @@ helmCharts:
 
 resources:
   - ../base/namespace.yaml
+
+# Strip out the managed-by so this can be neatly inherited by ArgoCD later on
+patches:
+  - target:
+      kind: ".*"
+      labelSelector: "app.kubernetes.io/managed-by=Helm"
+    patch: |-
+      - op: remove
+        path: /metadata/labels/app.kubernetes.io~1managed-by

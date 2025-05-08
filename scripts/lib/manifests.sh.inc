@@ -81,6 +81,29 @@ manifest_render() {
   echo "successfully rendered ${manifest_id}" >&2
 }
 
+format_kyverno_report() {
+  if [ -t 0 ]; then
+    echo "must pipe in the report via stdin" >&2
+    exit 1
+  fi
+
+	while IFS= read -r line; do
+		# Skip empty lines
+		[ -z "$line" ] && continue
+
+		# We process the kyverno report one line at a time, formatting it into something more readable
+		echo "$line" | jq -r '
+			# Format the header: [SEVERITY][policy/rule]: message (without trailing period)
+			"  [" + (.severity | ascii_upcase) + "]" +
+			"[" + .policy + "/" + .rule + "]: " +
+			(.message | rtrimstr(".")) + "\n" +
+
+			# Format each resource with namespace/name
+			(.resources | map("    - " + .kind + ": " + .namespace + "/" + .name) | join("\n"))
+		'
+	done < /dev/stdin
+}
+
 # Perform various checks on generated manifests to ensure we don't run into known issues later on
 # down the line...
 manifest_sanity_check() {
@@ -121,12 +144,12 @@ manifest_sanity_check() {
   # We unfortunately can't rely on exit code here, it's not reporting them correctly so we'll just
   # see if there are any invalid results.
   if [ -n "${report}" ]; then
-    echo -e "manifest failed to meet policy requirements, report results:\n" >&2
+    echo "manifest failed to meet policy requirements:" >&2
 
     # TODO: This report needs to be turned into a more meaningful output
     # TODO: During the 'init' phase this should lookup a specific exception file for that phase to
     #   suppress approved findings.
-    echo "${report}" >&2
+    echo "${report}" | format_kyverno_report >&2
 
     # Generate a file that can be used to create exceptions from the detection
     kyverno apply --exceptions "${file_base}-policy-exceptions.yaml" --remove-color \

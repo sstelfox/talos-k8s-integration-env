@@ -1,14 +1,24 @@
 ---
-#injector:
-#  #logFormat: "json"
+injector:
+  enabled: false
+  logLevel: info
+  logFormat: json
+
 server:
+  logLevel: info
+  logFormat: json
+
   #auditStorage:
   #  enabled: true
   #  size: 10Gi
   #  storageClass: TODO
+
   dataStorage:
     size: 1Gi
-    storageClass: local-storage
+    storageClass: node-local-ephemeral
+    annotations:
+      volumeType: local
+
 resources:
   requests:
     memory: '256Mi'

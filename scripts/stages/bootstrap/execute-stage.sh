@@ -33,6 +33,11 @@ manifest_apply vault/init
 # connection is encrypted before that transfer occurs.
 ${STAGE_DIRECTORY}/initialize-vault.sh
 
+# With vault initialized we should be able to take the next step in our security, turning on TLS
+# encryption for Vault and setting it up for the initial cluster services. This still isn't fully
+# configured, it needs
+manifest_apply vault/bootstrap
+
 # Apply our actual network policies, ideally the core policies would get added during the init phase
 # so we could enter enforcing mode here but the job executes fast enough the CRD definitions are
 # not ready.
