@@ -4,6 +4,14 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+if [ "${EUID}" = "0" ]; then
+  echo "this does make use of privileged operations but you don't need to sudo it directly" >&2
+  echo "so cowardly aborting. run this as a normal user with sudo permissions and we'll ask" >&2
+  echo "when we need the permissions" >&2
+
+  exit 1
+fi
+
 source ./scripts/cfg/talos.sh.inc
 
 case "${TALOS_SOURCE}" in

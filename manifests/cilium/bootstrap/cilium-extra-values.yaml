@@ -8,6 +8,13 @@ bandwidthManager:
   bbr: true
   enabled: true
 
+# We don't want to use the built-in certificate management here, this will already be present and
+# will cause a conflict. We'll need to manually pull it out... but probably only have the new
+# version is using a different certificate? Maybe I can rename the initial one so it can be freely
+# deleted once I've transitioned.
+#certgen:
+#  generateCA: false
+
 #bpf:
 #  events:
 #    drop:

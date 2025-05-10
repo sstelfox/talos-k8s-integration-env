@@ -54,11 +54,6 @@ cluster:
   id: 0
   name: "firmament-integration"
 
-# We don't want to use the built-in certificate management here. At best this will cause a
-# collision when we hit the bootstrap process.
-certgen:
-  generateCA: false
-
 hubble:
   enabled: false
 

@@ -87,21 +87,21 @@ format_kyverno_report() {
     exit 1
   fi
 
-	while IFS= read -r line; do
-		# Skip empty lines
-		[ -z "$line" ] && continue
+  while IFS= read -r line; do
+    # Skip empty lines
+    [ -z "$line" ] && continue
 
-		# We process the kyverno report one line at a time, formatting it into something more readable
-		echo "$line" | jq -r '
-			# Format the header: [SEVERITY][policy/rule]: message (without trailing period)
-			"  [" + (.severity | ascii_upcase) + "]" +
-			"[" + .policy + "/" + .rule + "]: " +
-			(.message | rtrimstr(".")) + "\n" +
+    # We process the kyverno report one line at a time, formatting it into something more readable
+    echo "$line" | jq -r '
+      # Format the header: [SEVERITY][policy/rule]: message (without trailing period)
+      "  [" + (.severity | ascii_upcase) + "]" +
+      "[" + .policy + "/" + .rule + "]: " +
+      (.message | rtrimstr(".")) + "\n" +
 
-			# Format each resource with namespace/name
-			(.resources | map("    - " + .kind + ": " + .namespace + "/" + .name) | join("\n"))
-		'
-	done < /dev/stdin
+      # Format each resource with namespace/name
+      (.resources | map("    - " + .kind + ": " + .namespace + "/" + .name) | join("\n"))
+    '
+  done < /dev/stdin
 }
 
 # Perform various checks on generated manifests to ensure we don't run into known issues later on
