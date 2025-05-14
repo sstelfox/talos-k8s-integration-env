@@ -17,15 +17,6 @@ helmCharts:
 
     includeCRDs: true
     valuesFile: ../base/operator-values.yaml
-  - name: rook-ceph-cluster
-    repo: https://charts.rook.io/release
-    version: v1.15.4
-
-    namespace: rook-ceph
-    releaseName: rook-ceph-cluster
-
-    includeCRDs: true
-    valuesFile: ../base/cluster-values.yaml
 
 resources:
   - ../base/namespace.yaml

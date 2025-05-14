@@ -37,7 +37,8 @@ manifest_render vault/init
 # Manual process lives here requiring this to have its own micro-stage
 manifest_render vault/post-init
 
-manifest_render rook-ceph/init
+manifest_render rook-ceph-operator/init
+manifest_render rook-ceph-cluster/init
 
 ## Begin policy bootstrap
 ##

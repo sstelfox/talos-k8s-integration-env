@@ -8,15 +8,6 @@ helmGlobals:
   chartHome: ../../../_out/charts/
 
 helmCharts:
-  - name: rook-ceph
-    repo: https://charts.rook.io/release
-    version: v1.15.4
-
-    namespace: rook-ceph
-    releaseName: rook-ceph
-
-    includeCRDs: true
-    valuesFile: ../base/operator-values.yaml
   - name: rook-ceph-cluster
     repo: https://charts.rook.io/release
     version: v1.15.4
@@ -27,12 +18,7 @@ helmCharts:
     includeCRDs: true
     valuesFile: ../base/cluster-values.yaml
 
-resources:
-  - ../base/namespace.yaml
-
-# Specific to our bootstrap process we want to remove the managed-by Helm that is generated here.
-# These will actually be managed by and take ownership from ArgoCD once its setup. We don't want
-# other things to own them or manual intervention will be required during bootstrapping.
+# Strip out the managed-by so this can be neatly inherited by ArgoCD later on
 patches:
   - target:
       kind: ".*"

@@ -44,7 +44,8 @@ manifest_apply vault/post-init
 #manifest_apply cilium/bootstrap
 
 # Next up is storage
-manifest_apply rook-ceph/init
+manifest_apply rook-ceph-operator/init
+manifest_apply rook-ceph-cluster/init
 
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.
