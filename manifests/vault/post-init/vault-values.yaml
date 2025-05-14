@@ -1,13 +1,13 @@
 ---
 server:
-  #standalone:
-  #  enabled: false
+  standalone:
+    enabled: false
 
-  #ha:
-  #  enabled: true
-  #  replicas: 3
-  #  raft:
-  #    enabled: true
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
 
   tls:
     enabled: true

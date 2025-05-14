@@ -19,11 +19,10 @@ server:
     annotations:
       volumeType: local
 
-  securityContext:
+  statefulSet:
     seccompProfile:
       type: "RuntimeDefault"
 
-  statefulSet:
     securityContext:
       container:
         allowPrivilegeEscalation: false
