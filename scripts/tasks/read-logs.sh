@@ -20,8 +20,8 @@ if [ -z "${NODE_ID}" ]; then
   NODE_ID="1"
 fi
 
-if [ "${NODE_TYPE}" != "controlplane" ] && [ "${NODE_TYPE}" != "worker" ]; then
-  echo "usage: ${0} [controlplane|worker] [node-id]"
+if [ "${NODE_TYPE}" != "controlplane" ] && [ "${NODE_TYPE}" != "worker" ] && [ "${NODE_TYPE}" != "*" ]; then
+  echo "usage: ${0} [controlplane|worker|*] [node-id]"
   exit 1
 fi
 
