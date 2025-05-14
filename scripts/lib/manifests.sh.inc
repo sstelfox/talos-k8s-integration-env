@@ -73,7 +73,7 @@ manifest_render() {
     return 4
   fi
 
-  if ! manifest_sanity_check "${manifest_output_file}"; then
+  if ! manifest_sanity_check "${manifest_id}"; then
     echo "manifest failed sanity checks aborting generation" >&2
     return 5
   fi
@@ -107,15 +107,15 @@ format_kyverno_report() {
 # Perform various checks on generated manifests to ensure we don't run into known issues later on
 # down the line...
 manifest_sanity_check() {
-  local rendered_file="${1:-}"
-  local lint_status=0
+  local manifest_id="${1:-}"
 
-  local file_base="${rendered_file%%.yaml}"
-
-  if [ ! -f "${rendered_file}" ]; then
-    echo "usage: manifest_sanity_check RENDERED_FILE" >&2
+  if [ -z "${manifest_id}" ]; then
+    echo "usage: render_manifest MANIFEST_ID" >&2
     return 1
   fi
+
+  local rendered_file="$(manifest_output_file "${manifest_id}")"
+  local lint_status=0
 
   # We want ArgoCD to cleanly take over these resources once its up and running. Presence of the
   # helm managed label will require a manual and forceful adoption of the resources which we want to
@@ -134,9 +134,24 @@ manifest_sanity_check() {
     lint_status=1
   fi
 
+  # We'll use this base-name to create some additional files in the output directory
+  local file_base="${rendered_file%%.yaml}"
+
   # Extract any exceptions in the rendered manifest so we can properly omit the results from
   # policies that would otherwise fail our checks.
   yq -y 'select(.kind == "PolicyException" or .kind == "ClusterPolicyException")' "${rendered_file}" > "${file_base}-policy-exceptions.yaml"
+
+  # During the init phase the Kyverno CRDs aren't installed so we can't include the exceptions
+  # directly and still apply them to the cluster. To work around this only for the init phase we'll
+  # look for and append additional init-specific exceptions.
+  case "$manifest_id" in
+    */init)
+      if [ -f "./manifests/${manifest_id}/kyverno-policy-exceptions.yaml" ]; then
+        echo "including init specific policy exceptions" >&2
+        cat "./manifests/${manifest_id}/kyverno-policy-exceptions.yaml" >> "${file_base}-policy-exceptions.yaml"
+      fi
+      ;;
+  esac
 
   # Note: Can set environment variables here such as deployment stage or environment which may be
   # useful or read in values using the -f flag. It does not respect any of the log CLI arguments
@@ -153,10 +168,6 @@ manifest_sanity_check() {
   # see if there are any invalid results.
   if [ -n "${report}" ]; then
     echo "manifest failed to meet policy requirements:" >&2
-
-    # TODO: This report needs to be turned into a more meaningful output
-    # TODO: During the 'init' phase this should lookup a specific exception file for that phase to
-    #   suppress approved findings.
     echo "${report}" | format_kyverno_report >&2
 
     # Generate a file that can be used to create exceptions from the detection
@@ -164,7 +175,7 @@ manifest_sanity_check() {
       --resource "${rendered_file}" --generate-exceptions ./policies/ > "${file_base}-missing-exceptions.yaml"
 
     # TODO: Don't fail the lint on these yet, they'll take a bit of work
-    lint_status=0
+    #lint_status=1
   fi
 
   return ${lint_status}

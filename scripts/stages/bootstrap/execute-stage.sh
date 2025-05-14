@@ -43,8 +43,8 @@ manifest_apply vault/post-init
 # not ready.
 #manifest_apply cilium/bootstrap
 
-# Need to generate certificates vault will use, should replace these later on
-#./scripts/generate-vault-tls.sh
+# Next up is storage
+manifest_apply rook-ceph/init
 
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.
