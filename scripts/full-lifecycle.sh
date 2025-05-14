@@ -13,6 +13,7 @@ if [ "${EUID}" = "0" ]; then
 fi
 
 source ./scripts/cfg/talos.sh.inc
+source ./scripts/lib/manifests.sh.inc
 
 case "${TALOS_SOURCE}" in
 "github-official")
@@ -28,6 +29,9 @@ esac
 #   the web server during cluster bring up. I need to split this script up into those respective
 #   functions.
 ./scripts/start-installer-services.sh
+
+# Before creating the cluster, we need to ensure that our networking config is fully up to date.
+manifest_render cilium/init
 
 # This creates our initial cluster according to the config and its own policies. This could use more
 # parameterization but is good enough for the purpose of integration testing all the components and
