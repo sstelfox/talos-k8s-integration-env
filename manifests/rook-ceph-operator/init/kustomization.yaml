@@ -17,6 +17,8 @@ helmCharts:
 
     includeCRDs: true
     valuesFile: ../base/operator-values.yaml
+    additionalValuesFiles:
+      - operator-values.yaml
 
 resources:
   - ../base/namespace.yaml
