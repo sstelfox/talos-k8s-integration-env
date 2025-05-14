@@ -8,7 +8,9 @@
             "gcr.io/etcd-development": [{ "type": "insecureAcceptAnything" }],
             "quay.io/cilium": [{ "type": "insecureAcceptAnything" }],
             "registry.k8s.io": [{ "type": "insecureAcceptAnything" }],
-            "docker.io/bitnami":  [{ "type": "insecureAcceptAnything" }]
+            "docker.io/bitnami":  [{ "type": "insecureAcceptAnything" }],
+            "docker.io/rook":  [{ "type": "insecureAcceptAnything" }],
+            "quay.io/cephcsi":  [{ "type": "insecureAcceptAnything" }]
         }
     }
 }

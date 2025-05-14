@@ -1,1 +1,75 @@
 ---
+cephClusterSpec:
+  # Might want this eventually but for now let's leave it off
+  dashboard:
+    enabled: false
+
+  network:
+    connections:
+      # This is probably not ncessary for us since we're encrypting all the cluster traffic. By
+      # default this is disabled and the CSI driver uses the host network so this would be
+      # plaintext content traversing the network.
+      encryption:
+        enabled: true
+
+      # This may be worth enabling with encryption enabled as compression after encryption is
+      # useless. Whether this is a performance increase is going to depend on how loaded our CPUs
+      # are to handle the extra compression and how compressible the contents are... Going to guess
+      # this will generally not be useful for us...
+      compression:
+        enabled: false
+
+      # For the use of the more modern protocol since we know our nodes support it. This reduces our
+      # attack surface by turning off one of the ports and services and is not needed by any of our
+      # clients.
+      requireMsgr2: true
+
+      # I would prefer this being an IPv6 native cluster but that still has a ways to go. IPv4 only
+      # is also not desirable but there have been issues turning on IPv6 for the cluster so far
+      # that need to be resolved before we can fully dual stack the services.
+      dualStack: false
+
+  # Crashes may contain sensitive information and should be disabled unless necessary in all
+  # production environments. Use of this should be limited to staging and test environments unless
+  # a consistent crash is unable to be reproduced outside the production environment.
+  crashCollector:
+    disable: true
+
+  # This has a built-in log collector on its own with rotation. I'm not sure if this is in addition
+  # to allowing the logs to be captured elsewhere. If so I only really need these in that location
+  # not all of them.
+  # todo(sstelfox): investigate what exactly this does and whether its necessary
+  #logCollector:
+
+  # These resource requests start pretty high let's pull out the requests for the big boys for now
+  # https://github.com/rook/rook/blob/master/deploy/charts/rook-ceph-cluster/values.yaml
+  resources:
+    mgr:
+      requests: {}
+    mon:
+      requests: {}
+    osd:
+      requests: {}
+
+
+# I think everything below this is just garbage AI answers
+
+# We don't need the CephFS or S3 interface for this cluster
+#cephFilesystem:
+#  enabled: false
+#
+#cephObjectStore:
+#  enabled: false
+#
+#
+#cephBlockPools:
+#  - name: ceph-blockpool
+#    spec:
+#      failureDomain: host
+#      replicated:
+#        size: 3
+#    storageClass:
+#      enabled: true
+#      name: ceph-block
+#      isDefault: true
+#      reclaimPolicy: Delete
