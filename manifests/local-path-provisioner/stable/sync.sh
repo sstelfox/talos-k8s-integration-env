@@ -73,7 +73,7 @@ if [ ! -d "${CHART_PATH}" ]; then
 fi
 
 # Render the changed / current version
-CONFIGURED_NAMESPACE="$(yq -rM '.metadata.name' namespace.yaml)"
+CONFIGURED_NAMESPACE="$(yq -rM '.metadata.name' "${MANIFEST_STAGE_ROOT}/namespace.yaml")"
 helm template local-path-provisioner "${CHART_PATH}" --namespace "${CONFIGURED_NAMESPACE}" \
   --values "${VALUES_FILE}" >"${OUTPUT_FILE}"
 
