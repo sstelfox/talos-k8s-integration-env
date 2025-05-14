@@ -126,6 +126,14 @@ manifest_sanity_check() {
     lint_status=1
   fi
 
+  # Some helm charts are setup poorly and accidentally include test resources. We want to make sure
+  # we've filtered those out of the relevant helm charts to keep the security boundary nice and
+  # tight.
+  if grep -q "helm.sh/hook: test" "${rendered_file}"; then
+    echo "found leaked test resources in generated manifest" >&2
+    lint_status=1
+  fi
+
   # Extract any exceptions in the rendered manifest so we can properly omit the results from
   # policies that would otherwise fail our checks.
   yq -y 'select(.kind == "PolicyException" or .kind == "ClusterPolicyException")' "${rendered_file}" > "${file_base}-policy-exceptions.yaml"

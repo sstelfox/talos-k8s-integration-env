@@ -23,11 +23,23 @@ helmCharts:
 resources:
   - ../base/namespace.yaml
 
-# Strip out the managed-by so this can be neatly inherited by ArgoCD later on
 patches:
+  # This is a test resource that leaked out of the chart. We don't want this in our prod environment
+  - target:
+      kind: Pod
+      name: vault-server-test
+      namespace: vault
+    patch: |
+      $patch: delete
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: vault-server-test
+        namespace: vault
+  # Strip out the managed-by so this can be neatly inherited by ArgoCD later on
   - target:
       kind: ".*"
       labelSelector: "app.kubernetes.io/managed-by=Helm"
-    patch: |-
+    patch: |
       - op: remove
         path: /metadata/labels/app.kubernetes.io~1managed-by

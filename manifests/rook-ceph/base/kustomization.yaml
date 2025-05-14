@@ -7,11 +7,6 @@ namespace: rook-ceph
 helmGlobals:
   chartHome: ../../../_out/charts/
 
-#commonAnnotations:
-#  kubernetes.io/field-manager: kustomize-helm
-#commonLabels:
-#  app.kubernetes.io/managed-by: kustomize
-
 helmCharts:
   - name: rook-ceph
     repo: https://charts.rook.io/release

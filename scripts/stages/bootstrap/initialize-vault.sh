@@ -37,6 +37,7 @@ vault_func() {
 
 # Initialize the actual vault, store the keys in our standard secrets directory
 # todo(sstelfox): this should be encrypted and we may want to capture this as part of a DR package.
+mkdir -p "${SECRETS_DIR}"
 vault_func operator init >"${SECRETS_DIR}/vault-keys.txt"
 
 get_root_key() {

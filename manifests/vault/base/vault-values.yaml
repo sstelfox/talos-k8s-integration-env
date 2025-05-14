@@ -19,6 +19,14 @@ server:
     annotations:
       volumeType: local
 
+  statefulSet:
+    securityContext:
+      container:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+
 resources:
   requests:
     memory: '256Mi'
