@@ -32,6 +32,7 @@ esac
 
 # Before creating the cluster, we need to ensure that our networking config is fully up to date.
 manifest_render cilium/init
+cp -f ./_out/manifests/cilium-init.yaml ./_out/public/cilium-init.yaml
 
 # This creates our initial cluster according to the config and its own policies. This could use more
 # parameterization but is good enough for the purpose of integration testing all the components and
