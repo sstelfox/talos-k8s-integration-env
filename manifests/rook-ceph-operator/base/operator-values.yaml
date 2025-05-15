@@ -1,16 +1,49 @@
 ---
-rbac:
-  enabled: true
+csi:
+  # This is what we're here for, we want to primarily be using this storage directly for containers.
+  # This is enabled by default but as its a core component we'll explicitly enable it.
+  enableRbdDriver: true
 
-#resources:
+  # Snapshotting is not necessary and we may want to turn this off in the future but it makes
+  # backups for certain services significantly easier. For now we'll leave it available.
+  enableRBDSnapshotter: true
 
-#cephBlockPools:
-#cephBlockPoolsVolumeSnapshotClass:
-#cephClusterSpec:
-#cephFileSystemVolumeSnapshotClass:
-#cephFileSystems:
-#cephObjectStores:
+  # This exposes additional information about volumes and snapshots directly in the Kubernetes
+  # metadata on the objects. This is entirely for convenience of inspecting what is going on.
+  # Comment indicates "not all users may be interested in this", not sure why... Will test and see
+  # if its accidentally exposing details or something that shouldn't be exposed.
+  enableMetadata: true
 
-ingress:
-  dashboard:
-    enabled: false
+  # We may want to add support for the S3 object storage at some point, but its pretty heavy for
+  # anything this cluster needs. It may be worth using something simpler if we can getaway with it
+  # such as minio + shared volume rather than this heavily but possibly better performing verison.
+  enableCephfsDriver: false
+  enableCephfsSnapshotter: false
+  enableNFSSNapshotter: false
+
+  # The default operator uses this claiming performance reasons and concerns over CNI reachability
+  # issues outside the cluster. This increases the security surface area, but would be ok to leave
+  # disabled as long as we're ensuring the on-disk and network values are not being stored in
+  # plaintext.
+  #
+  # Cilium does give us additional auditable view of the world by allowing us to see the flows
+  # involved in these connections which may be worth the performance hit if there is one beyond not
+  # being encrypted.
+  enableCSIHostNetwork: false
+
+  # todo(sstelfox): future work, think this is needed but probably needs additional setup that
+  # hasn't been done yet. (false is the default)
+  enableCSIEncryption: false
+
+  # I should really have this interpolated or referenced from a common location as it comes up
+  # intermittently. As long as I'm consistent for now it should be easy to search for and replace
+  # in the future.
+  clusterName: "firmament-integration"
+
+  # todo(sstelfox): tolerations to and preferences to allow the appropriate instances to run on
+  # both workers and controllers (mon should just be controllers).
+
+  # This is an optional sidecar that monitors the "liveness" of the CSI. It's off by default but
+  # I'm sure I'll want this once I get to observability options. There are other monitoring options
+  # I didn't inspect too deeply yet as well.
+  enableLiveness: false
