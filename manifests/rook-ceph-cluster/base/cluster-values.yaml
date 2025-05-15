@@ -29,6 +29,27 @@ cephClusterSpec:
       # that need to be resolved before we can fully dual stack the services.
       dualStack: false
 
+  placement:
+    # We want the central monitoring ceph nodes to stay on our HA control plane
+    mon:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+
+    # We want to allow the CSI to make use of the disks available on the control plane as well.
+    # We'll lift the restriction on all ceph services to allow them to freely run on the control
+    # plane nodes as well. I may want to tighten this up a bit in the future to only the OSD
+    # providers, but I do want to keep using the disks available on the control plane nodes for the
+    # cluster.
+    all:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+        operator: Exists
+
   # Crashes may contain sensitive information and should be disabled unless necessary in all
   # production environments. Use of this should be limited to staging and test environments unless
   # a consistent crash is unable to be reproduced outside the production environment.

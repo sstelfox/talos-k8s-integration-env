@@ -42,6 +42,13 @@ add_control common/security/restrict_system_services_control_network.yaml
 # TODO: this still needs a lot of work but at lest it is encrypted even if its barely protected
 add_shared common/storage/enable_disk_encryption.yaml
 
+# By default Talos gives control plane nodes a role, but leaves the other nodes without anything.
+# For consistency we'll give an annotation to the worker nodes as well so we can target these nodes
+# specifically with placement rules.
+#
+# This could be used to create multiple node groups and target them indepdently as well
+add_worker common/meta/annotate_worker_roles.yaml
+
 # Needed to allow the local-path-provisioner the ability to write to the ephemeral partition
 add_shared storage_local_write_mount.yaml
 
@@ -55,8 +62,6 @@ add_shared cilium/disable_flannel.yaml
 #add_control cilium/install_cilium_ci_utility.yaml
 add_control cilium/install_cilium_manifest.yaml
 
-# Don't remember what this was for...
-#add_worker common/meta/annotate_worker_roles.yaml
 # ... but maybe this was related?
 #add_control common/debug/enable_workloads_on_control_plane.yaml
 

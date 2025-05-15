@@ -1,3 +1,3 @@
 machine:
-  nodeLabels:
-    node-role.kubernetes.io/worker: ""
+  nodeAnnotations:
+    talos.dev/owned-labels: '["node-role.kubernetes.io/worker"]'

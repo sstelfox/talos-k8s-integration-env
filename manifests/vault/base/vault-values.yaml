@@ -1,9 +1,4 @@
 ---
-injector:
-  enabled: false
-  logLevel: info
-  logFormat: json
-
 server:
   logLevel: info
   logFormat: json
@@ -29,6 +24,45 @@ server:
         capabilities:
           drop:
             - ALL
+
+  # We consider vault part of our control plane and as such we want to ensure that's where these
+  # pods end up.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+
+  # We also need to allow these pods to be placed on the control plane which have a very specific
+  # taint we need to overcome.
+  tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+
+injector:
+  logLevel: info
+  logFormat: json
+
+  # The injector we will prefer to run on the control plane as well. This may be a mistake in the
+  # future, I'm not sure if these need to run next to the containers they're injecting
+  # (todo(sstelfox): test this) but if they don't, the control plane is the correct location for
+  # them.
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+
+  # Similar to the server, running on the control planes needs to tolerate this specific taint.
+  tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
 
 resources:
   requests:

@@ -1,3 +1,8 @@
-
+---
 global:
   tlsDisable: true
+
+injector:
+  # This needs to remain disabled during initialization or it will force the creation of a
+  # conflicting CA bundle.
+  enabled: false
