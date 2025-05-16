@@ -20,5 +20,5 @@ timeout 15s ./_out/talosctl -n "${NODE_IP}" get securitystate
 #kubectl get nodes -o wide
 #kubectl get pods -o wide -A
 
-#./_out/talosctl read /system/state/config.yaml --cluster firmament-integration -n 10.5.0.2 > controlplane.yaml
-#./_out/talosctl read /system/state/config.yaml --cluster firmament-integration -n 10.5.0.5 > worker.yaml
+#./_out/talosctl get machineconfig -n 10.5.0.2 -o yaml > controlplane.yaml
+#./_out/talosctl get machineconfig -n 10.5.0.5 -o yaml > worker.yaml

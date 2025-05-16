@@ -48,13 +48,10 @@ manifest_apply rook-ceph-operator/init
 manifest_apply rook-ceph-cluster/init
 
 # Considering the time this takes it may be worth splitting here to a new stage but for now I'll
-# just let this go...
-kubectl wait --for=jsonpath='{.status.phase}'=Ready cephclusters.ceph.rook.io/rook-ceph -n rook-ceph --timeout=60m
-
-# Running this to record how long it actually took, the documentation I read indicated this might
-# be ~40m but these are tiny disks (and slow) so who knows... Might be able to do this earlier to
-# let the other setup keep going or delay waiting while other things get setup...
-kubectl --namespace rook-ceph get cephcluster rook-ceph
+# just let this go... Might be able to do this earlier to let the other setup keep going or delay
+# waiting while other things get setup... In practice this takes ~8 minutes at the time/config I
+# currently have setup.
+kubectl wait --for=jsonpath='{.status.phase}'=Ready cephclusters.ceph.rook.io/rook-ceph -n rook-ceph --timeout=15m
 
 # Everything added to the cluster needs to have these policies enforced on them. The earlier things
 # get kicked out for being out of spec the faster I can fix them.
