@@ -46,8 +46,11 @@ add_shared common/storage/enable_disk_encryption.yaml
 # For consistency we'll give an annotation to the worker nodes as well so we can target these nodes
 # specifically with placement rules.
 #
-# This could be used to create multiple node groups and target them indepdently as well
-add_worker common/meta/annotate_worker_roles.yaml
+# This could be used to create multiple node groups and target them indepdently as well.
+#
+# Note: this is currently disabled as the workers fail to come up after applying this. It's possible
+# Talos itself is rejecting the update or I did something incorrect here.
+#add_worker common/meta/annotate_worker_roles.yaml
 
 # Needed to allow the local-path-provisioner the ability to write to the ephemeral partition
 add_shared storage_local_write_mount.yaml
