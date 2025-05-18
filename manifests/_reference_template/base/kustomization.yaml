@@ -2,6 +2,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# This can be useful for diagnostics and tracking of mutations and for tracing where particular
+# deployments were sourced from. We may have use for these in origin tracking in the future but for
+# now they're selectively turned on for manifest diagnostics.
+#buildMetadata:
+#- originAnnotations
+#- transformerAnnotations
+
 namespace: REPLACE_ME
 
 helmGlobals:
