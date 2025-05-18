@@ -43,7 +43,11 @@ cp -f ./_out/manifests/cilium-init.yaml ./_out/public/cilium-init.yaml
 ./scripts/create_firmament.sh
 
 # Start bringing up the initial parts of the environment. This is primarily the infrastructure such
-# as storage, secret handling, networking, firewall, and policy enforcement. This sets up ArgoCD
+# as storag and secret handling.
+./scripts/stages/init/execute-stage.sh
+
+# At this point we have working encrypted storage
+# This sets up ArgoCD
 # and the code forge which will take over the deployment and management of the clsuter in the next
 # stage.
 ./scripts/stages/bootstrap/execute-stage.sh

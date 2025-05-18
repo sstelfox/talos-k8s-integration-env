@@ -30,8 +30,7 @@ source ./scripts/lib/manifests.sh.inc
 ## Does not include authentication or authorization mechanisms
 
 manifest_render cilium/init
-
-manifest_render local-path-provisioner/stable
+manifest_render local-path-provisioner/init
 
 manifest_render vault/init
 # Manual process lives here requiring this to have its own micro-stage

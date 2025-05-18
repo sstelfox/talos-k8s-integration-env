@@ -47,10 +47,12 @@ manifest_render() {
     return 2
   fi
 
-  if [ -x "./manifests/${manifest_id}/sync.sh" ]; then
-    echo "detected sync script for manifest stage, triggering before render" >&2
+  local manifest_root="${manifest_id%/*}"
 
-    if ! "./manifests/${manifest_id}/sync.sh"; then
+  if [ -x "./manifests/${manifest_root}/base/sync.sh" ]; then
+    echo "detected sync script for manifest, triggering before render" >&2
+
+    if ! "./manifests/${manifest_root}/base/sync.sh"; then
       echo "sync script failed. manifest may be unavailable or invalid, aborting" >&2
       return 3
     fi
