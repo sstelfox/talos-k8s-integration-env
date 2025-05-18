@@ -10,13 +10,15 @@ helmGlobals:
 helmCharts:
   - name: rook-ceph-cluster
     repo: https://charts.rook.io/release
-    version: v1.15.4
+    version: v1.17.2
 
     namespace: rook-ceph
     releaseName: rook-ceph-cluster
 
     includeCRDs: true
     valuesFile: ../base/cluster-values.yaml
+    additionalValuesFiles:
+      - cluster-init-values.yaml
 
 # Strip out the managed-by so this can be neatly inherited by ArgoCD later on
 patches:

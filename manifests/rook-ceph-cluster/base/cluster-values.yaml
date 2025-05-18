@@ -39,12 +39,9 @@ cephClusterSpec:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
 
-    # We want to allow the CSI to make use of the disks available on the control plane as well.
     # We'll lift the restriction on all ceph services to allow them to freely run on the control
-    # plane nodes as well. I may want to tighten this up a bit in the future to only the OSD
-    # providers, but I do want to keep using the disks available on the control plane nodes for the
-    # cluster.
-    osd:
+    # plane nodes as well.
+    all:
       tolerations:
       - key: node-role.kubernetes.io/control-plane
         effect: NoSchedule
