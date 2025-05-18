@@ -3,3 +3,24 @@ kind: Kustomization
 
 resources:
   - ../base/
+
+# The `init` stage is intended to be pre-argocd with these resources eventually being inherited by
+# ArgoCD. To do this we need to strip out the managed-by=Helm labesl automatically added by this
+# rendering mechanism. I've found two ways to strip out the managed-by helm labels that both seem
+# to selectively work in different selections. One of these should be chosen for the chart.
+
+# Strip out all Helm-related labels so resources can be cleanly adopted by ArgoCD
+patches:
+  - target:
+      kind: ".*"
+      labelSelector: "app.kubernetes.io/managed-by=Helm"
+    patch: |-
+      - op: remove
+        path: /metadata/labels/app.kubernetes.io~1managed-by
+
+#labels:
+#  - pairs:
+#      app.kubernetes.io/managed-by: ""
+#      helm.sh/chart: ""
+#    includeSelectors: false
+#    includeTemplates: true
