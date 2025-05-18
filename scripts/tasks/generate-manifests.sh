@@ -20,6 +20,9 @@ source ./scripts/lib/manifests.sh.inc
 # check if its still necessary along with a timestamp indicating when the exception was created and
 # separately when it was last reviewed. Exceptions must be reviewed quarterly.
 
+# Required during initial cluster node bring up
+manifest_render cilium/init
+
 ## Begin cluster initialization
 ##
 ## Objective: Get storage, secrets, and networking up and stable enough to build from. Subsequent
@@ -29,7 +32,6 @@ source ./scripts/lib/manifests.sh.inc
 ##
 ## Does not include authentication or authorization mechanisms
 
-manifest_render cilium/init
 manifest_render local-path-provisioner/init
 
 manifest_render vault/init
@@ -38,6 +40,8 @@ manifest_render vault/post-init
 
 manifest_render rook-ceph-operator/init
 manifest_render rook-ceph-cluster/init
+
+manifest_render cert-manager/init
 
 ## Begin policy bootstrap
 ##

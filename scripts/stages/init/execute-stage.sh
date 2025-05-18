@@ -44,8 +44,30 @@ manifest_apply rook-ceph-cluster/init
 
 # This takes a hot second, but all future stages need to have working storage so we're going to
 # block the continued execution until this is ready.
+echo "waiting for ceph cluster configuration to become ready..." &>/dev/null
 kubectl wait --for=jsonpath='{.status.phase}'=Ready cephclusters.ceph.rook.io/rook-ceph \
-  -n rook-ceph --timeout=20m
+  -n rook-ceph --timeout=20m &>/dev/null
+
+# There is still quite a bit of time here before the storage is actually available. The cluster is
+# valid and being deployed at this point, but the monitors, and storage devices haven't yet been
+# deployed. We can use the toolbox deployment status as a proxy for the monitors being available
+# which is the next stage for this.
+# todo(sstelfox): kubectl wait on the toolbox status
+
+# We then need to wait for all the OSDs to prepare the disks and prep them for use.
+# todo(sstelfox): kubectl wait for the osd status
+
+# Uncomment this to see the various ceph cluster properties
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph health detail
+# The following shows available storage
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph df
+#kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd df
+#kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd pool ls detail
+
+echo "ceph storage is ready" >&2
+
+manifest_apply cert-manager/init
 
 # We're blocking here for now. Before we move forward I need to ensure that the storage is fully
 # encrypted and reliant on secrets stored in our now configured vault.

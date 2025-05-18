@@ -9,6 +9,7 @@ set -euo pipefail
 REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
 
 source "${REPO_ROOT_DIR}/scripts/cfg/talos.sh.inc"
+source "${REPO_ROOT_DIR}/scripts/lib/vault.sh.inc"
 
 # We need to wait for the pods to come up. We can't rely on checking for the container to be
 # "Ready" as there is a readiness check that will only succeed after the vault has been both
@@ -18,28 +19,6 @@ kubectl -n vault wait --for=jsonpath='{.status.phase}'=Running --all pods \
   -l app.kubernetes.io/name=vault --timeout=60s &>/dev/null
 
 echo "pod ready beginning vault initialization" 2>&1
-
-vault_func() {
-  local vault_instance_id="${1}"
-  shift 1
-
-  local user_cmd="$@"
-  local exec_opts=""
-
-  if [ -n "${VAULT_ROOT_KEY:-}" ]; then
-    local full_cmd="VAULT_TOKEN="${VAULT_ROOT_KEY}" vault ${user_cmd}"
-  else
-    local full_cmd="vault ${user_cmd}"
-  fi
-
-  # Check if stdin is not a terminal (so data is being piped in), if there is data we'll pass it
-  # through.
-  if [ ! -t 0 ]; then
-    cat | kubectl exec -i -n vault "vault-${vault_instance_id}" -- sh -c "${full_cmd}"
-  else
-    kubectl exec -n vault "vault-${vault_instance_id}" -- sh -c "${full_cmd}"
-  fi
-}
 
 # Initialize the actual vault, store the keys in our standard secrets directory
 #
@@ -51,44 +30,19 @@ vault_func() {
 mkdir -p "${SECRETS_DIR}"
 vault_func 0 operator init >"${SECRETS_DIR}/vault-keys.txt"
 
-get_root_key() {
-  grep "Initial Root Token" "${SECRETS_DIR}/vault-keys.txt" | awk '{ print $(NF) }'
-  return $?
-}
-
-get_unseal_key() {
-  local id="${1:-}"
-  grep "Unseal Key ${id}" "${SECRETS_DIR}/vault-keys.txt" | awk '{ print $(NF) }'
-  return $?
-}
-
-unseal_vault_instance() {
-  local vault_instance_id="${1:-}"
-  if [ -z "${vault_instance_id}" ]; then
-    echo "vault instance id must be provided to unseal_vault_instance" >&2
-    return 1
-  fi
-
-  # We silence the output here as its pretty verbose and we only care if it succeeds or fails here
-  # (a failure will abort this script automatically).
-  vault_func "${vault_instance_id}" operator unseal "$(get_unseal_key 1)" >/dev/null
-  vault_func "${vault_instance_id}" operator unseal "$(get_unseal_key 2)" >/dev/null
-  vault_func "${vault_instance_id}" operator unseal "$(get_unseal_key 3)" >/dev/null
-}
-
 # We need to unseal each of the instances. For the ones other than the initial one we'll need
 # to join them into the cluster before we can unseal them.
 unseal_vault_instance 0
 
-vault_func 1 operator raft join http://vault-0.vault-internal:8200
+vault_func 1 operator raft join http://vault-0.vault-internal:8200 &>/dev/null
 unseal_vault_instance 1
 
-vault_func 2 operator raft join http://vault-0.vault-internal:8200
+vault_func 2 operator raft join http://vault-0.vault-internal:8200 &>/dev/null
 unseal_vault_instance 2
 
 # Now that the cluster is up we can set this key to begin authenticated operations to the
 # kubernetes cluster to setup our environment.
-VAULT_ROOT_KEY="$(get_root_key)"
+VAULT_ROOT_KEY="$(get_vault_root_key)"
 
 # We'll need the FQDN for the service in a few certificate locations
 VAULT_CN="vault.vault.svc.${CLUSTER_DOMAIN}"
@@ -168,5 +122,3 @@ kubectl create secret generic vault-tls -n vault --from-file="${SECRETS_DIR}/vau
 
 # We should now have everything setup to move to the next phase of Vault bootstrapping and can go on
 # from there. We'll report out our status for verification...
-echo "vault cluster status:" >&2
-vault_func 0 status

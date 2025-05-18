@@ -24,11 +24,8 @@ case "${TALOS_SOURCE}" in
   ;;
 esac
 
-# todo(sstelfox): this does more than just start the containers providing specific services, it
-#   also populates the image store and generates the initial manifests that need to be present via
-#   the web server during cluster bring up. I need to split this script up into those respective
-#   functions.
-./scripts/start-installer-services.sh
+# Start a webserver for basic file serving and an image repository
+./scripts/run-support-service-containers.sh
 
 # Before creating the cluster, we need to ensure that our networking config is fully up to date.
 manifest_render cilium/init
