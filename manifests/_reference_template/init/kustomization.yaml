@@ -10,17 +10,18 @@ resources:
 # to selectively work in different selections. One of these should be chosen for the chart.
 
 # Strip out all Helm-related labels so resources can be cleanly adopted by ArgoCD
-patches:
-  - target:
-      kind: ".*"
-      labelSelector: "app.kubernetes.io/managed-by=Helm"
-    patch: |-
-      - op: remove
-        path: /metadata/labels/app.kubernetes.io~1managed-by
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: null
+      helm.sh/chart: null
+    includeSelectors: false
+    includeTemplates: true
 
-#labels:
-#  - pairs:
-#      app.kubernetes.io/managed-by: ""
-#      helm.sh/chart: ""
-#    includeSelectors: false
-#    includeTemplates: true
+# This one doesn't handle nested templates or alternative metadata/label sections:
+#patches:
+#  - target:
+#      kind: ".*"
+#      labelSelector: "app.kubernetes.io/managed-by=Helm"
+#    patch: |-
+#      - op: remove
+#        path: /metadata/labels/app.kubernetes.io~1managed-by
