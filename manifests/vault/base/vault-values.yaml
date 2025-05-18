@@ -3,10 +3,15 @@ server:
   logLevel: info
   logFormat: json
 
-  #auditStorage:
-  #  enabled: true
-  #  size: 10Gi
-  #  storageClass: TODO
+  standalone:
+    enabled: false
+
+  ha:
+    enabled: true
+    replicas: 3
+
+    raft:
+      enabled: true
 
   dataStorage:
     size: 1Gi
