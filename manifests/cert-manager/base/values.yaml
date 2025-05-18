@@ -1,0 +1,20 @@
+---
+enableCertificateOwnerRef: true
+replicaCount: 2
+
+crds:
+  enabled: true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+
+# todo(sstelfox): turn off the internal auto-approver and switch to the cert-manager
+# approver-policy operator.
+#disableAutoApproval: true

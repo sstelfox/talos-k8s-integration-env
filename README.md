@@ -11,6 +11,7 @@ The services currently present in the repo, but may not be fully configured are:
 * Cilium
 * Rook/Ceph
 * Vault
+* Cert-Manager
 * ArgoCD
 * Falco
 * Loki
