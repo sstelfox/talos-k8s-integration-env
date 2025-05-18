@@ -14,10 +14,6 @@ server:
     annotations:
       volumeType: local
 
-  securityContext:
-    seccompProfile:
-      type: "RuntimeDefault"
-
   statefulSet:
     securityContext:
       container:
@@ -25,6 +21,8 @@ server:
         capabilities:
           drop:
             - ALL
+        seccompProfile:
+          type: "RuntimeDefault"
 
   # We consider vault part of our control plane and as such we want to ensure that's where these
   # pods end up.
@@ -48,8 +46,13 @@ injector:
   logFormat: json
 
   securityContext:
-    seccompProfile:
-      type: "RuntimeDefault"
+    container:
+      seccompProfile:
+        type: "RuntimeDefault"
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
 
   # The injector we will prefer to run on the control plane as well. This may be a mistake in the
   # future, I'm not sure if these need to run next to the containers they're injecting

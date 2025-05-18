@@ -36,6 +36,7 @@ patches:
       metadata:
         name: vault-server-test
         namespace: vault
+
   # Strip out the managed-by so this can be neatly inherited by ArgoCD later on
   - target:
       kind: ".*"
