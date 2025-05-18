@@ -1,16 +1,6 @@
 ---
 server:
-  standalone:
-    enabled: false
-
-  ha:
-    enabled: true
-    replicas: 3
-    raft:
-      enabled: true
-
   tls:
-    enabled: true
     secretName: "vault-tls"
     caBundle: "/vault/userconfig/vault-tls/ca.crt"
 
@@ -18,3 +8,8 @@ server:
     - type: secret
       name: vault-tls
       path: "/vault/userconfig/vault-tls"
+
+  #auditStorage:
+  #  enabled: true
+  #  size: 2Gi
+  #  storageClass: TODO

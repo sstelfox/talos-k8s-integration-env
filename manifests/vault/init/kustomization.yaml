@@ -18,7 +18,7 @@ helmCharts:
     includeCRDs: true
     valuesFile: ../base/vault-values.yaml
     additionalValuesFiles:
-      - vault-insecure-values.yaml
+      - vault-init-values.yaml
 
 resources:
   - ../base/namespace.yaml
