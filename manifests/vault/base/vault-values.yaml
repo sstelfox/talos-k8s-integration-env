@@ -14,10 +14,11 @@ server:
     annotations:
       volumeType: local
 
-  statefulSet:
+  securityContext:
     seccompProfile:
       type: "RuntimeDefault"
 
+  statefulSet:
     securityContext:
       container:
         allowPrivilegeEscalation: false
@@ -45,6 +46,10 @@ server:
 injector:
   logLevel: info
   logFormat: json
+
+  securityContext:
+    seccompProfile:
+      type: "RuntimeDefault"
 
   # The injector we will prefer to run on the control plane as well. This may be a mistake in the
   # future, I'm not sure if these need to run next to the containers they're injecting

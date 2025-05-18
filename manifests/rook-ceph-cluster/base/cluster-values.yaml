@@ -44,7 +44,7 @@ cephClusterSpec:
     # plane nodes as well. I may want to tighten this up a bit in the future to only the OSD
     # providers, but I do want to keep using the disks available on the control plane nodes for the
     # cluster.
-    all:
+    osd:
       tolerations:
       - key: node-role.kubernetes.io/control-plane
         effect: NoSchedule
@@ -71,26 +71,3 @@ cephClusterSpec:
       requests: {}
     osd:
       requests: {}
-
-
-# I think everything below this is just garbage AI answers
-
-# We don't need the CephFS or S3 interface for this cluster
-#cephFilesystem:
-#  enabled: false
-#
-#cephObjectStore:
-#  enabled: false
-#
-#
-#cephBlockPools:
-#  - name: ceph-blockpool
-#    spec:
-#      failureDomain: host
-#      replicated:
-#        size: 3
-#    storageClass:
-#      enabled: true
-#      name: ceph-block
-#      isDefault: true
-#      reclaimPolicy: Delete
