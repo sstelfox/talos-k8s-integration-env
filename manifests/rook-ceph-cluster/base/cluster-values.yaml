@@ -39,13 +39,14 @@ cephClusterSpec:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
 
-    # We'll lift the restriction on all ceph services to allow them to freely run on the control
-    # plane nodes as well.
-    all:
-      tolerations:
-      - key: node-role.kubernetes.io/control-plane
-        effect: NoSchedule
-        operator: Exists
+    # Our physical server is going to have disks attached to them that we'll want to participate in
+    # this cluster as well. We can prioritize those OSDs for control-plane services requiring
+    # persistent storage to improve data locality.
+    #all:
+    #  tolerations:
+    #  - key: node-role.kubernetes.io/control-plane
+    #    effect: NoSchedule
+    #    operator: Exists
 
   # Crashes may contain sensitive information and should be disabled unless necessary in all
   # production environments. Use of this should be limited to staging and test environments unless
@@ -68,3 +69,81 @@ cephClusterSpec:
       requests: {}
     osd:
       requests: {}
+
+  storage:
+    config:
+      # The following is only for disks smaller than 100GiB which is the case here for our
+      # integration cluster.
+      databaseSizeMB: "1024"
+
+      # todo(sstelfox): this must have a key setup required ...
+      #encryptedDevice: "true"
+
+cephBlockPools:
+  # This block pool is for semi-persistent services where the loss of data wouldn't be a
+  # significant issue such as an on-disk redis cache. This is also useful for ephemeral or trial
+  # containers deployed into the cluster. For that reason, this is the default storage class. More
+  # permanent services can make the extra effort to use one of the alternative storage types.
+  - name: ephemeral-blockpool
+    spec:
+      failureDomain: host
+      replicated:
+        size: 1
+    storageClass:
+      name: ephemeral-block
+      enabled: true
+      isDefault: true
+
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      volumeBindingMode: "Immediate"
+
+      parameters:
+        # There are a bunch of features that are off by default as they require kernel 5.4+, but
+        # that's below our minimum kernel everywhere. We'll turn on all the extra optimizations on
+        # all of our ceph storage classes.
+        imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
+
+  # For any data we want to ensure stays safe we'll ensure its sufficiently replicated.
+  - name: standard-blockpool
+    spec:
+      failureDomain: host
+      replicated:
+        size: 3
+    storageClass:
+      name: standard-block
+      enabled: true
+      isDefault: false
+
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      volumeBindingMode: "Immediate"
+
+      parameters:
+        imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
+
+cephECBlockPools:
+  # We can use erasure coded block pools to achieve higher durability guarantees where necessary
+  # but doesn't have as many writes. Very useful for audit log and backup persistence.
+  - name: archival-ec-blockpool
+    spec:
+      metadataPool:
+        replicated:
+          size: 2
+      dataPool:
+        failureDomain: osd
+        erasureCoded:
+          dataChunks: 2
+          codingChunks: 1
+
+    parameters:
+      imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
+
+    storageClass:
+      name: archival-block
+      enabled: true
+      isDefault: false
+
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      volumeBindingMode: "Immediate"

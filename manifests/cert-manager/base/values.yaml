@@ -18,3 +18,5 @@ strategy:
 # todo(sstelfox): turn off the internal auto-approver and switch to the cert-manager
 # approver-policy operator.
 #disableAutoApproval: true
+
+# todo(sstelfox): should be scheduled on controller nodes

@@ -38,12 +38,12 @@ touch ~/.kube/config
 #  --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
 #  --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION}
 sudo --preserve-env=HOME ./_out/talosctl cluster create --provisioner qemu \
-  --name ${TALOS_CLUSTER_NAME} --talos-version ${TALOS_VERSION} --controlplanes 3 --workers 2 \
+  --name ${TALOS_CLUSTER_NAME} --talos-version ${TALOS_VERSION} --controlplanes 3 --workers 3 \
   --vmlinuz-path=./_out/vmlinuz-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION} \
   --initrd-path=./_out/initramfs-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.xz \
   --extra-uefi-search-paths /usr/share/ovmf/x64/ --with-tpm2 --with-uefi \
   --cpus 3.0 --cpus-workers 4.0 --memory 6144 --memory-workers 6144 \
-  --disk 10240 --extra-disks 1 --extra-disks-size 10240 \
+  --disk 7680 --extra-disks 2 --extra-disks-size 7680 \
   --install-image ghcr.io/siderolabs/installer:${TALOS_VERSION} \
   --image ghcr.io/siderolabs/talos:${TALOS_VERSION} \
   --cni-bundle-url http://127.0.0.1:6100/talosctl-cni-bundle-${TALOS_SOURCE}-${TALOS_ARCH}-${TALOS_VERSION}.tar.gz \
