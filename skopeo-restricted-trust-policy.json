@@ -2,14 +2,13 @@
     "default": [{ "type": "reject" }],
     "transports": {
         "docker": {
-            "hosts.container.internal:6000": [{ "type": "insecureAcceptAnything" }],
-
-            "ghcr.io/siderolabs": [{ "type": "insecureAcceptAnything" }],
-            "gcr.io/etcd-development": [{ "type": "insecureAcceptAnything" }],
-            "quay.io/cilium": [{ "type": "insecureAcceptAnything" }],
-            "registry.k8s.io": [{ "type": "insecureAcceptAnything" }],
             "docker.io/bitnami":  [{ "type": "insecureAcceptAnything" }],
+            "docker.io/library/busybox":  [{ "type": "insecureAcceptAnything" }],
             "docker.io/rook":  [{ "type": "insecureAcceptAnything" }],
+            "gcr.io/etcd-development": [{ "type": "insecureAcceptAnything" }],
+            "ghcr.io/siderolabs": [{ "type": "insecureAcceptAnything" }],
+            "registry.k8s.io": [{ "type": "insecureAcceptAnything" }],
+            "quay.io/cilium": [{ "type": "insecureAcceptAnything" }],
             "quay.io/cephcsi":  [{ "type": "insecureAcceptAnything" }]
         }
     }

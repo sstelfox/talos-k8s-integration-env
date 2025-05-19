@@ -7,7 +7,7 @@ source ./scripts/cfg/talos.sh.inc
 source ./scripts/lib/manifests.sh.inc
 source ./scripts/lib/services.sh.inc
 
-INCLUDE_TEST_IMAGES=true
+INCLUDE_DIAG_IMAGES=true
 
 MANIFEST_CONTAINER_NAME="talos-manifest-server"
 REGISTRY_CONTAINER_NAME="talos-airgap-registry"
@@ -121,11 +121,14 @@ add_image_to_list quay.io/cephcsi/cephcsi:v3.12.2
 #add_image_to_list docker.io/library/nginx:alpine
 #add_image_to_list docker.io/library/registry:2
 
-#if [ "${INCLUDE_TEST_IMAGES}" = "true" ]; then
-#  add_image_to_list quay.io/cilium/alpine-curl:v1.7.0
-#  add_image_to_list quay.io/cilium/json-mock:v1.3.5
-#  add_image_to_list quay.io/cilium/network-perf:a816f935930cb2b40ba43230643da4d5751a5711@sha256:679d3a370c696f63884da4557a4466f3b5569b4719bb4f86e8aac02fbe390eea
-#fi
+if [ "${INCLUDE_DIAG_IMAGES}" = "true" ]; then
+  # Used by kubectl debug
+  add_image_to_list docker.io/library/busybox:latest
+
+  #add_image_to_list quay.io/cilium/alpine-curl:v1.7.0
+  #add_image_to_list quay.io/cilium/json-mock:v1.3.5
+  #add_image_to_list quay.io/cilium/network-perf:a816f935930cb2b40ba43230643da4d5751a5711@sha256:679d3a370c696f63884da4557a4466f3b5569b4719bb4f86e8aac02fbe390eea
+fi
 
 launch_airgap_cache_registry
 populate_airgap_cache
