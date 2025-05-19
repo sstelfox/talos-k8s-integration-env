@@ -4,6 +4,27 @@ cephClusterSpec:
   dashboard:
     enabled: false
 
+  mgr:
+    modules:
+      # monitors physical device health and attempts to predict if any storage devices are nearing
+      # a failure condition. These health metrics are only collected if health monitoring is
+      # enabled on devices. This can be enabled with `ceph device monitoring on`. You can list
+      # specific devices with `ceph device ls` and check the life expectency with
+      # `ceph device predict-life-expectancy <devid>`. Checking all device health when monitoring
+      # is on can be done with `ceph device check-health`.
+      #- name: diskprediction_local
+      #  enabled: true
+
+      # tracks and monitors health and crash reports in the cluster over the past 24 hours. Periodic
+      # reports can be accessed using `ceph insights` but may need to be pruned with
+      # `ceph insights prune-health <hours>` periodacally.
+      #- name: insight
+      #  enabled: true
+
+      # allow viewing the current throughput and IOPS active in the cluster with `ceph iostat`
+      #- name: iostat
+      #  enabled: true
+
   network:
     connections:
       # This is probably not ncessary for us since we're encrypting all the cluster traffic. By
@@ -42,11 +63,30 @@ cephClusterSpec:
     # Our physical server is going to have disks attached to them that we'll want to participate in
     # this cluster as well. We can prioritize those OSDs for control-plane services requiring
     # persistent storage to improve data locality.
-    #all:
-    #  tolerations:
-    #  - key: node-role.kubernetes.io/control-plane
-    #    effect: NoSchedule
-    #    operator: Exists
+    all:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+        operator: Exists
+
+    # These aren't technically needed as there aren't disks in the integration cluster that would
+    # get picked up by the osd-prepare job but let's be explicit about it. For the physical cluster
+    # we'll want these running on the control place as well.
+    osd:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: DoesNotExist
+    osdprepare:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: DoesNotExist
+
 
   # Crashes may contain sensitive information and should be disabled unless necessary in all
   # production environments. Use of this should be limited to staging and test environments unless
