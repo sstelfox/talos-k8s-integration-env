@@ -50,8 +50,14 @@ VAULT_CN="vault.vault.svc.${CLUSTER_DOMAIN}"
 # With vault up we can start configuring it, I may want to switch this to something like terraform
 # but this is sufficient for now. Very short intervals here to battle test rotation procedures.
 
+# We start with the basic key/value service that will be used for general secret storage. We want
+# to avoid kubernetes secrets as they don't provide nearly as detailed audit and authorization
+# mechanisms.
+vault_func 0 secrets enable -version=2 -path=kv kv &>/dev/null
+
 # Enable and configure the PKI engine for the root
 vault_func 0 secrets enable -path=pki_root pki &>/dev/null
+
 # todo(sstelfox): need to configure some pretty heavy policy restrictions
 # todo(sstelfox): maybe set max_path_length? permitted_ip_ranges (probably relevant to intermediate)?
 # Ref: https://developer.hashicorp.com/vault/api-docs/secret/pki
