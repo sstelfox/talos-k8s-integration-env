@@ -75,9 +75,7 @@ cephClusterSpec:
       # The following is only for disks smaller than 100GiB which is the case here for our
       # integration cluster.
       databaseSizeMB: "1024"
-
-      # todo(sstelfox): this must have a key setup required ...
-      #encryptedDevice: "true"
+      encryptedDevice: "true"
 
 cephBlockPools:
   # This block pool is for semi-persistent services where the loss of data wouldn't be a

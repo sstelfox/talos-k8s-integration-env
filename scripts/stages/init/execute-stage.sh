@@ -63,12 +63,15 @@ kubectl wait --for=jsonpath='{.status.phase}'=Ready cephclusters.ceph.rook.io/ro
 # We then need to wait for all the OSDs to prepare the disks and prep them for use.
 # todo(sstelfox): kubectl wait for the osd status
 
-# Uncomment this to see the various ceph cluster properties
-kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
-kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph health detail
-# The following shows available storage
+# Ceph health status monitoring
+#kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
+#kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph health detail
+
+# Storage inspection (whole cluster and per OSD)
 kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph df
 #kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd df
+
+# Inspect more details about the cluster's hierarchy
 kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd tree
 #kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd pool ls detail
 
