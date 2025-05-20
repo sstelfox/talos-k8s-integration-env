@@ -88,7 +88,7 @@ cd "${REPO_ROOT_DIR}"
 echo "creating subtree in ${LOCAL_PATH}..." >&2
 
 git checkout -
-git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH_CLEAN}"
+git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH}"
 git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 
 echo >&2
