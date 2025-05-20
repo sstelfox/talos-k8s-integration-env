@@ -107,6 +107,9 @@ add_image_to_list ghcr.io/siderolabs/talos:${TALOS_VERSION}
 # The installer image used by the cilium install job, doesn't seem to have version tags unfortunately..
 add_image_to_list quay.io/cilium/cilium-cli-ci:latest
 
+# local static provisioner
+add_image_to_list registry.k8s.io/sig-storage/local-volume-provisioner:v2.7.0
+
 # The runtime cilium container versions
 add_image_to_list quay.io/cilium/cilium:${CILIUM_VERSION}
 add_image_to_list quay.io/cilium/operator-generic:${CILIUM_VERSION}
