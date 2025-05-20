@@ -51,9 +51,6 @@ if [ "${CHART_EXISTS}" = "true" ]; then
   exit 1
 fi
 
-# Ensure we're clean
-git checkout -
-
 echo "adding chart '${NAME}' to config" >&2
 
 # Ensure charts key exists
@@ -83,12 +80,14 @@ git checkout -B "${TRACKING_BRANCH}" FETCH_HEAD
 
 if ! git ls-tree -d "${TRACKING_BRANCH}:${UPSTREAM_PATH}" &>/dev/null; then
   echo "error: upstream path '${UPSTREAM_PATH}' not found in repository." >&2
+  git checkout -
   exit 1
 fi
 
 cd "${REPO_ROOT_DIR}"
 echo "creating subtree in ${LOCAL_PATH}..." >&2
 
+git checkout -
 git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH_CLEAN}"
 git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 
