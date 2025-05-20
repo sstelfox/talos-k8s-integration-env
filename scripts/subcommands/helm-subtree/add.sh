@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+# Create a temporary file and set up a trap for cleanup
 TMP_FILE=$(mktemp)
 trap 'rm -f "${TMP_FILE}"' EXIT INT TERM
 
@@ -31,20 +32,34 @@ UPSTREAM_PATH="$4"
 LOCAL_PATH="$5"
 TRACKING_BRANCH="vendored-$NAME-history"
 
+# Remove the trailing slash from UPSTREAM_PATH if it exists
+UPSTREAM_PATH="${UPSTREAM_PATH%/}"
+
+# Don't clobber existing paths
+if [ -d "${LOCAL_PATH}" ]; then
+  echo "local path already exists" >&2
+fi
+
+# Create config file if it doesn't exist
 if [ ! -f "${CONFIG_FILE}" ]; then
   echo "charts: {}" >"${CONFIG_FILE}"
 fi
 
 CHART_EXISTS=$(yq -y ".charts.\"${NAME}\" | length > 0" "${CONFIG_FILE}" 2>/dev/null || echo "false")
 if [ "${CHART_EXISTS}" = "true" ]; then
-  echo "error: Chart '${NAME}' already exists in config." >&2
+  echo "error: chart '${NAME}' already exists in config." >&2
   exit 1
 fi
 
+# Ensure we're clean
+git checkout -
+
 echo "adding chart '${NAME}' to config" >&2
 
+# Ensure charts key exists
 yq -y ".charts |= (. // {})" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 
+# Add chart properties
 yq -y ".charts.\"${NAME}\".path = \"${LOCAL_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 yq -y ".charts.\"${NAME}\".upstream_repo = \"${UPSTREAM_REPO}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 yq -y ".charts.\"${NAME}\".upstream_path = \"${UPSTREAM_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
@@ -64,19 +79,18 @@ git fetch "${REMOTE_NAME}" "${REF}"
 
 echo "setting up tracking branch..." >&2
 # Handle both tags and branches by using FETCH_HEAD
-git checkout -b "${TRACKING_BRANCH}" FETCH_HEAD
+git checkout -B "${TRACKING_BRANCH}" FETCH_HEAD
+
+if ! git ls-tree -d "${TRACKING_BRANCH}:${UPSTREAM_PATH}" &>/dev/null; then
+  echo "error: upstream path '${UPSTREAM_PATH}' not found in repository." >&2
+  exit 1
+fi
 
 cd "${REPO_ROOT_DIR}"
 echo "creating subtree in ${LOCAL_PATH}..." >&2
 
-git checkout -
-if [ ! -d "${LOCAL_PATH}" ]; then
-  git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH}"
-  git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
-else
-  git subtree merge --prefix="${LOCAL_PATH}" "${TRACKING_BRANCH}" --squash -m "update vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
-fi
+git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH_CLEAN}"
+git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 
 echo >&2
 echo "successfully added chart '${NAME}'" >&2
-echo "to update this chart in the future, run: ${0} update ${NAME}" >&2
