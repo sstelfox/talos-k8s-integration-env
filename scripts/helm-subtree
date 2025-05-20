@@ -25,21 +25,21 @@ list)
   "${SCRIPT_DIR}/list.sh" "$@"
   ;;
 *)
-  echo "Helm Subtree Manager"
-  echo "Usage: ${0} <command> [options]"
-  echo
-  echo "Commands:"
-  echo "  add <name> <upstream_repo> <ref> <upstream_path> [local_path]"
-  echo "      Add a new chart to the configuration"
-  echo "  update <name> [new_ref]"
-  echo "      Update a chart from upstream"
-  echo "  push [remote]"
-  echo "      Push all tracking branches to remote (default: origin)"
-  echo "  pull [remote]"
-  echo "      Pull all tracking branches from remote (default: origin)"
-  echo "  list"
-  echo "      List all configured charts"
-  echo
+  echo "Helm Subtree Manager" >&2
+  echo "Usage: ${0} <command> [options]" >&2
+  echo >&2
+  echo "Commands:" >&2
+  echo "  add <name> <upstream_repo> <ref> <upstream_path> [local_path]" >&2
+  echo "      Add a new chart to the configuration" >&2
+  echo "  update <name> [new_ref]" >&2
+  echo "      Update a chart from upstream" >&2
+  echo "  push [remote]" >&2
+  echo "      Push all tracking branches to remote (default: origin)" >&2
+  echo "  pull [remote]" >&2
+  echo "      Pull all tracking branches from remote (default: origin)" >&2
+  echo "  list" >&2
+  echo "      List all configured charts" >&2
+  echo >&2
   exit 1
   ;;
 esac

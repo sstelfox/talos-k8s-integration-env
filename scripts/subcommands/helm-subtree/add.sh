@@ -1,27 +1,26 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
 
-# Constants
-CONFIG_FILE=".helm-subtree/config.yaml"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+set -euo pipefail
 
-# Check for yq
+TMP_FILE=$(mktemp)
+trap 'rm -f "${TMP_FILE}"' EXIT INT TERM
+
+REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
+CONFIG_FILE="${REPO_ROOT_DIR}/.helm-subtree.yaml"
+
 if ! command -v yq &>/dev/null; then
-  echo "Error: yq is required but not installed."
-  echo "Install with: brew install yq or go install github.com/mikefarah/yq/v4@latest"
+  echo "error: yq is required but not installed." >&2
   exit 1
 fi
 
-# Parse arguments
-if [ "$#" -lt 4 ]; then
-  echo "Usage: $0 <name> <upstream_repo> <ref> <upstream_path> [local_path]"
-  echo
-  echo "  name          - A unique name for this chart"
-  echo "  upstream_repo - URL of the git repository containing the chart"
-  echo "  ref           - Git reference (branch, tag, commit) to use"
-  echo "  upstream_path - Path to the chart within the upstream repo"
-  echo "  local_path    - Local path where the chart should be vendored (optional, defaults to charts/vendored/<name>)"
+if [ "$#" -lt 5 ]; then
+  echo "Usage: $0 <name> <upstream_repo> <ref> <upstream_path> [local_path]" >&2
+  echo >&2
+  echo "  name          - A unique name for this chart" >&2
+  echo "  upstream_repo - URL of the git repository containing the chart" >&2
+  echo "  ref           - Git reference (branch, tag, commit) to use" >&2
+  echo "  upstream_path - Path to the chart within the upstream repo" >&2
+  echo "  local_path    - Local path where the chart should be vendored (optional, defaults to charts/vendored/<name>)" >&2
   exit 1
 fi
 
@@ -29,55 +28,55 @@ NAME="$1"
 UPSTREAM_REPO="$2"
 REF="$3"
 UPSTREAM_PATH="$4"
-LOCAL_PATH="${5:-charts/vendored/$NAME}"
+LOCAL_PATH="$5"
 TRACKING_BRANCH="vendored-$NAME-history"
 
-# Check if name already exists in config
-if yq e ".charts.$NAME" "$CONFIG_FILE" &>/dev/null && [ "$(yq e ".charts.$NAME" "$CONFIG_FILE")" != "null" ]; then
-  echo "Error: Chart '$NAME' already exists in config."
+if [ ! -f "${CONFIG_FILE}" ]; then
+  echo "charts: {}" >"${CONFIG_FILE}"
+fi
+
+CHART_EXISTS=$(yq -y ".charts.\"${NAME}\" | length > 0" "${CONFIG_FILE}" 2>/dev/null || echo "false")
+if [ "${CHART_EXISTS}" = "true" ]; then
+  echo "error: Chart '${NAME}' already exists in config." >&2
   exit 1
 fi
 
-# Add to config file
-echo "Adding chart '$NAME' to config..."
-yq e ".charts.$NAME.path = \"$LOCAL_PATH\"" -i "$CONFIG_FILE"
-yq e ".charts.$NAME.upstream_repo = \"$UPSTREAM_REPO\"" -i "$CONFIG_FILE"
-yq e ".charts.$NAME.upstream_path = \"$UPSTREAM_PATH\"" -i "$CONFIG_FILE"
-yq e ".charts.$NAME.ref = \"$REF\"" -i "$CONFIG_FILE"
-yq e ".charts.$NAME.tracking_branch = \"$TRACKING_BRANCH\"" -i "$CONFIG_FILE"
+echo "adding chart '${NAME}' to config" >&2
 
-echo "Configuration updated."
+yq -y ".charts |= (. // {})" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 
-# Make sure directory exists
-mkdir -p "$(dirname "$LOCAL_PATH")"
+yq -y ".charts.\"${NAME}\".path = \"${LOCAL_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".upstream_repo = \"${UPSTREAM_REPO}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".upstream_path = \"${UPSTREAM_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".ref = \"${REF}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".tracking_branch = \"${TRACKING_BRANCH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 
-# Set up the remote and fetch
-REMOTE_NAME="upstream-$NAME"
-if ! git remote | grep -q "$REMOTE_NAME"; then
-  echo "Adding remote '$REMOTE_NAME'..."
-  git remote add "$REMOTE_NAME" "$UPSTREAM_REPO"
+mkdir -p "$(dirname "${LOCAL_PATH}")"
+
+REMOTE_NAME="upstream-${NAME}"
+if ! git remote | grep -q "${REMOTE_NAME}"; then
+  echo "adding remote '${REMOTE_NAME}'..." >&2
+  git remote add "${REMOTE_NAME}" "${UPSTREAM_REPO}"
 fi
 
-echo "Fetching from upstream..."
-git fetch "$REMOTE_NAME" "$REF"
+echo "fetching from upstream..." >&2
+git fetch "${REMOTE_NAME}" "${REF}"
 
-# Checkout the specified ref
-echo "Setting up tracking branch..."
-git checkout -b "$TRACKING_BRANCH" "$REMOTE_NAME/$REF"
+echo "setting up tracking branch..." >&2
+# Handle both tags and branches by using FETCH_HEAD
+git checkout -b "${TRACKING_BRANCH}" FETCH_HEAD
 
-# Initialize the subtree
-cd "$ROOT_DIR"
-echo "Creating subtree in $LOCAL_PATH..."
+cd "${REPO_ROOT_DIR}"
+echo "creating subtree in ${LOCAL_PATH}..." >&2
+
 git checkout -
-if [ ! -d "$LOCAL_PATH" ]; then
-  # First time - do read-tree
-  git read-tree --prefix="$LOCAL_PATH" -u "$TRACKING_BRANCH:$UPSTREAM_PATH"
-  git commit -m "Add vendored chart '$NAME' from $UPSTREAM_REPO at $REF"
+if [ ! -d "${LOCAL_PATH}" ]; then
+  git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH}"
+  git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 else
-  # Directory exists - use subtree merge
-  git subtree merge --prefix="$LOCAL_PATH" "$TRACKING_BRANCH" --squash -m "Update vendored chart '$NAME' from $UPSTREAM_REPO at $REF"
+  git subtree merge --prefix="${LOCAL_PATH}" "${TRACKING_BRANCH}" --squash -m "update vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 fi
 
-echo
-echo "Successfully added chart '$NAME'"
-echo "To update this chart in the future, run: ./helm-subtree update $NAME"
+echo >&2
+echo "successfully added chart '${NAME}'" >&2
+echo "to update this chart in the future, run: ${0} update ${NAME}" >&2

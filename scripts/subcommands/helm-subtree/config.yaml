@@ -1,9 +1,0 @@
-# Helm Subtree Manager Configuration
-charts:
-  # Example entry (commented out)
-  #nginx:
-  #  path: charts/vendored/nginx
-  #  upstream_repo: https://github.com/bitnami/charts.git
-  #  upstream_path: bitnami/nginx
-  #  ref: master
-  #  tracking_branch: vendored-nginx-history
