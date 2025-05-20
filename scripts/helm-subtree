@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+REPO_ROOT_DIR="$(git rev-parse --show-toplevel)"
+SCRIPT_DIR="${REPO_ROOT_DIR}/scripts/subcommands/helm-subtree"
+
+COMMAND="${1}"
+shift
+
+case "${COMMAND}" in
+add)
+  "${SCRIPT_DIR}/add.sh" "$@"
+  ;;
+update)
+  "${SCRIPT_DIR}/update.sh" "$@"
+  ;;
+push)
+  "${SCRIPT_DIR}/push.sh" "$@"
+  ;;
+pull)
+  "${SCRIPT_DIR}/pull.sh" "$@"
+  ;;
+list)
+  "${SCRIPT_DIR}/list.sh" "$@"
+  ;;
+*)
+  echo "Helm Subtree Manager"
+  echo "Usage: ${0} <command> [options]"
+  echo
+  echo "Commands:"
+  echo "  add <name> <upstream_repo> <ref> <upstream_path> [local_path]"
+  echo "      Add a new chart to the configuration"
+  echo "  update <name> [new_ref]"
+  echo "      Update a chart from upstream"
+  echo "  push [remote]"
+  echo "      Push all tracking branches to remote (default: origin)"
+  echo "  pull [remote]"
+  echo "      Pull all tracking branches from remote (default: origin)"
+  echo "  list"
+  echo "      List all configured charts"
+  echo
+  exit 1
+  ;;
+esac
