@@ -87,8 +87,7 @@ echo "creating subtree in ${LOCAL_PATH}..." >&2
 
 git checkout -
 mkdir -p "${LOCAL_PATH}"
-#git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH}"
-git archive "${TRACKING_BRANCH}" "${UPSTREAM_PATH}" | tar -x -C "${LOCAL_PATH}" --strip-components=$(echo "${UPSTREAM_PATH}" | tr -cd '/' | wc -c)
+git archive "${TRACKING_BRANCH}" "${UPSTREAM_PATH}" | tar -x -C "${LOCAL_PATH}" --strip-components=$(echo "${UPSTREAM_PATH%/}" | grep -o '/' | wc -l)
 #git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 
 echo >&2
