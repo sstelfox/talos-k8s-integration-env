@@ -63,8 +63,6 @@ yq -y ".charts.\"${NAME}\".upstream_path = \"${UPSTREAM_PATH}\"" "${CONFIG_FILE}
 yq -y ".charts.\"${NAME}\".ref = \"${REF}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 yq -y ".charts.\"${NAME}\".tracking_branch = \"${TRACKING_BRANCH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 
-mkdir -p "$(dirname "${LOCAL_PATH}")"
-
 REMOTE_NAME="upstream-${NAME}"
 if ! git remote | grep -q "${REMOTE_NAME}"; then
   echo "adding remote '${REMOTE_NAME}'..." >&2
@@ -88,6 +86,7 @@ cd "${REPO_ROOT_DIR}"
 echo "creating subtree in ${LOCAL_PATH}..." >&2
 
 git checkout -
+mkdir -p "${LOCAL_PATH}"
 git read-tree --prefix="${LOCAL_PATH}" -u "${TRACKING_BRANCH}:${UPSTREAM_PATH}"
 #git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 
