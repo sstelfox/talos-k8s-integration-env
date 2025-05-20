@@ -15,8 +15,10 @@ source "${REPO_ROOT_DIR}/scripts/lib/vault.sh.inc"
 # "Ready" as there is a readiness check that will only succeed after the vault has been both
 # initialized and unsealed.
 echo "waiting for vault containers to be created..." >&2
-kubectl -n vault wait --for=jsonpath='{.status.phase}'=Running --all pods \
-  -l app.kubernetes.io/name=vault --timeout=60s &>/dev/null
+if ! kubectl -n vault wait --for=jsonpath='{.status.phase}'=Running --all pods -l app.kubernetes.io/name=vault --timeout=90s &>/dev/null; then
+  echo "timed out waiting for vault containers to reach running status" >&2
+  exit 1
+fi
 
 echo "pod ready beginning vault initialization" 2>&1
 

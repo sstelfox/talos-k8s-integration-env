@@ -15,12 +15,14 @@ source "${REPO_ROOT_DIR}/scripts/lib/vault.sh.inc"
 VAULT_ROOT_KEY="$(get_vault_root_key)"
 VAULT_CN="vault.vault.svc.${CLUSTER_DOMAIN}"
 
-## Basic Kubernetes Authentication
+## Basic Kubernetes Authentication Setup
 
 vault_func 0 auth enable kubernetes &>/dev/null
 
-# todo(sstelfox): need to configure this, will have to use existing node CA until I rotate the
-# cluster's certs then I'll have to reconfigure this.
+# todo(sstelfox): configuration currently untested:
+#vault_func 0 write auth/kubernetes/config \
+#  kubernetes_host="https://kubernetes.default.svc" \
+#  disable_local_ca_jwt="true"
 
 ## Kubernetes Cluster CA
 

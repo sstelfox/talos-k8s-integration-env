@@ -104,11 +104,17 @@ cephClusterSpec:
   # https://github.com/rook/rook/blob/master/deploy/charts/rook-ceph-cluster/values.yaml
   resources:
     mgr:
-      requests: {}
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
     mon:
-      requests: {}
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
     osd:
-      requests: {}
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
 
   storage:
     config:
@@ -185,3 +191,8 @@ cephECBlockPools:
       reclaimPolicy: Delete
       allowVolumeExpansion: true
       volumeBindingMode: "Immediate"
+
+# We don't use either of these storage mechanisms. I'm unsure if this also disables the relevant
+# deployments.
+cephFileSystems: []
+cephObjectStores: []
