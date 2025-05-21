@@ -143,13 +143,13 @@ manifest_sanity_check() {
   # policies that would otherwise fail our checks.
   yq -y 'select(.kind == "PolicyException" or .kind == "ClusterPolicyException")' "${rendered_file}" > "${file_base}-policy-exceptions.yaml"
 
-  # During the init phase the Kyverno CRDs aren't installed so we can't include the exceptions
-  # directly and still apply them to the cluster. To work around this only for the init phase we'll
-  # look for and append additional init-specific exceptions.
+  # During the bring-up and init phases the Kyverno CRDs aren't installed so we can't include the
+  # exceptions directly and still apply them to the cluster. For these phases we'll look for and
+  # append additional init-specific exceptions.
   case "$manifest_id" in
-    */init)
+    */bring-up|*/init)
       if [ -f "./manifests/${manifest_id}/kyverno-policy-exceptions.yaml" ]; then
-        echo "including init specific policy exceptions" >&2
+        echo "including early stage specific policy exceptions" >&2
         cat "./manifests/${manifest_id}/kyverno-policy-exceptions.yaml" >> "${file_base}-policy-exceptions.yaml"
       fi
       ;;

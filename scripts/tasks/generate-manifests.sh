@@ -21,7 +21,7 @@ source ./scripts/lib/manifests.sh.inc
 # separately when it was last reviewed. Exceptions must be reviewed quarterly.
 
 # Required during initial cluster node bring up
-manifest_render cilium/init
+manifest_render cilium/bring-up
 
 ## Begin cluster initialization
 ##
@@ -32,8 +32,9 @@ manifest_render cilium/init
 ##
 ## Does not include authentication or authorization mechanisms
 
+# Transitioning from the path provisioner to the static provisioner for the initial vault storage
 manifest_render local-path-provisioner/init
-#manifest_render local-static-provisioner/init
+manifest_render local-static-provisioner/init
 
 manifest_render vault/init
 # Manual process lives here requiring this to have its own micro-stage

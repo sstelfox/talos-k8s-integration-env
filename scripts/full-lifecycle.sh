@@ -27,9 +27,10 @@ esac
 # Start a webserver for basic file serving and an image repository
 ./scripts/run-support-service-containers.sh
 
-# Before creating the cluster, we need to ensure that our networking config is fully up to date.
-manifest_render cilium/init
-cp -f ./_out/manifests/cilium-init.yaml ./_out/public/cilium-init.yaml
+# Before creating the cluster, we need to ensure that our bring-up networking config is fully up to
+# date.
+manifest_render cilium/bring-up
+cp -f ./_out/manifests/cilium-bring-up.yaml ./_out/public/cilium-bring-up.yaml
 
 # This creates our initial cluster according to the config and its own policies. This could use more
 # parameterization but is good enough for the purpose of integration testing all the components and

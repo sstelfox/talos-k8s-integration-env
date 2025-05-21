@@ -79,4 +79,4 @@ cluster:
                 command:
                   - /bin/sh
                   - -c
-                  - kubectl apply --server-side=true -f http://10.5.0.1:6100/cilium-init.yaml
+                  - kubectl apply --server-side=true -f http://10.5.0.1:6100/cilium-bring-up.yaml

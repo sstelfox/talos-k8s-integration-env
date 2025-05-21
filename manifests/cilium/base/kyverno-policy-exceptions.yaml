@@ -2,35 +2,6 @@
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
-  name: cilium-hubble-certificate-job-capabilities-exception
-  namespace: kube-system
-  annotations:
-    description: >-
-      The hubble certificate job likely doesn't need these permissions, we could patch the resource
-      or fix it upstream but this mechanism being used for certificate generation shouldn't be
-      necessary as there are alternatives we intend to use.
-
-      TODO(high): This exception MUST be removed before the cluster enters production.
-spec:
-  match:
-    all:
-    - resources:
-        namespaces:
-          - kube-system
-        kinds:
-          - CronJob
-          - Job
-        names:
-          - hubble-generate-certs
-  exceptions:
-  - policyName: disallow-capabilities-strict
-    ruleNames:
-      - autogen-require-drop-all
-      - autogen-cronjob-require-drop-all
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
   name: cilium-core-capabilities-exception
   namespace: kube-system
   annotations:
