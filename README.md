@@ -7,27 +7,27 @@ configurations, workflows, and considerations may be useful to others.
 
 The services currently present in the repo, but may not be fully configured are:
 
-* Kyverno
+* ArgoCD
+* Cert-Manager
 * Cilium
+* Kyverno
 * Rook/Ceph
 * Vault
-* Cert-Manager
-* ArgoCD
-* Falco
-* Loki
-* Promtail
-* Tempo
-* Grafana
 
 Outstanding services that I intend to stand-up but haven't yet:
 
-* Forgejo
 * Dependency Track
-* Postgres (likely using an operator)
-* Valkey/Redis/Redis-Clusters (likely using an operator)
+* Falco
+* Forgejo
 * Keycloak?
+* Loki
+* Grafana
 * Plane (<https://github.com/makeplane/plane>)
+* Postgres (likely using an operator)
+* Promtail
 * SIEM? Wazah?
+* Tempo
+* Valkey/Redis/Redis-Clusters (likely using an operator)
 
 ## Development Dependencies
 
