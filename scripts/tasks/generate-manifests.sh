@@ -32,9 +32,8 @@ manifest_render cilium/bring-up
 ##
 ## Does not include authentication or authorization mechanisms
 
-# Transitioning from the path provisioner to the static provisioner for the initial vault storage
 manifest_render local-path-provisioner/init
-manifest_render local-static-provisioner/init
+manifest_render csi-driver-nfs/init
 
 # Manual process needs to happen halfway through vault's initial setup so this is split into two
 # sections.

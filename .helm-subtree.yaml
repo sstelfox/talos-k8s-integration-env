@@ -1,10 +1,4 @@
 charts:
-  local-static-provisioner:
-    path: ./manifests/local-static-provisioner/charts/local-static-provisioner
-    upstream_repo: https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner
-    upstream_path: helm/provisioner
-    ref: v2.8.0
-    tracking_branch: vendored-local-static-provisioner-history
   csi-driver-nfs:
     path: manifests/csi-driver-nfs/charts/csi-driver-nfs
     upstream_repo: https://github.com/kubernetes-csi/csi-driver-nfs

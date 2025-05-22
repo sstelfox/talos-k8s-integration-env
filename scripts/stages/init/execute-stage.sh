@@ -19,7 +19,7 @@ echo "entering init phase" >&2
 # replicates on its own, and ensures everything on disk is encrypted. It needs to come up before
 # any other service needs secrets.
 manifest_apply local-path-provisioner/init
-manifest_apply local-static-provisioner/init
+manifest_apply csi-driver-nfs/init
 
 # This is a pretty insecure and non-HA deployment, we'll use it to bootstrap managing itself and the
 # reset of the cluster certificates including the node certificates. We use the local path
