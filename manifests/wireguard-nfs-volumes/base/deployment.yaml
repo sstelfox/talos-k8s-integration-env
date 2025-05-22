@@ -1,0 +1,110 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-wireguard-gw
+  namespace: nfs-wireguard
+  labels:
+    app: nfs-wireguard-gw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-wireguard-gw
+  template:
+    metadata:
+      labels:
+        app: nfs-wireguard-gw
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "wireguard"
+        vault.hashicorp.com/agent-inject-secret-wg0.conf: "kv/data/wireguard/config"
+        vault.hashicorp.com/agent-inject-template-wg0.conf: |
+          {{- with secret "kv/data/wireguard/config" -}}
+          {{ .Data.data.wg0.conf }}
+          {{- end -}}
+    spec:
+      serviceAccountName: nfs-wireguard-gw
+      containers:
+      - name: nfs-wireguard-gw
+        image: masipcat/wireguard-go:latest
+        ports:
+        - containerPort: 2049
+          protocol: TCP
+          name: nfs-tcp
+        - containerPort: 2049
+          protocol: UDP
+          name: nfs-udp
+        - containerPort: 111
+          protocol: TCP
+          name: rpcbind-tcp
+        - containerPort: 111
+          protocol: UDP
+          name: rpcbind-udp
+        env:
+        - name: WG_USERSPACE
+          value: "true"
+        command:
+        - sh
+        - -c
+        - |
+          # Wait for Vault agent to populate the config
+          while [ ! -f /vault/secrets/wg0.conf ]; do
+            echo "Waiting for Vault secret..."
+            sleep 2
+          done
+
+          # Start WireGuard in userspace mode
+          echo "Starting WireGuard userspace..."
+          wireguard-go wg0 &
+          WG_PID=$!
+
+          # Configure the interface
+          sleep 2
+          wg setconf wg0 /vault/secrets/wg0.conf
+
+          # Get interface IP from config
+          INTERFACE_IP=$(grep "Address" /vault/secrets/wg0.conf | awk '{print $3}' | cut -d'/' -f1)
+          ip addr add $INTERFACE_IP/24 dev wg0
+          ip link set wg0 up
+
+          # Set up routing (userspace)
+          REMOTE_CIDR=$(grep "AllowedIPs" /vault/secrets/wg0.conf | awk '{print $3}')
+          ip route add $REMOTE_CIDR dev wg0
+
+          # Start port forwarding for NFS
+          echo "Starting NFS port forwarding..."
+
+          # Get the first IP from the remote CIDR for NFS server
+          NFS_SERVER_IP=$(echo $REMOTE_CIDR | cut -d'/' -f1)
+
+          # NFS port forwarding (TCP and UDP)
+          socat TCP-LISTEN:2049,fork,reuseaddr TCP:$NFS_SERVER_IP:2049 &
+          socat UDP-LISTEN:2049,fork,reuseaddr UDP:$NFS_SERVER_IP:2049 &
+
+          # RPC portmapper
+          socat TCP-LISTEN:111,fork,reuseaddr TCP:$NFS_SERVER_IP:111 &
+          socat UDP-LISTEN:111,fork,reuseaddr UDP:$NFS_SERVER_IP:111 &
+
+          echo "NFS gateway ready - forwarding to $NFS_SERVER_IP"
+
+          # Wait for WireGuard process
+          wait $WG_PID
+        volumeMounts:
+        - name: vault-secrets
+          mountPath: /vault/secrets
+          readOnly: true
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: vault-secrets
+        emptyDir:
+          medium: Memory

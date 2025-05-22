@@ -71,3 +71,11 @@ kubectl wait --for=condition=Ready pods -l app=rook-ceph-osd -n rook-ceph --all 
   --timeout=10m &>/dev/null
 
 echo "ceph storage is ready" >&2
+
+# We don't always want to run this
+
+# Lastly there is an external NFS server available over NFS we want to expose to our containers. We
+# mind as well set this up now.
+#${STAGE_DIRECTORY}/setup-nfs-wireguard-config.sh
+
+#manifest_apply wireguard-nfs-volumes/init
