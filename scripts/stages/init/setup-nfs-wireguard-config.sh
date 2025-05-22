@@ -21,12 +21,12 @@ else
   WG_PRIVATE_KEY="$(wg genkey | tee "${SECRETS_DIR}/nfs-wireguard.key")"
 fi
 
-WG_PUBLIC_KEY="$(echo "${PRIVATE_KEY}" | wg pubkey | tee "${SECRETS_DIR}/nfs-wireguard.pub")"
+WG_PUBLIC_KEY="$(echo "${WG_PRIVATE_KEY}" | wg pubkey | tee "${SECRETS_DIR}/nfs-wireguard.pub")"
 
 if [ -f "${SECRETS_DIR}/nfs-wireguard.secret" ]; then
-  WG_SHARED_KEY="$(cat "${SECRETS_DIR}/nfs-wireguard.secret)"
+  WG_SHARED_KEY="$(cat "${SECRETS_DIR}/nfs-wireguard.secret")"
 else
-  WG_SHARED_KEY="$(wg genpsk | tee "${SECRETS_DIR}/nfs-wireguard.secret)"
+  WG_SHARED_KEY="$(wg genpsk | tee "${SECRETS_DIR}/nfs-wireguard.secret")"
 fi
 
 WG_CONFIG="[Interface]
@@ -40,7 +40,7 @@ Endpoint = ${REMOTE_ENDPOINT}
 AllowedIPs = ${ALLOWED_WG_IPS}
 PersistentKeepalive = 25"
 
-vault kv put kv/wireguard/config wg0.conf="$WG_CONFIG"
+vault_func 0 kv put kv/wireguard/config wg0.conf="${WG_CONFIG}"
 
 cat <<EOF | vault_func 0 policy write wireguard-policy -
 path "kv/data/wireguard/config" {

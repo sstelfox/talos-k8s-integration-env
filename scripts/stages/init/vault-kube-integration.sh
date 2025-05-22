@@ -20,9 +20,9 @@ VAULT_CN="vault.vault.svc.${CLUSTER_DOMAIN}"
 vault_func 0 auth enable kubernetes &>/dev/null
 
 # todo(sstelfox): configuration currently untested:
-#vault_func 0 write auth/kubernetes/config \
-#  kubernetes_host="https://kubernetes.default.svc" \
-#  disable_local_ca_jwt="true"
+vault_func 0 write auth/kubernetes/config \
+  kubernetes_host="https://kubernetes.default.svc" \
+  disable_local_ca_jwt="true"
 
 ## Kubernetes Cluster CA
 
