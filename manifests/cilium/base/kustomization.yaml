@@ -19,4 +19,4 @@ helmCharts:
     valuesFile: cilium-values.yaml
 
 resources:
-  #- kyverno-policy-exceptions.yaml
+  - kyverno-policy-exceptions.yaml

@@ -14,18 +14,21 @@ source "${REPO_ROOT_DIR}/scripts/lib/manifests.sh.inc"
 
 STAGE_DIRECTORY="${REPO_ROOT_DIR}/scripts/stages/bootstrap"
 
-exit 1
+echo "entering bootstrap phase" >&2
 
-# Our first step is get our CNI setup in a better shape, ensure all inter-service traffic is
-# encrypted. This is also where we'll start enforcing networking policies so everything in the init
-# stage should have network policies already defined.
+# We want to start this stage off getting kyverno into the cluster so we can stop omitting the
+# policies and policy exceptions from our manifests. It's also good to ensure policy enforcement as
+# soon as possible so non-compliant resources can't sneak in without notice.
+manifest_apply kyverno/bootstrap
+
+# Next we'll get our CNI setup in a better shape, ensure all inter-service traffic is encrypted.
+# This is also where we'll start enforcing networking policies so everything before this manifest
+# should have network policies already defined.
 #manifest_apply cilium/bootstrap
 
-# Everything added to the cluster needs to have these policies enforced on them. The earlier things
-# get kicked out for being out of spec the faster I can fix them.
-#manifest_apply kyverno/bootstrap
-
-# We also want to start monitoring for security related events coming from the kubernetes audit logs
+# We don't have our logging and observability stack up to really make use of these audit logs, but
+# it will begin capturing them. We want to ensure our security enforcement and monitoring
+# mechanisms are avilable before we hand off the cluster to argocd.
 #manifest_apply falco/bootstrap
 
 #manifest_apply argocd/bootstrap

@@ -145,9 +145,15 @@ manifest_sanity_check() {
 
   # During the bring-up and init phases the Kyverno CRDs aren't installed so we can't include the
   # exceptions directly and still apply them to the cluster. For these phases we'll look for and
-  # append additional init-specific exceptions.
+  # append additional phase specific exceptions to any that are included in the base manifest.
   case "$manifest_id" in
-    */bring-up|*/init)
+    */bring-up*|*/init*)
+      local manifest_root="${manifest_id%/*}"
+      if [ -f "./manifests/${manifest_root}/base/kyverno-policy-exceptions.yaml" ]; then
+        echo "including base policy exceptions" >&2
+        cat "./manifests/${manifest_root}/base/kyverno-policy-exceptions.yaml" >> "${file_base}-policy-exceptions.yaml"
+      fi
+
       if [ -f "./manifests/${manifest_id}/kyverno-policy-exceptions.yaml" ]; then
         echo "including early stage specific policy exceptions" >&2
         cat "./manifests/${manifest_id}/kyverno-policy-exceptions.yaml" >> "${file_base}-policy-exceptions.yaml"

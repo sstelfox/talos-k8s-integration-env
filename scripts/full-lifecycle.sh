@@ -19,6 +19,7 @@ case "${TALOS_SOURCE}" in
 "github-official")
   ./scripts/source_installer/00_official_github_release.sh
   ;;
+  # todo(sstelfox): Build / customize our own image? We could use it to bootstrap the installer
 *)
   echo "unknown source location for talos base installer and images" >&2
   ;;
@@ -44,8 +45,8 @@ cp -f ./_out/manifests/cilium-bring-up.yaml ./_out/public/cilium-bring-up.yaml
 # as storag and secret handling.
 ./scripts/stages/init/execute-stage.sh
 
-# At this point we have working encrypted storage
-# This sets up ArgoCD
-# and the code forge which will take over the deployment and management of the clsuter in the next
-# stage.
+# At this point we have working encrypted storage, secure auditable secret storage, and are setup to
+# enforce strong network policies. We want to start applying our security enforcement mechanisms in
+# this stage, setup our user authentication, the code forge, and finally argocd to take over the
+# management of the cluster.
 ./scripts/stages/bootstrap/execute-stage.sh

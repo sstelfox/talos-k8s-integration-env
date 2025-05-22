@@ -36,39 +36,30 @@ manifest_render cilium/bring-up
 manifest_render local-path-provisioner/init
 manifest_render local-static-provisioner/init
 
-manifest_render vault/init
-# Manual process lives here requiring this to have its own micro-stage
-manifest_render vault/post-init
+# Manual process needs to happen halfway through vault's initial setup so this is split into two
+# sections.
+manifest_render vault/init-pre
+manifest_render vault/init-post
 
 manifest_render rook-ceph-operator/init
 manifest_render rook-ceph-cluster/init
 
 manifest_render cert-manager/init
 
-## Begin policy bootstrap
-##
-## Objective: Ensure container security policies are applied consistently everywhere and all audit
-## log sources are configured producing meaningful security logs.
-##
-## This does not include the consumer ## of logs, alerting, or actions that derive from log events.
+manifest_render cilium/init
 
+## Begin policy bootstrap
+
+#manifest_render kyverno/bootstrap
 #manifest_render cilium/bootstrap
 #manifest_render falco/bootstrap
-#manifest_render kyverno/bootstrap
-
-#manifest_render rook-ceph/bootstrap
-
-## Begin cluster management handoff
-##
-## Objective: Setup only the absolute minimal set of services required to get ArgoCD taking over
-## the management of both the cluster and the apps deployed upon it. This largely consists of the
-## code forge for hosting this repo for ArgoCD and ArgoCD itself.
 
 #manifest_render argocd/bootstrap
-#manifest_render observability/bootstrap
 
+## Post-Argo
+##
 # The remaining manifests should never be deployed manually as ArgoCD owns them. We still want to
 # be able to render them with this script as we provide some early pre-commit sanity and security
 # checks that must be passing for this repo to enter the production environment.
-#
-# Note: there currently are no cluster workloads defined in this repo
+
+#manifest_render observability/bootstrap
