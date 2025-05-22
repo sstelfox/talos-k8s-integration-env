@@ -51,18 +51,6 @@ if [ "${CHART_EXISTS}" = "true" ]; then
   exit 1
 fi
 
-echo "adding chart '${NAME}' to config" >&2
-
-# Ensure charts key exists
-yq -y ".charts |= (. // {})" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
-
-# Add chart properties
-yq -y ".charts.\"${NAME}\".path = \"${LOCAL_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
-yq -y ".charts.\"${NAME}\".upstream_repo = \"${UPSTREAM_REPO}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
-yq -y ".charts.\"${NAME}\".upstream_path = \"${UPSTREAM_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
-yq -y ".charts.\"${NAME}\".ref = \"${REF}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
-yq -y ".charts.\"${NAME}\".tracking_branch = \"${TRACKING_BRANCH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
-
 REMOTE_NAME="upstream-${NAME}"
 if ! git remote | grep -q "${REMOTE_NAME}"; then
   echo "adding remote '${REMOTE_NAME}'..." >&2
@@ -88,7 +76,20 @@ echo "creating subtree in ${LOCAL_PATH}..." >&2
 git checkout -
 mkdir -p "${LOCAL_PATH}"
 git archive "${TRACKING_BRANCH}" "${UPSTREAM_PATH}" | tar -x -C "${LOCAL_PATH}" --strip-components="$(echo "${UPSTREAM_PATH%/}" | tr '/' '\n' | wc -l)"
-git add "${LOCAL_PATH}"
+
+echo "adding chart '${NAME}' to config" >&2
+
+# Ensure charts key exists
+yq -y ".charts |= (. // {})" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+
+# Add chart properties
+yq -y ".charts.\"${NAME}\".path = \"${LOCAL_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".upstream_repo = \"${UPSTREAM_REPO}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".upstream_path = \"${UPSTREAM_PATH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".ref = \"${REF}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+yq -y ".charts.\"${NAME}\".tracking_branch = \"${TRACKING_BRANCH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
+git add "${LOCAL_PATH}" .helm-subtree.yaml
+
 git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 
 echo >&2
