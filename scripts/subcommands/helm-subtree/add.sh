@@ -90,6 +90,9 @@ yq -y ".charts.\"${NAME}\".ref = \"${REF}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && 
 yq -y ".charts.\"${NAME}\".tracking_branch = \"${TRACKING_BRANCH}\"" "${CONFIG_FILE}" >"${TMP_FILE}" && mv "${TMP_FILE}" "${CONFIG_FILE}"
 git add "${LOCAL_PATH}" .helm-subtree.yaml
 
+# This is specific to my environment, some of these upstream charts don't hold to the same
+# standards...
+export OVERRIDE_PRECOMMIT=true
 git commit -m "vendored chart '${NAME}' from ${UPSTREAM_REPO} at ${REF}"
 
 echo >&2
