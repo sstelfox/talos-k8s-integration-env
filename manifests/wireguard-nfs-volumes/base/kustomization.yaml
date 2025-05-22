@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - storage-account.yaml
+  - network-policy.yaml
   - deployment.yaml
   - service.yaml
   - bulk-storage-storage-class.yaml

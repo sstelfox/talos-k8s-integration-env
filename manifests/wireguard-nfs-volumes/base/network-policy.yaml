@@ -1,0 +1,125 @@
+---
+# Allow CSI driver access to NFS gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-csi-driver-access
+  namespace: nfs-wireguard
+spec:
+  podSelector:
+    matchLabels:
+      app: nfs-wireguard-gw
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    # Allow from CSI NFS controller pods
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+      podSelector:
+        matchLabels:
+          app: csi-nfs-controller
+    # Allow from CSI NFS node driver pods
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+      podSelector:
+        matchLabels:
+          app: csi-nfs-node
+    # Allow from any pod with the CSI driver label (more generic)
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+      podSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values: ["csi-nfs-controller", "csi-nfs-node", "csi-driver-nfs"]
+    ports:
+    - protocol: TCP
+      port: 2049
+    - protocol: UDP
+      port: 2049
+    - protocol: TCP
+      port: 111
+    - protocol: UDP
+      port: 111
+
+---
+# Allow WireGuard gateway egress for tunnel and DNS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-wireguard-egress
+  namespace: nfs-wireguard
+spec:
+  podSelector:
+    matchLabels:
+      app: nfs-wireguard-gw
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS resolution
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: coredns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow WireGuard tunnel traffic (to your remote endpoint)
+  - to: []  # Allow to any external IP
+    ports:
+    - protocol: UDP
+      port: 51820
+  # Allow access to Vault for secret retrieval
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: vault
+    ports:
+    - protocol: TCP
+      port: 8200
+
+---
+# Allow Vault agent sidecar communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-vault-agent
+  namespace: nfs-wireguard
+spec:
+  podSelector:
+    matchLabels:
+      app: nfs-wireguard-gw
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow localhost communication between containers in the same pod
+  - from:
+    - podSelector:
+        matchLabels:
+          app: nfs-wireguard-gw
+  egress:
+  # Allow communication to Vault for authentication and secret retrieval
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: vault
+    ports:
+    - protocol: TCP
+      port: 8200
