@@ -5,3 +5,9 @@ charts:
     upstream_path: helm/provisioner
     ref: v2.8.0
     tracking_branch: vendored-local-static-provisioner-history
+  csi-driver-nfs:
+    path: manifests/csi-driver-nfs/charts/csi-driver-nfs
+    upstream_repo: https://github.com/kubernetes-csi/csi-driver-nfs
+    upstream_path: charts/v4.11.0/csi-driver-nfs
+    ref: v4.11.0
+    tracking_branch: vendored-csi-driver-nfs-history
