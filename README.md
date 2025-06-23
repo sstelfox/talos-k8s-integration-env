@@ -16,10 +16,10 @@ The services currently present in the repo, but may not be fully configured are:
 
 Outstanding services that I intend to stand-up but haven't yet:
 
-* Dependency Track
 * Falco
 * Forgejo
-* Keycloak?
+* WoodpeckerCI
+* Keycloak? Authelia? Authentik?
 * Loki
 * Grafana
 * Plane (<https://github.com/makeplane/plane>)
@@ -27,6 +27,7 @@ Outstanding services that I intend to stand-up but haven't yet:
 * Promtail
 * SIEM? Wazah?
 * Tempo
+* Windmill (windmill.dev)
 * Valkey/Redis/Redis-Clusters (likely using an operator)
 
 ## Development Dependencies
