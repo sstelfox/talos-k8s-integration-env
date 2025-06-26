@@ -25,6 +25,8 @@ Outstanding services that I intend to stand-up but haven't yet:
 * Plane (<https://github.com/makeplane/plane>)
 * Postgres (likely using an operator)
 * Promtail
+* SFTPGo (https://github.com/drakkan/sftpgo): SFTP Dead Drop / Intermediary
+  * ClamAV / MiniIO gateway scan
 * SIEM? Wazah?
 * Tempo
 * Windmill (windmill.dev)
