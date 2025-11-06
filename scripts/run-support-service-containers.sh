@@ -113,7 +113,7 @@ add_image_to_list registry.k8s.io/sig-storage/local-volume-provisioner:v2.7.0
 # The runtime cilium container versions
 add_image_to_list quay.io/cilium/cilium:${CILIUM_VERSION}
 add_image_to_list quay.io/cilium/operator-generic:${CILIUM_VERSION}
-add_image_to_list docker.io/bitnami/kubectl:1.33.0
+add_image_to_list docker.io/alpine/kubectl:1.34.0
 
 # Used for rook-ceph
 add_image_to_list docker.io/rook/ceph:v1.15.4

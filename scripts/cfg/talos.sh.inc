@@ -4,8 +4,8 @@
 # consistent and can be updated / tweaked in a single location.
 
 TALOS_ARCH="amd64"
-TALOS_VERSION="v1.10.0"
-CILIUM_VERSION="v1.17.3"
+TALOS_VERSION="v1.11.0"
+CILIUM_VERSION="v1.18.3"
 
 TALOS_SOURCE="github-official"
 

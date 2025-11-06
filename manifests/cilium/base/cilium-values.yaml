@@ -7,7 +7,6 @@ ipam:
 kubeProxyReplacement: true
 
 securityContext:
-  privileged: true
   capabilities:
     ciliumAgent:
       - CHOWN

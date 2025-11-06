@@ -2,7 +2,7 @@
     "default": [{ "type": "reject" }],
     "transports": {
         "docker": {
-            "docker.io/bitnami":  [{ "type": "insecureAcceptAnything" }],
+            "docker.io/alpine":  [{ "type": "insecureAcceptAnything" }],
             "docker.io/library/busybox":  [{ "type": "insecureAcceptAnything" }],
             "docker.io/rook":  [{ "type": "insecureAcceptAnything" }],
             "gcr.io/etcd-development": [{ "type": "insecureAcceptAnything" }],
